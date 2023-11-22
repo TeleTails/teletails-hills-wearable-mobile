@@ -1,19 +1,19 @@
 import { Component } from "react";
 import { StyleSheet, Text, View } from 'react-native';
 
-class SettingsScreen extends Component {
+class Icon extends Component {
   
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text onPress={ () => { this.props.navigation.push('Settings') }}>Settings File CLASS! world!</Text>
+        <Text onPress={ () => {  }}>ICON!</Text>
       </View>
     );
   }
 
 }
 
-export default SettingsScreen;
+export default Icon;
 
 const styles = StyleSheet.create({
   container: {
