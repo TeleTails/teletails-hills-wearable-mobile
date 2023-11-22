@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "teleatils-pethub-mobile",
-    "slug": "teleatils-pethub-mobile",
+    "slug": "pethub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,16 +15,24 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.teletails.pethub"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.teletails.pethub"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5eb508bc-e80d-4f16-a429-8f72260ee251"
+      }
+    },
+    "owner": "teletails"
   }
 }
