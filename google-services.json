@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "477028544568",
+    "project_id": "teletailspethub",
+    "storage_bucket": "teletailspethub.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477028544568:android:7d68b4055f19cfd2a036cd",
+        "android_client_info": {
+          "package_name": "com.teletails.pethub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHwleeC5J7BJH8Sv-cEQN5lra2grXWo5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
