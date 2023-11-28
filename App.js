@@ -3,7 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Component, useState, useEffect, useRef } from "react";
 import { NavigationContainer  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as Device from 'expo-device';
+import * as Device  from 'expo-device';
+import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
@@ -49,6 +50,18 @@ export default function App() {
   const notificationListener = useRef();
   const responseListener = useRef();
 
+  const [fontsLoaded, fontError] = useFonts({
+      'Poppins-Thin':       require('./assets/fonts/Poppins-Thin.ttf'),
+      'Poppins-ExtraLight': require('./assets/fonts/Poppins-ExtraLight.ttf'),
+      'Poppins-Light':      require('./assets/fonts/Poppins-Light.ttf'),
+      'Poppins-Regular':    require('./assets/fonts/Poppins-Regular.ttf'),
+      'Poppins-Medium':     require('./assets/fonts/Poppins-Medium.ttf'),
+      'Poppins-SemiBold':   require('./assets/fonts/Poppins-SemiBold.ttf'),
+      'Poppins-Bold':       require('./assets/fonts/Poppins-Bold.ttf'),
+      'Poppins-ExtraBold':  require('./assets/fonts/Poppins-ExtraBold.ttf'),
+      'Poppins-Black':      require('./assets/fonts/Poppins-Black.ttf')
+    });
+
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => { console.log(token) } );
 
@@ -66,9 +79,13 @@ export default function App() {
     };
   }, []);
 
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home"     component={ HomeScreen }     />
         <Stack.Screen name="Settings" component={ SettingsScreen } />
       </Stack.Navigator>
