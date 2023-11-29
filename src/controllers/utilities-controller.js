@@ -1,6 +1,5 @@
-import { config } from '../config/index';
-import io from 'socket.io-client';
-import { getItem, setItem } from '../Storage';
+import { config } from '../../config';
+import { getItem, setItem } from '../../storage';
 
 let sockets = {};
 
@@ -77,7 +76,7 @@ export default class UtilitiesController {
     } else if(useNotif) {
       return `${config.NOTIF_URL}${url}`
     } else {
-      return `${config.apiURL}${url}`
+      return `${config.API_URL}${url}`
     }
   }
 

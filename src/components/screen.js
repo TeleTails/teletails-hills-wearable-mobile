@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, View, TouchableOpacity, ScrollView, KeyboardA
 import { Icon, Text, Colors } from '../components';
 // import { SignInUniversal } from '../containers';
 // import AuthController      from '../controllers/authController';
-// import UtilitiesController from '../controllers/utilitiesController';
+// import UtilitiesController from '../controllers/utilities-controller';
 
 class Screen extends Component {
 
