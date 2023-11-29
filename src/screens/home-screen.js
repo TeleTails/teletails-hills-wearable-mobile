@@ -1,7 +1,8 @@
 import { Component } from "react";
-import { StyleSheet, View, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs } from '../components';
+import { CareTab, HomeTab, MenuTab } from '../containers';
 import LottieView from 'lottie-react-native';
 
 class HomeScreen extends Component {
@@ -13,18 +14,35 @@ class HomeScreen extends Component {
     }
   }
 
+  render_tab_component = () => {
+    switch (this.state.selected_tab) {
+      case 'home':
+        return <HomeTab />
+      case 'vet_chat':
+        return <CareTab />
+      case 'menu':
+        return <MenuTab />
+      default:
+        return null;
+    }
+  }
+
   render() {
+
+    let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+
     return (
       <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
+        <View style={{ height: top_padding }} />
         <ScrollView style={{ backgroundColor: 'white' }}>
-
+          { this.render_tab_component() }
         </ScrollView>
         <Tabs selected_tab={this.state.selected_tab}
-              home_action={     () => { this.setState({ selected_tab: 'home' }) }}
-              vet_chat_action={ () => { this.setState({ selected_tab: 'vet_chat' }) }}
-              shop_action={     () => { this.setState({ selected_tab: 'shop' }) }}
+              home_action={        () => { this.setState({ selected_tab: 'home'        }) }}
+              vet_chat_action={    () => { this.setState({ selected_tab: 'vet_chat'    }) }}
+              shop_action={        () => { this.setState({ selected_tab: 'shop'        }) }}
               vet_locator_action={ () => { this.setState({ selected_tab: 'vet_locator' }) }}
-              menu_action={     () => { this.setState({ selected_tab: 'menu' }) }} />
+              menu_action={        () => { this.setState({ selected_tab: 'menu'        }) }} />
       </SafeAreaView>
     );
   }
