@@ -161,7 +161,7 @@ class Screen extends Component {
         <SafeAreaView style={[ styles.main_container, new_style ]} >
             { this.render_navigation_bar() }
             <View style={{ flex: 1, alignItems: 'center' }}>
-                <View style={{ maxWidth: 450, width: '100%', flex: 1 }}>
+                <View style={{ maxWidth: 450, width: '100%', flex: 1, backgroundColor: 'green' }}>
                   { sign_in_view ? this.render_sign_in() : this.props.children }
                 </View>
             </View>

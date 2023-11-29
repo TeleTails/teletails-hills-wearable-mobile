@@ -26,6 +26,18 @@ class Icon extends Component {
       case 'home':
         return <Image style={ style_obj } source={ require('../../assets/icons/home.png') } />
         break;
+      case 'consultation':
+        return <Image style={ style_obj } source={ require('../../assets/icons/consultation.png') } />
+        break;
+      case 'shopping-bag':
+        return <Image style={ style_obj } source={ require('../../assets/icons/shopping-bag.png') } />
+        break;
+      case 'location':
+        return <Image style={ style_obj } source={ require('../../assets/icons/location.png') } />
+        break;
+      case 'hamburger-menu':
+        return <Image style={ style_obj } source={ require('../../assets/icons/hamburger-menu.png') } />
+        break;
       default:
 
     }

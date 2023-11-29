@@ -6,6 +6,7 @@ import Icon     from './icon';
 import Input    from './input';
 import Line     from './line';
 import Screen   from './screen';
+import Tabs     from './tabs';
 import Text     from './text';
 
 export {
@@ -17,5 +18,6 @@ export {
   Input,
   Line,
   Screen,
+  Tabs,
   Text
 }
