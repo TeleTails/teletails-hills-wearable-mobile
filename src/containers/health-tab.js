@@ -2,7 +2,7 @@ import { Component } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../components';
 
-class MenuTab extends Component {
+class HealthTab extends Component {
 
   constructor(props) {
     super(props);
@@ -14,7 +14,7 @@ class MenuTab extends Component {
   render() {
 
     return <View style={{  }}>
-      <Text style={{ height: 100 }}>Menu Tab</Text>
+      <Text style={{ height: 100 }}>Health Tab</Text>
     </View>
   }
 
@@ -24,4 +24,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default MenuTab
+export default HealthTab

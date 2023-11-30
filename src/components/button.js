@@ -1,3 +1,4 @@
+import LottieView from 'lottie-react-native';
 import React, { Component } from 'react';
 import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import { Icon, Colors, Text } from '../components';
@@ -40,6 +41,7 @@ class Button extends Component {
       <TouchableOpacity style={styles_array}
                         onPress={btn_action}>
         <View style={{ height: 25, width: 25 }}>
+          { is_loading  ? <LottieView autoPlay style={{ width: 25, height: 25 }} source={ require('../../assets/animations/white-spinner.json') } /> : null }
           { !is_loading && icon_name ? <Icon name={icon_name} size={19} style={{ marginTop: 2 }} solid={true} color={ outline ? Colors.PRIMARY : 'white' } /> : null }
         </View>
         <Text style={title_style}>{ btn_title }</Text>

@@ -4,7 +4,7 @@ import { Component } from "react";
 import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs } from '../components';
-import { CareTab, HomeTab, MenuTab } from '../containers';
+import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';
 
 class HomeScreen extends Component {
 
@@ -19,10 +19,12 @@ class HomeScreen extends Component {
     switch (this.state.selected_tab) {
       case 'home':
         return <HomeTab />
+      case 'health':
+        return <HealthTab />
       case 'vet_chat':
         return <CareTab />
-      case 'menu':
-        return <MenuTab />
+      case 'shop':
+        return <ShopTab />
       default:
         return null;
     }
@@ -40,10 +42,10 @@ class HomeScreen extends Component {
         </ScrollView>
         <Tabs selected_tab={this.state.selected_tab}
               home_action={        () => { this.home_tab_action()    }}
+              health_action={      () => { this.health_action()      }}
               vet_chat_action={    () => { this.vet_chat_action()    }}
               shop_action={        () => { this.shop_action()        }}
-              vet_locator_action={ () => { this.vet_locator_action() }}
-              menu_action={        () => { this.menu_action()        }} />
+            />
       </SafeAreaView>
     );
   }
@@ -51,6 +53,11 @@ class HomeScreen extends Component {
   home_tab_action = async () => {
     await analytics().logEvent('login', { tab_name: 'home' });
     this.setState({ selected_tab: 'home' })
+  }
+
+  health_action = async () => {
+    await analytics().logEvent('login', { tab_name: 'health' });
+    this.setState({ selected_tab: 'health' })
   }
 
   vet_chat_action = async () => {
@@ -63,15 +70,6 @@ class HomeScreen extends Component {
     this.setState({ selected_tab: 'shop' })
   }
 
-  vet_locator_action = async () => {
-    await analytics().logEvent('tab_changed', { tab_name: 'vet_locator' })
-    this.setState({ selected_tab: 'vet_locator' })
-  }
-
-  menu_action = async () => {
-    await analytics().logEvent('tab_changed', { tab_name: 'menu' })
-    this.setState({ selected_tab: 'menu' })
-  }
 
 }
 

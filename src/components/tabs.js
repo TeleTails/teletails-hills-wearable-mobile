@@ -18,6 +18,10 @@ class Tabs extends Component {
         <Icon name='home' size={25} style={{ marginTop: 10, tintColor: this.get_tint_color('home') }} />
         <Text style={ [styles.tab_button_title, { color: this.get_tint_color('home') } ]}>Home</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.tab_button_container} onPress={ () => { this.props.health_action() }}>
+        <Icon name='health' size={25} style={{ marginTop: 10, tintColor: this.get_tint_color('health') }} />
+        <Text style={ [styles.tab_button_title, { color: this.get_tint_color('health') } ]}>Health</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.tab_button_container} onPress={ () => { this.props.vet_chat_action() }}>
         <Icon name='consultation' size={25} style={{ marginTop: 10, tintColor: this.get_tint_color('vet_chat') }} />
         <Text style={ [styles.tab_button_title, { color: this.get_tint_color('vet_chat') } ]}>Vet Chat</Text>
@@ -25,14 +29,6 @@ class Tabs extends Component {
       <TouchableOpacity style={styles.tab_button_container} onPress={ () => { this.props.shop_action() }}>
         <Icon name='shopping-bag' size={25} style={{ marginTop: 10, tintColor: this.get_tint_color('shop') }} />
         <Text style={ [styles.tab_button_title, { color: this.get_tint_color('shop') } ]}>Shop</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.tab_button_container} onPress={ () => { this.props.vet_locator_action() }}>
-        <Icon name='location' size={25} style={{ marginTop: 10, tintColor: this.get_tint_color('vet_locator') }} />
-        <Text style={ [styles.tab_button_title, { color: this.get_tint_color('vet_locator') } ]}>Vet Locator</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.tab_button_container} onPress={ () => { this.props.menu_action() }}>
-        <Icon name='hamburger-menu' size={20} style={{ marginTop: 13, tintColor: this.get_tint_color('menu') }} />
-        <Text style={ [styles.tab_button_title, { color: this.get_tint_color('menu') } ]}>Menu</Text>
       </TouchableOpacity>
     </View>
   }
