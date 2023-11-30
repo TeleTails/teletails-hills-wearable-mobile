@@ -23,6 +23,15 @@ class Icon extends Component {
     let style_obj  = { height: height, width: width, tintColor: color, ...style };
 
     switch (icon_name) {
+      case 'arrow-right':
+        return <Image style={ style_obj } source={ require('../../assets/icons/arrow-right.png') } />
+        break;
+      case 'arrow-circle-right':
+        return <Image style={ style_obj } source={ require('../../assets/icons/arrow-circle-right.png') } />
+        break;
+      case 'chevron-circle-left':
+        return <Image style={ style_obj}  source={ require('../../assets/icons/chevron-circle-left.png') } />
+        break;
       case 'home':
         return <Image style={ style_obj } source={ require('../../assets/icons/home.png') } />
         break;
@@ -40,6 +49,9 @@ class Icon extends Component {
         break;
       case 'hamburger-menu':
         return <Image style={ style_obj } source={ require('../../assets/icons/hamburger-menu.png') } />
+        break;
+      case 'setting':
+        return <Image style={ style_obj } source={ require('../../assets/icons/setting.png') } />
         break;
       default:
 

@@ -18,13 +18,13 @@ class HomeScreen extends Component {
   render_tab_component = () => {
     switch (this.state.selected_tab) {
       case 'home':
-        return <HomeTab />
+        return <HomeTab navigation={this.props.navigation}   />
       case 'health':
-        return <HealthTab />
+        return <HealthTab navigation={this.props.navigation} />
       case 'vet_chat':
-        return <CareTab />
+        return <CareTab navigation={this.props.navigation}   />
       case 'shop':
-        return <ShopTab />
+        return <ShopTab navigation={this.props.navigation}   />
       default:
         return null;
     }

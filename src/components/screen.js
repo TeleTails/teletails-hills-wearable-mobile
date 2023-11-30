@@ -24,7 +24,7 @@ class Screen extends Component {
   }
 
   goBack = () => {
-    this.props.navigation.goBack();
+    this.props.navigation.pop();
   }
 
   render_left_nav_button = () => {
@@ -44,7 +44,7 @@ class Screen extends Component {
     }
 
     return <TouchableOpacity onPress={left_btn_action}>
-      <Icon name='home' size={30} />
+      <Icon name='chevron-circle-left' size={30} />
     </TouchableOpacity>
   }
 
@@ -82,7 +82,7 @@ class Screen extends Component {
 
     return <View style={nav_bar_container}>
       { this.render_left_nav_button() }
-      <Text style={{ fontSize: 18, color: '#000000', fontWeight: '500' }}>{ title }</Text>
+      <Text style={{ fontSize: 18, color: '#000000', fontWeight: 'semibold' }}>{ title }</Text>
       { this.render_right_nav_button() }
     </View>
   }
@@ -174,7 +174,7 @@ class Screen extends Component {
 const styles = StyleSheet.create({
   main_container: {
     flex: 1,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: 'white',
   },
   nav_bar_container: {
     flexDirection: 'row',
