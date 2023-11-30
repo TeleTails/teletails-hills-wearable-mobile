@@ -10,7 +10,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1CE7321B2B0FCC850018BCC7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1CE7321A2B0FCC850018BCC7 /* GoogleService-Info.plist */; };
+		1CB625482B17E65C000DCCE5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1CB625472B17E65C000DCCE5 /* GoogleService-Info.plist */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		6C1DA7C273D0081F5D9AE659 /* Pods_teleatilspethubmobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25263BBBFA454081DE5EBBC5 /* Pods_teleatilspethubmobile.framework */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
@@ -25,8 +25,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = teleatilspethubmobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = teleatilspethubmobile/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = teleatilspethubmobile/main.m; sourceTree = "<group>"; };
-		1CE7321A2B0FCC850018BCC7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
-		1CE7321C2B0FCC980018BCC7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1CB625472B17E65C000DCCE5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		25263BBBFA454081DE5EBBC5 /* Pods_teleatilspethubmobile.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_teleatilspethubmobile.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2E3173556A471DD304B334 /* Pods-teleatilspethubmobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-teleatilspethubmobile.debug.xcconfig"; path = "Target Support Files/Pods-teleatilspethubmobile/Pods-teleatilspethubmobile.debug.xcconfig"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-teleatilspethubmobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-teleatilspethubmobile.release.xcconfig"; path = "Target Support Files/Pods-teleatilspethubmobile/Pods-teleatilspethubmobile.release.xcconfig"; sourceTree = "<group>"; };
@@ -61,8 +60,8 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				7E75611937E84DAB93EEF326 /* noop-file.swift */,
-				1CE7321C2B0FCC980018BCC7 /* GoogleService-Info.plist */,
 				E108C11ED37045F791ADA5E2 /* teleatilspethubmobile-Bridging-Header.h */,
+				1CB625472B17E65C000DCCE5 /* GoogleService-Info.plist */,
 			);
 			name = teleatilspethubmobile;
 			sourceTree = "<group>";
@@ -86,7 +85,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				1CE7321A2B0FCC850018BCC7 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* teleatilspethubmobile */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -205,7 +203,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
-				1CE7321B2B0FCC850018BCC7 /* GoogleService-Info.plist in Resources */,
+				1CB625482B17E65C000DCCE5 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 			);
@@ -368,6 +366,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = teleatilspethubmobile/teleatilspethubmobile.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RZ248GAPRT;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -404,6 +403,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = teleatilspethubmobile/teleatilspethubmobile.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RZ248GAPRT;
 				INFOPLIST_FILE = teleatilspethubmobile/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
