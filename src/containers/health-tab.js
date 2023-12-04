@@ -1,5 +1,7 @@
 import { Component } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { PetsController }   from '../controllers';
+import { setItem, getItem } from '../../storage';
 import { Text } from '../components';
 
 class HealthTab extends Component {
@@ -9,6 +11,10 @@ class HealthTab extends Component {
     this.state = {
 
     }
+  }
+
+  componentDidMount = async () => {
+    let pets_res = await PetsController.getPets();
   }
 
   render() {

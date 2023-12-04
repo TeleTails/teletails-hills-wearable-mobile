@@ -21,7 +21,7 @@ class Checkbox extends Component {
 
     return <TouchableOpacity style={[default_style, style]} onPress={onPress}>
       <View style={{ backgroundColor: background_color, padding: 2, borderWidth: 2, borderColor: border_color, borderRadius: 8, height: 26, width: 26, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name='home' size={12} color={'white'} />
+        <Icon name='check' size={12} color={'white'} />
       </View>
       <Text style={{ marginLeft: 8, color: label_color, fontSize: 18 }}>{ label }</Text>
     </TouchableOpacity>

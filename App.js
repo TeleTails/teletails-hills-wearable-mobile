@@ -8,7 +8,7 @@ import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
-import { HomeScreen, SettingsScreen } from './src/screens';
+import { HomeScreen, AddPetScreen, PetDetailsScreen, PetsScreen, SettingsScreen } from './src/screens';
 
 async function registerForPushNotificationsAsync() {
   let token;
@@ -86,8 +86,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home"     component={ HomeScreen }     />
-        <Stack.Screen name="Settings" component={ SettingsScreen } />
+        <Stack.Screen name="Home"       component={ HomeScreen }       />
+        <Stack.Screen name='AddPet'     component={ AddPetScreen } options={{ presentation: 'modal' }} />
+        <Stack.Screen name='PetDetails' component={ PetDetailsScreen } />
+        <Stack.Screen name='Pets'       component={ PetsScreen }       />
+        <Stack.Screen name="Settings"   component={ SettingsScreen }   />
       </Stack.Navigator>
     </NavigationContainer>
   );

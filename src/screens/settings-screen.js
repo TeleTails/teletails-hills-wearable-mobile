@@ -13,6 +13,11 @@ class SettingsScreen extends Component {
           <Icon name='arrow-right' size={15} />
         </TouchableOpacity>
         <Line style={styles.settings_line} />
+        <TouchableOpacity style={styles.settings_row} onPress={ () => { this.props.navigation.push('Pets') }}>
+          <Text style={styles.settings_row_title}>Pets</Text>
+          <Icon name='arrow-right' size={15} />
+        </TouchableOpacity>
+        <Line style={styles.settings_line} />
         <TouchableOpacity style={styles.settings_row}>
           <Text style={styles.settings_row_title}>Past Consultations</Text>
           <Icon name='arrow-right' size={15} />

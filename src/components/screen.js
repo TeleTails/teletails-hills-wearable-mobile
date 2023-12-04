@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SafeAreaView, StyleSheet, View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, RefreshControl, ImageBackground } from 'react-native';
+import { SafeAreaView, StyleSheet, View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, RefreshControl, ImageBackground, StatusBar } from 'react-native';
 import { Icon, Text, Colors } from '../components';
 // import { SignInUniversal } from '../containers';
 // import AuthController      from '../controllers/authController';
@@ -16,9 +16,9 @@ class Screen extends Component {
 
   componentDidMount = async () => {
     // let user    = await AuthController.getUser();
-    let user_id = user && user.user_id ? user.user_id : '';
-    let token   = user && user.token   ? user.token   : '';
-    let named   = user && user.first_name && user.first_name.toLowerCase() !== 'pet' ? true : false;
+    // let user_id = user && user.user_id ? user.user_id : '';
+    // let token   = user && user.token   ? user.token   : '';
+    // let named   = user && user.first_name && user.first_name.toLowerCase() !== 'pet' ? true : false;
 
     // this.setState({ display_sign_in: !user_id || !token || !named });
   }
@@ -63,7 +63,7 @@ class Screen extends Component {
     }
 
     return <TouchableOpacity onPress={ () => { right_btn_action() }}>
-      <Icon name={ '' } size={30} solid={true} color={icon_color} />
+      <Icon name={ 'close' } size={30} solid={true} color={icon_color} />
     </TouchableOpacity>
   }
 
@@ -133,10 +133,13 @@ class Screen extends Component {
     sign_in_view  = false;
     enable_scroll = true;
 
+    let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+
     if (enable_scroll) {
       return (
 
         <SafeAreaView style={[ styles.main_container, new_style ]} >
+          <View style={{ height: top_padding }} />
           { this.render_navigation_bar(sign_in_view) }
 
           <KeyboardAvoidingView
@@ -159,6 +162,7 @@ class Screen extends Component {
     } else {
       return (
         <SafeAreaView style={[ styles.main_container, new_style ]} >
+            <View style={{ height: top_padding }} />
             { this.render_navigation_bar() }
             <View style={{ flex: 1, alignItems: 'center' }}>
                 <View style={{ maxWidth: 450, width: '100%', flex: 1, backgroundColor: 'green' }}>

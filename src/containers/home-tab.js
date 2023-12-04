@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { config }           from '../../config';
+import { SignIn }           from '../containers';
 import { AuthController }   from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text, Button, Icon } from '../components';
@@ -22,6 +23,7 @@ class HomeTab extends Component {
           <Icon name='setting' size={30} />
         </TouchableOpacity>
       </View>
+      <SignIn />
     </View>
     // return <View style={{  }}>
     //   <Text>Home Tab</Text>
