@@ -4,6 +4,7 @@ import { SignIn }           from '../containers';
 import { AuthController }   from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text, Button, Icon } from '../components';
+import { HomeCtaButtons } from '../containers';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 
 class HomeTab extends Component {
@@ -23,20 +24,9 @@ class HomeTab extends Component {
           <Icon name='setting' size={30} />
         </TouchableOpacity>
       </View>
-      <SignIn />
+      <HomeCtaButtons navigation={this.props.navigation} />
+
     </View>
-    // return <View style={{  }}>
-    //   <Text>Home Tab</Text>
-    //   <Button title='Send Sign In Email' onPress={ async () => {
-    //     await AuthController.singleEmailSignUpSignIn({ email: '', host_name: config.SELECTED_PARTNER, short_code: true });
-    //   }} />
-    //   <Button title='Send Verification Code' onPress={ async () => {
-    //     await AuthController.singleEmailSignUpSignInCodeVerify({ email: '', host_name: config.SELECTED_PARTNER, code: '' });
-    //   }} />
-    //   <Button title='Pull User Data' onPress={ async () => {
-    //     let user = await AuthController.getUser();
-    //   }} />
-    // </View>
   }
 
 }

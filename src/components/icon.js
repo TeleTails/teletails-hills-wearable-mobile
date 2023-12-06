@@ -35,6 +35,9 @@ class Icon extends Component {
       case 'chevron-circle-left':
         return <Image style={ style_obj}  source={ require('../../assets/icons/chevron-circle-left.png') } />
         break;
+      case 'chevron-circle-right':
+        return <Image style={ style_obj}  source={ require('../../assets/icons/chevron-circle-right.png') } />
+        break;
       case 'close':
         return <Image style={ style_obj}  source={ require('../../assets/icons/close.png') } />
         break;
@@ -50,6 +53,9 @@ class Icon extends Component {
       case 'shopping-bag':
         return <Image style={ style_obj } source={ require('../../assets/icons/shopping-bag.png') } />
         break;
+      case 'live-chat':
+        return <Image style={ style_obj } source={ require('../../assets/icons/live-chat.png') } />
+        break;
       case 'location':
         return <Image style={ style_obj } source={ require('../../assets/icons/location.png') } />
         break;
@@ -61,6 +67,9 @@ class Icon extends Component {
         break;
       case 'setting':
         return <Image style={ style_obj } source={ require('../../assets/icons/setting.png') } />
+        break;
+      case 'video-call':
+        return <Image style={ style_obj } source={ require('../../assets/icons/video-call.png') } />
         break;
       default:
 

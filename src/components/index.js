@@ -4,6 +4,7 @@ import Checkbox from './checkbox';
 import Colors   from './colors';
 import Icon     from './icon';
 import Input    from './input';
+import IntakeFormQuestion from './intake-form-question';
 import Line     from './line';
 import Screen   from './screen';
 import Tabs     from './tabs';
@@ -15,6 +16,7 @@ export {
   Checkbox,
   Colors,
   Icon,
+  IntakeFormQuestion,
   Input,
   Line,
   Screen,

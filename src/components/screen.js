@@ -30,7 +30,7 @@ class Screen extends Component {
   render_left_nav_button = () => {
     let left_btn_action  = () => {
                               if (this.props.back_to_home) {
-                                // this.props.navigate(Routes.HOME)
+                                this.props.navigation.navigate('Home')
                               } else {
                                 this.goBack();
                               }

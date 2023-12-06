@@ -70,7 +70,7 @@ class PetsScreen extends Component {
 
      return <View style={{ marginBottom: 10 }}>
       { no_pets_message ? <View style={{ alignItems: 'center' }}>
-                            <LottieView ref={animation => { this.cat_animation = animation }} style={{ width: 140, height: 140, backgroundColor: '#F7F8FA' }} source={require('../../assets/animations/cat-tail-wag.json')} />
+                            <LottieView ref={animation => { this.cat_animation = animation }} style={{ width: 140, height: 140 }} source={require('../../assets/animations/cat-tail-wag.json')} />
                             <Text style={{ fontSize: 18, fontWeight: '500', textAlign: 'center', color: '#040415', paddingTop: 2 }}>{ 'No pets added' }</Text>
                             <Text style={{ fontSize: 16, textAlign: 'center', color: '#575762', paddingBottom: 20 }}>{ "Let's add your first pet" }</Text>
                           </View>
