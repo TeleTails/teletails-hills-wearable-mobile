@@ -17,11 +17,11 @@ class HomeCtaButtons extends Component {
 
   render() {
     return <View style={styles.container}>
-      <TouchableOpacity style={styles.button_container} onPress={ () => { this.props.navigation.push('ConsultationStart') }}>
+      <TouchableOpacity style={styles.button_container} onPress={ () => { this.props.navigation.push('ConsultationStart', { type: 'VIDEO' }) }}>
         <Icon name='video-call' size={40} />
         <Text style={styles.button_title}>Video Visit</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.middle_button_container} onPress={ () => { this.props.navigation.push('ConsultationStart') }}>
+      <TouchableOpacity style={styles.middle_button_container} onPress={ () => { this.props.navigation.push('ConsultationStart', { type: 'CHAT' }) }}>
         <Icon name='live-chat' size={42} />
         <Text style={styles.button_title}>Live Chat</Text>
       </TouchableOpacity>

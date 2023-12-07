@@ -1,5 +1,6 @@
 import { config } from '../../config';
 import { getItem, setItem } from '../../storage';
+import io from 'socket.io-client';
 
 let sockets = {};
 

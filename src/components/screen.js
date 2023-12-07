@@ -131,7 +131,6 @@ class Screen extends Component {
     // }
     //
     sign_in_view  = false;
-    enable_scroll = true;
 
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
@@ -165,7 +164,7 @@ class Screen extends Component {
             <View style={{ height: top_padding }} />
             { this.render_navigation_bar() }
             <View style={{ flex: 1, alignItems: 'center' }}>
-                <View style={{ maxWidth: 450, width: '100%', flex: 1, backgroundColor: 'green' }}>
+                <View style={{ maxWidth: 450, width: '100%', flex: 1 }}>
                   { sign_in_view ? this.render_sign_in() : this.props.children }
                 </View>
             </View>

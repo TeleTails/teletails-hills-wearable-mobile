@@ -2,8 +2,8 @@ import { Component } from "react";
 import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import { Screen, Line, Text, Icon, Cards, IntakeFormQuestion, Button } from '../components';
 import { PetsController, ConsultationController } from '../controllers';
+import { VideoCallSchedule, MessageList } from '../containers';
 import { config }            from '../../config';
-import { VideoCallSchedule } from '../containers';
 import { setItem, getItem }  from '../../storage';
 import { StringUtils }       from '../utils';
 
@@ -11,6 +11,9 @@ class ConsultationStartScreen extends Component {
 
   constructor(props) {
     super(props);
+
+    let consultation_type = this.props && this.props.route && this.props.route.params && this.props.route.params.type ? this.props.route.params.type : '';
+
     this.state = {
       current_section: 'pets', // pets triage category intake schedule
       pets: [],
@@ -20,13 +23,16 @@ class ConsultationStartScreen extends Component {
       selected_category: {},
       pet_can_interact_response: '',
       pet_breathing_response: '',
-      consultation_type: 'video'
+      consultation_type: consultation_type,
+      online_provider_count: 0,
+      available_live_providers: false
     }
   }
 
   componentDidMount = async () => {
     this.pull_pets();
     this.pull_intake_questions();
+    this.pull_online_chat_providers();
   }
 
   render_progress_bar = () => {
@@ -38,7 +44,7 @@ class ConsultationStartScreen extends Component {
         percentage = section === 'intake'   ? '80%' : percentage;
         percentage = section === 'schedule' ? '90%' : percentage;
 
-        percentage = section === 'intake' && this.state.consultation_type === 'chat' ? '90%' : percentage;
+        percentage = section === 'intake' && this.state.consultation_type === 'CHAT' ? '90%' : percentage;
 
     return <View style={styles.progress_bar_container}>
       <View style={styles.progress_bar}>
@@ -140,24 +146,27 @@ class ConsultationStartScreen extends Component {
 
     let questions = this.state.intake_questions;
     let question_rows = questions.map((question_obj, index) => {
-    let question_index = question_obj.index;
-    let question_text  = question_obj.question_text;
+      let question_index = question_obj.index;
+      let question_text  = question_obj.question_text;
+      return <IntakeFormQuestion
+                key={index}
+                question={question_obj}
+                on_change={ (intake_response) => {
+                  let updated_responses = Object.assign({}, this.state.intake_responses);
+                  updated_responses[question_index] = intake_response;
+                  this.setState({ intake_responses: updated_responses });
+                }}
+              />
+    })
 
-    return <IntakeFormQuestion
-              key={index}
-              question={question_obj}
-              on_change={ (intake_response) => {
-                let updated_responses = Object.assign({}, this.state.intake_responses);
-                updated_responses[question_index] = intake_response;
-                this.setState({ intake_responses: updated_responses });
-              }}
-            />
-  })
+    let continue_button_title = 'Continue';
+        continue_button_title = this.state.consultation_type === 'VIDEO' ? 'Continue To Schedule Appointment' : continue_button_title;
+        continue_button_title = this.state.consultation_type === 'CHAT'  ? 'Continue To Chat' : continue_button_title;
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Intake Questions</Text>
       { question_rows }
-      <Button title='Continue To Schedule Appointment ' onPress={ () => { this.continue_action() }} />
+      <Button title={ continue_button_title } onPress={ () => { this.continue_action() }} />
     </View>
   }
 
@@ -262,6 +271,16 @@ class ConsultationStartScreen extends Component {
     this.setState({ intake_questions: intake_questions });
   }
 
+  pull_online_chat_providers = async () => {
+    let providers_available = false;
+    let partner_id          = config.partner_id;
+    let practice_id         = config.practice_id;
+    let available_response  = await ConsultationController.getOnlineChatProviders({ practice_id, partner_id });
+        providers_available = available_response && available_response.available_provider_count && available_response.available_provider_count > 0 ? true : false;
+
+    this.setState({ available_live_providers : providers_available });
+  }
+
   back_button_action = () => {
     let current_display_section = this.state.current_section;
 
@@ -277,12 +296,69 @@ class ConsultationStartScreen extends Component {
     }
   }
 
-  continue_action = () => {
-    let pet              = this.state.selected_pet;
-    let intake_responses = this.state.intake_responses;
-    let category         = this.state.selected_category;
+  create_chat_consultation = async () => {
+    let partner_id = config.partner_id;
+    let patient_id = this.state.selected_pet && this.state.selected_pet._id ? this.state.selected_pet._id : '';
+    let is_async   = this.state.available_live_providers === false;
+    let is_live    = this.state.available_live_providers === true;
 
-    this.setState({ current_section: 'schedule' })
+    this.setState({ loading_create_consultation: true });
+
+    let consultation_data = {
+      partner_id: partner_id,
+      type: 'CHAT',
+      category: this.state.selected_category,
+      patient_id: patient_id,
+      is_training: false,
+      is_async: false
+    }
+
+    let create_res = await ConsultationController.createCareConsultation(consultation_data);
+    let is_success = create_res && create_res.success ? true : false;
+    let care_consultation_id = is_success && create_res.data && create_res.data.care_consultation && create_res.data.care_consultation._id ? create_res.data.care_consultation._id : '';
+
+    if (!is_success || !care_consultation_id) {
+      console.log(' ERROR ')
+      this.setState({ loading_create_consultation: false });
+      return;
+    }
+
+    let intake_responses = this.state.intake_responses ? Object.values(this.state.intake_responses) : [];
+    let intake_data      = { care_consultation_id: care_consultation_id, responses: intake_responses, category: this.state.selected_category }
+    let intake_res       = await ConsultationController.createIntakeResponse(intake_data);
+
+    let request_data     = { care_consultation_id: care_consultation_id };
+
+    if (is_live) {
+      let assign_live_chat_res = await ConsultationController.assignLiveChat(request_data);
+      let assign_live_success  = assign_live_chat_res && assign_live_chat_res.success ? true : false;
+      if (assign_live_success) {
+        this.props.navigation.push('ConsultationChat', { care_consultation_id: care_consultation_id, back_to_home: true });
+      }
+    }
+
+    if (is_async) {
+      let assign_async_chat_res = await ConsultationController.assignAsyncChat(request_data);
+      let assign_async_success  = assign_async_chat_res && assign_async_chat_res.success ? true : false;
+      if (assign_async_success) {
+        this.props.navigation.push('ConsultationChat', { care_consultation_id: care_consultation_id, back_to_home: true });
+      }
+    }
+
+    this.setState({ loading_create_consultation: false });
+  }
+
+  continue_action = () => {
+    let is_chat  = this.state.consultation_type === 'CHAT';
+    let is_video = this.state.consultation_type === 'VIDEO';
+
+    if (is_chat) {
+      this.create_chat_consultation();
+    }
+
+    if (is_video) {
+      this.setState({ current_section: 'schedule' })
+    }
   }
 
 }

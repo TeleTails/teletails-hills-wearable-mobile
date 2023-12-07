@@ -26,11 +26,17 @@ class Icon extends Component {
       case 'arrow-right':
         return <Image style={ style_obj } source={ require('../../assets/icons/arrow-right.png') } />
         break;
+      case 'arrow-up':
+        return <Image style={ style_obj } source={ require('../../assets/icons/arrow-up.png') } />
+        break;
       case 'arrow-circle-right':
         return <Image style={ style_obj } source={ require('../../assets/icons/arrow-circle-right.png') } />
         break;
       case 'check':
         return <Image style={ style_obj } source={ require('../../assets/icons/check.png') } />
+        break;
+      case 'check-circle':
+        return <Image style={ style_obj } source={ require('../../assets/icons/check-circle.png') } />
         break;
       case 'chevron-circle-left':
         return <Image style={ style_obj}  source={ require('../../assets/icons/chevron-circle-left.png') } />
@@ -59,6 +65,9 @@ class Icon extends Component {
       case 'location':
         return <Image style={ style_obj } source={ require('../../assets/icons/location.png') } />
         break;
+      case 'paperclip':
+        return <Image style={ style_obj } source={ require('../../assets/icons/paperclip.png') } />
+        break;
       case 'plus-circle':
         return <Image style={ style_obj } source={ require('../../assets/icons/plus-circle.png') } />
         break;
@@ -70,6 +79,9 @@ class Icon extends Component {
         break;
       case 'video-call':
         return <Image style={ style_obj } source={ require('../../assets/icons/video-call.png') } />
+        break;
+      case 'user':
+        return <Image style={ style_obj } source={ require('../../assets/icons/user.png') } />
         break;
       default:
 

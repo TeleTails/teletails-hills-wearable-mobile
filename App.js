@@ -12,6 +12,7 @@ import {
   HomeScreen,
   AddPetScreen,
   ConsultationStartScreen,
+  ConsultationChatScreen,
   ConsultationVideoAppointmentScreen,
   PetDetailsScreen,
   PetsScreen,
@@ -98,6 +99,7 @@ export default function App() {
         <Stack.Screen name="Home"       component={ HomeScreen }       />
         <Stack.Screen name='AddPet'     component={ AddPetScreen } options={{ presentation: 'modal' }} />
         <Stack.Screen name='ConsultationStart' component={ ConsultationStartScreen } />
+        <Stack.Screen name='ConsultationChat'  component={ ConsultationChatScreen } />
         <Stack.Screen name='ConsultationVideoAppointment' component={ ConsultationVideoAppointmentScreen } />
         <Stack.Screen name='PetDetails' component={ PetDetailsScreen } />
         <Stack.Screen name='Pets'       component={ PetsScreen }       />

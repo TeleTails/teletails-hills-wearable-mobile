@@ -2,12 +2,11 @@ import { Component } from 'react';
 import { config }    from '../../config';
 import { setItem, getItem } from '../../storage';
 import { StringUtils, DateUtils } from '../utils';
+import { ConsultationFeedbackForm } from '../containers';
 import { StyleSheet, View, TextInput, ScrollView, Platform, Linking } from 'react-native';
 import { Button, Input, Screen, Line, Text, Colors } from '../components';
 import { AuthController, ConsultationController, UtilitiesController } from '../controllers';
 import io from 'socket.io-client';
-
-// import { ConsultationFeedbackForm } from '../containers';
 
 class ConsultationVideoAppointmentScreen extends Component {
 
@@ -273,10 +272,10 @@ class ConsultationVideoAppointmentScreen extends Component {
       <View style={{ flex: 1, padding: 20, paddingTop: 0 }}>
         <Button title='View Consultation Details' style={{ marginTop: 20 }} onPress={ () => { this.setState({ display_feedback: false }) }}/>
         <Line style={{ marginTop: 20, marginBottom: 20 }} />
-        { /* <ConsultationFeedbackForm
+        <ConsultationFeedbackForm
           consultation={ this.state.care_consultation &&  this.state.care_consultation.care_consultation_details ? this.state.care_consultation.care_consultation_details : null }
           submit_action={ () => { this.setState({ display_feedback: false }) }}
-        /> */ }
+        />
       </View>
     </Screen>
   }
@@ -286,9 +285,7 @@ class ConsultationVideoAppointmentScreen extends Component {
     if (this.state.display_feedback === true) {
       return this.render_feedback_section();
     }
-
-    console.log(this.state.back_to_home)
-
+    
     return (
       <Screen navigation={this.props.navigation} title='Consultation Details' scroll={true} back_to_home={this.state.back_to_home}>
         <View style={{ padding: 20 }}>

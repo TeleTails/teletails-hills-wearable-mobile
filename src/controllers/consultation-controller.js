@@ -27,6 +27,16 @@ export default class ConsultationController {
     return response
   });
 
+  static assignLiveChat = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v4/api/assign_live_chat`, data, true);
+    return response
+  });
+
+  static assignAsyncChat = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v4/api/assign_async_chat`, data, true);
+    return response
+  });
+
   static cancelVideoConsultation = ConsultationController.exceptionWrapper(async (data) => {
     let response = await UtilitiesController.post(`/v3/api/care_client/cancel_care_consultation`, data, true);
     return response
@@ -36,7 +46,7 @@ export default class ConsultationController {
     let response = await UtilitiesController.post(`/v4/api/client_resolve_consultation`, data, true);
     return response;
   });
-  
+
   static getIntakeQuestions = ConsultationController.exceptionWrapper(async (params) => {
     let practice_id = config.practice_id;
     let partner_id  = config.partner_id;
@@ -60,4 +70,36 @@ export default class ConsultationController {
     return response
   });
 
+  static getOnlineChatProviders = ConsultationController.exceptionWrapper(async ({ practice_id, partner_id }) => {
+    let request_body          = { practice_id: practice_id, partner_id: partner_id };
+    let response              = await UtilitiesController.post(`/v5/api/care/get/online_chat_providers`, request_body, true);
+    let online_providers_data = response && response.data ? response.data : {};
+
+    if (response.success) {
+      return online_providers_data;
+    }
+
+    return response
+  });
+
+  static checkProviderPartnerLink = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.get(`/v4/api/provider_partner_linked/${data.provider_id}/${data.partner_id}`, {}, true);
+    return response;
+  });
+
+  static sendCareConsultationMessage = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v3/api/care/chat_message`, data, true);
+    return response
+  });
+
+  static getConsultationChatMessages = ConsultationController.exceptionWrapper(async (care_consultation_id) => {
+    let response              = await UtilitiesController.get(`/v3/api/care/chat_messages/${care_consultation_id}`, {}, true);
+    let consultation_messages = response && response.data ? response.data : {};
+    return response
+  });
+
+  static submitCareConsultationFeedback = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v3/api/care_client/add_care_feedback`, data, true);
+    return response
+  });
 }
