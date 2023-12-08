@@ -47,6 +47,9 @@ class Icon extends Component {
       case 'close':
         return <Image style={ style_obj}  source={ require('../../assets/icons/close.png') } />
         break;
+      case 'ellipsis':
+        return <Image style={ style_obj}  source={ require('../../assets/icons/ellipsis.png') } />
+        break;
       case 'home':
         return <Image style={ style_obj } source={ require('../../assets/icons/home.png') } />
         break;
@@ -76,6 +79,9 @@ class Icon extends Component {
         break;
       case 'setting':
         return <Image style={ style_obj } source={ require('../../assets/icons/setting.png') } />
+        break;
+      case 'video':
+        return <Image style={ style_obj } source={ require('../../assets/icons/video.png') } />
         break;
       case 'video-call':
         return <Image style={ style_obj } source={ require('../../assets/icons/video-call.png') } />

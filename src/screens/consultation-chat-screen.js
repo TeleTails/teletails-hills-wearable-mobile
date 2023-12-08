@@ -165,7 +165,7 @@ class ConsultationChatScreen extends Component {
     if (provider_id && is_resolved && is_linked) {
       return <View style={{ paddingRight: 20, paddingLeft: 20, marginBottom: 15 }}>
         <Line hide={true} />
-        <TouchableOpacity style={{ paddingBottom: 20, paddingTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: 12, paddingLeft: 20, paddingRight: 20 }}
+        <TouchableOpacity style={{ paddingBottom: 20, paddingTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: 12, paddingLeft: 20, paddingRight: 20, borderWidth: 1 }}
                           onPress={ () => {
                             this.props.navigation.push('ConsultationStart', { is_rechat: true, provider_id })
                           }}>
@@ -301,7 +301,7 @@ class ConsultationChatScreen extends Component {
     }
 
     return (
-      <Screen navigation={this.props.navigation} title='Chat Consultation' back_to_home={this.state.back_to_home} right_action={ () => { this.display_options_modal() }} right_icon='ellipsis-h' right_btn_color={Colors.PRIMARY}>
+      <Screen navigation={this.props.navigation} title='Chat Consultation' back_to_home={this.state.back_to_home} right_action={ () => { this.display_options_modal() }} right_icon='ellipsis' right_btn_color={'black'}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }

@@ -8,7 +8,7 @@ class SettingsScreen extends Component {
   render() {
     return <Screen title='Settings' scroll={true} navigation={this.props.navigation}>
       <View style={styles.settings_row_container}>
-        <TouchableOpacity style={styles.settings_row}>
+        <TouchableOpacity style={styles.settings_row} onPress={ () => { this.props.navigation.push('UserProfile') }}>
           <Text style={styles.settings_row_title}>Profile</Text>
           <Icon name='arrow-right' size={15} />
         </TouchableOpacity>
@@ -18,8 +18,8 @@ class SettingsScreen extends Component {
           <Icon name='arrow-right' size={15} />
         </TouchableOpacity>
         <Line style={styles.settings_line} />
-        <TouchableOpacity style={styles.settings_row}>
-          <Text style={styles.settings_row_title}>Past Consultations</Text>
+        <TouchableOpacity style={styles.settings_row} onPress={ () => { this.props.navigation.push('CompletedConsultations') }}>
+          <Text style={styles.settings_row_title}>Completed Consultations</Text>
           <Icon name='arrow-right' size={15} />
         </TouchableOpacity>
         <Line style={styles.settings_line} />

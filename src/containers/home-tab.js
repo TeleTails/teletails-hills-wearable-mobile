@@ -25,7 +25,6 @@ class HomeTab extends Component {
         </TouchableOpacity>
       </View>
       <HomeCtaButtons navigation={this.props.navigation} />
-
     </View>
   }
 

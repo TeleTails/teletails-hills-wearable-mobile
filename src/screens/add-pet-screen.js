@@ -12,9 +12,9 @@ class AddPetScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      display_section: 'pet_type', // 'pet_type', 'pet_inputs'
+      display_section: 'pet_inputs', // 'pet_type', 'pet_inputs'
       pet_name: '',
-      pet_type: '',
+      pet_type: 'Dog',
       pet_birthday: '',
       pet_breed: '',
       pet_other_breed: '',
@@ -71,6 +71,10 @@ class AddPetScreen extends Component {
 
     if(pet_add_return.success) {
       // let tags_response = await UserController.refreshUserTags({});
+      let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action : () => {  };
+      if (success_action) {
+        success_action();
+      }
       this.props.navigation.pop();
     } else {
       let error_msg = pet_add_return && pet_add_return.message && pet_add_return.message.message ? pet_add_return.message.message : '';
@@ -79,15 +83,12 @@ class AddPetScreen extends Component {
   }
 
   render_pet_type_section = () => {
-    if (this.state.display_section !== 'pet_type') {
-      return null;
-    }
 
-    return <View style={{ padding: 15 }}>
+    return <View>
       <Text style={{ fontSize: 20, fontWeight: 'bold' }}>What Type of Pet?</Text>
       <Text style={{ fontSize: 16, color: 'grey', marginBottom: 15 }}>Choose your pet type</Text>
 
-      <TouchableOpacity style={styles.pet_type_button}
+      <TouchableOpacity style={ this.state.pet_type === 'Dog' ? styles.selected_pet_type_button : styles.pet_type_button }
                         onPress={ () => {
                           this.setState({ pet_type: 'Dog', display_section: 'pet_inputs' });
                         }}>
@@ -99,7 +100,7 @@ class AddPetScreen extends Component {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.pet_type_button}
+      <TouchableOpacity style={ this.state.pet_type === 'Cat' ? styles.selected_pet_type_button : styles.pet_type_button }
                         onPress={ () => {
                           this.setState({ pet_type: 'Cat', display_section: 'pet_inputs' });
                         }}>
@@ -111,7 +112,7 @@ class AddPetScreen extends Component {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.pet_type_button}
+      <TouchableOpacity style={ this.state.pet_type === '' ? styles.selected_pet_type_button : styles.pet_type_button }
                         onPress={ () => {
                           this.setState({ pet_type: '', display_section: 'pet_inputs' });
                         }}>
@@ -127,23 +128,24 @@ class AddPetScreen extends Component {
   }
 
   render_pet_inputs_section = () => {
-    if (this.state.display_section !== 'pet_inputs') {
-      return null;
-    }
+
 
     return <View style={{ padding: 20 }}>
+
+      { this.render_pet_type_section()   }
+
+      <Input label='Pet Type'
+             value={this.state.pet_type}
+             style={{ marginBottom: 12 }}
+             onChangeText={ (text) => {
+               this.setState({ ...this.state, pet_type: text });
+             }}/>
+
        <Input label='Pet Name'
               value={this.state.pet_name}
               style={{ marginBottom: 12 }}
               onChangeText={ (text) => {
                 this.setState({ ...this.state, pet_name: text });
-              }}/>
-
-       <Input label='Pet Type'
-              value={this.state.pet_type}
-              style={{ marginBottom: 12 }}
-              onChangeText={ (text) => {
-                this.setState({ ...this.state, pet_type: text });
               }}/>
 
       <Input label='Pet Weight (in lbs)'
@@ -279,7 +281,6 @@ class AddPetScreen extends Component {
   render() {
 
     return <Screen title='Pets' scroll={true} modal={true} navigation={this.props.navigation}>
-      { this.render_pet_type_section()   }
       { this.render_pet_inputs_section() }
     </Screen>
   }
@@ -310,6 +311,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DFE3E4',
+    borderRadius: 16,
+    overflow: 'hidden',
+    height: 110,
+    marginBottom: 8
+  },
+  selected_pet_type_button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'blue',
     borderRadius: 16,
     overflow: 'hidden',
     height: 110,

@@ -63,7 +63,7 @@ class Screen extends Component {
     }
 
     return <TouchableOpacity onPress={ () => { right_btn_action() }}>
-      <Icon name={ 'close' } size={30} solid={true} color={icon_color} />
+      <Icon name={ icon_name } size={30} solid={true} color={icon_color} />
     </TouchableOpacity>
   }
 

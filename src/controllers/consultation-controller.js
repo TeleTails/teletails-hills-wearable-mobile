@@ -70,6 +70,11 @@ export default class ConsultationController {
     return response
   });
 
+  static getCompletedConsultations = ConsultationController.exceptionWrapper(async (partner_id) => {
+    let response = await UtilitiesController.get(`/v4/api/completed_consultations/${partner_id}`, {}, true);
+    return response;
+  });
+
   static getOnlineChatProviders = ConsultationController.exceptionWrapper(async ({ practice_id, partner_id }) => {
     let request_body          = { practice_id: practice_id, partner_id: partner_id };
     let response              = await UtilitiesController.post(`/v5/api/care/get/online_chat_providers`, request_body, true);
