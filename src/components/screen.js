@@ -53,7 +53,7 @@ class Screen extends Component {
     let icon_color       = is_modal                   ? Colors.PRIMARY             : '#F7F8FA';
         icon_color       = this.props.right_btn_color ? this.props.right_btn_color : icon_color;
     let icon_name        = this.props.right_icon      ? this.props.right_icon      : 'dot-circle';
-        icon_name        = is_modal                   ? 'times-circle'             : icon_name;
+        icon_name        = is_modal                   ? 'close'                    : icon_name;
     let right_btn_action = this.props.right_action;
         right_btn_action = is_modal && !this.props.right_action ? () => { this.goBack() } : right_btn_action;
     let right_btn_icon   = this.props.right_btn_icon;
@@ -61,6 +61,8 @@ class Screen extends Component {
     if (!right_btn_action) {
       return <View style={{ width: 30 }}></View>;
     }
+
+
 
     return <TouchableOpacity onPress={ () => { right_btn_action() }}>
       <Icon name={ icon_name } size={30} solid={true} color={icon_color} />
