@@ -1,4 +1,5 @@
-import AddPetScreen     from './add-pet-screen';
+import AddPetScreen         from './add-pet-screen';
+import ArticleDisplayScreen from './article-display-screen';
 import CompletedConsultationsScreen       from './completed-consultations-screen';
 import ConsultationVideoAppointmentScreen from './consultation-video-appointment-screen';
 import ConsultationChatScreen  from './consultation-chat-screen';
@@ -12,6 +13,7 @@ import VetLocatorScreen from './vet-locator-screen';
 
 export {
   AddPetScreen,
+  ArticleDisplayScreen,
   CompletedConsultationsScreen,
   ConsultationStartScreen,
   ConsultationChatScreen,

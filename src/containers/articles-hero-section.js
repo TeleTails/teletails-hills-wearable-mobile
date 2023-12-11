@@ -22,8 +22,8 @@ class ArticlesHeroSection extends Component {
       }
 
       let article_nav_data = {
-        article: article,
-        article_id: article.article_id
+        title: title,
+        url: article.url
       }
 
       return <TouchableOpacity style={{ backgroundColor: '#f5f5f5', borderRadius: 20, overflow: 'hidden' }}

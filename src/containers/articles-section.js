@@ -37,8 +37,8 @@ class ArticlesSection extends Component {
           let bubble_height = Platform.OS === 'web' ? 126 : 130;
 
           let article_nav_data = {
-            article: item,
-            article_id: article_id
+            title: article_title,
+            url: item.url
           }
 
           return <TouchableOpacity style={{ height: bubble_height, width: 163, marginLeft: left_margin, marginRight: 15, backgroundColor: '#f5f5f5', borderRadius: 12, overflow: 'hidden' }}
