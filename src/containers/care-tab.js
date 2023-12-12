@@ -12,6 +12,7 @@ class CareTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      cta_orientation: '',
       chat_consultations: [],
       video_consultations: []
     }
@@ -28,7 +29,9 @@ class CareTab extends Component {
       let video_res   = await ConsultationController.getUpcomingVideoConsultations(partner_id);
       let videos      = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
 
-      this.setState({ chat_consultations: chats, video_consultations: videos });
+      let orientation = chats.length === 0 && videos.length === 0 ? 'vertical' : 'horizontal';
+
+      this.setState({ chat_consultations: chats, video_consultations: videos, cta_orientation: orientation });
     }
   }
 
@@ -136,7 +139,7 @@ class CareTab extends Component {
 
     return <View style={{  }}>
       <View style={styles.vertical_buffer} />
-      <CareCtaButtons navigation={this.props.navigation} />
+      <CareCtaButtons navigation={this.props.navigation} orientation={ this.state.cta_orientation } />
       { this.render_active_chats()    }
       { this.render_upcoming_videos() }
       { this.render_completed() }
