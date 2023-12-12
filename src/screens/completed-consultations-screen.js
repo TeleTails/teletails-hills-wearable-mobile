@@ -1,8 +1,8 @@
 import { Component } from "react";
-import { config }    from '../../config';
+import { config    } from '../../config';
 import { DateUtils, StringUtils } from '../utils';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Screen, Line, Text, Icon, Colors } from '../components';
+import { Screen, Line, Text, Icon, Colors   } from '../components';
 import { setItem, getItem } from '../../storage';
 import { ConsultationController } from '../controllers';
 
@@ -38,10 +38,15 @@ class CompletedConsultationsScreen extends Component {
   render_consultations = () => {
     let consultations = this.state.consultations;
     let dislay_empty  = consultations && consultations.length === 0 ? true : false;
+    let filter_type   = this.props && this.props.route && this.props.route.params && this.props.route.params.type ? this.props.route.params.type : '';
 
     let consultation_rows = consultations.map((consultation, index) => {
       let is_chat  = consultation && consultation.type && consultation.type === 'CHAT'  ? true : false;
       let is_video = consultation && consultation.type && consultation.type === 'VIDEO' ? true : false;
+
+      if (filter_type === 'CHAT'  && is_video) { return null }
+      if (filter_type === 'VIDEO' && is_chat)  { return null }
+
       let patient  = consultation && consultation.patient ? consultation.patient : {};
       let name     = StringUtils.displayName(patient);
 

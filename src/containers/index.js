@@ -1,5 +1,6 @@
 import ArticlesHeroSection from './articles-hero-section';
 import ArticlesSection     from './articles-section';
+import CareCtaButtons      from './care-cta-buttons';
 import CareTab   from './care-tab';
 import ConsultationFeedbackForm from './consultation-feedback-form';
 import HomeTab   from './home-tab';
@@ -13,6 +14,7 @@ import VideoCallSchedule from './video-call-schedule';
 export {
   ArticlesHeroSection,
   ArticlesSection,
+  CareCtaButtons,
   CareTab,
   ConsultationFeedbackForm,
   HomeTab,

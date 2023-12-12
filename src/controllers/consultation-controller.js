@@ -107,4 +107,14 @@ export default class ConsultationController {
     let response = await UtilitiesController.post(`/v3/api/care_client/add_care_feedback`, data, true);
     return response
   });
+
+  static getUpcomingVideoConsultations = ConsultationController.exceptionWrapper(async (partner_id) => {
+    let response = await UtilitiesController.get(`/v4/api/video_upcoming_consultations/${partner_id}`, {}, true);
+    return response;
+  });
+
+  static getClientChatConsultations = ConsultationController.exceptionWrapper(async (partner_id) => {
+    let response = await UtilitiesController.get(`/v4/api/chat_consultations/${partner_id}`, {}, true);
+    return response;
+  });
 }

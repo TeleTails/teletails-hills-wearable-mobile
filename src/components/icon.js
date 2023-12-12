@@ -38,6 +38,12 @@ class Icon extends Component {
       case 'check-circle':
         return <Image style={ style_obj } source={ require('../../assets/icons/check-circle.png') } />
         break;
+      case 'chevron-left':
+        return <Image style={ style_obj } source={ require('../../assets/icons/chevron-left.png') } />
+        break;
+      case 'chevron-right':
+        return <Image style={ style_obj } source={ require('../../assets/icons/chevron-right.png') } />
+        break;
       case 'chevron-circle-left':
         return <Image style={ style_obj}  source={ require('../../assets/icons/chevron-circle-left.png') } />
         break;
@@ -49,6 +55,9 @@ class Icon extends Component {
         break;
       case 'ellipsis':
         return <Image style={ style_obj}  source={ require('../../assets/icons/ellipsis.png') } />
+        break;
+      case 'envelope':
+        return <Image style={ style_obj}  source={ require('../../assets/icons/envelope.png') } />
         break;
       case 'home':
         return <Image style={ style_obj } source={ require('../../assets/icons/home.png') } />
