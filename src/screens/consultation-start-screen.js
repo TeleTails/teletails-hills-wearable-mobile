@@ -12,7 +12,9 @@ class ConsultationStartScreen extends Component {
   constructor(props) {
     super(props);
 
-    let consultation_type = this.props && this.props.route && this.props.route.params && this.props.route.params.type ? this.props.route.params.type : '';
+    let consultation_type = this.props && this.props.route && this.props.route.params && this.props.route.params.type        ? this.props.route.params.type        : '';
+    let is_rechat         = this.props && this.props.route && this.props.route.params && this.props.route.params.is_rechat === true ? true : false;
+    let provider_id       = this.props && this.props.route && this.props.route.params && this.props.route.params.provider_id ? this.props.route.params.provider_id : '';
 
     this.state = {
       current_section: 'pets', // pets triage category intake schedule
@@ -25,7 +27,9 @@ class ConsultationStartScreen extends Component {
       pet_breathing_response: '',
       consultation_type: consultation_type,
       online_provider_count: 0,
-      available_live_providers: false
+      available_live_providers: false,
+      is_rechat: is_rechat,
+      rechat_provider_id: provider_id
     }
   }
 
@@ -307,7 +311,9 @@ class ConsultationStartScreen extends Component {
     let partner_id = config.partner_id;
     let patient_id = this.state.selected_pet && this.state.selected_pet._id ? this.state.selected_pet._id : '';
     let is_async   = this.state.available_live_providers === false;
+        is_async   = this.state.is_rechat ? true  : is_async;
     let is_live    = this.state.available_live_providers === true;
+        is_live    = this.state.is_rechat ? false : is_live;
 
     this.setState({ loading_create_consultation: true });
 
@@ -345,6 +351,10 @@ class ConsultationStartScreen extends Component {
     }
 
     if (is_async) {
+      if (this.state.rechat_provider_id && this.state.is_rechat) {
+        request_data['provider_id'] = this.state.rechat_provider_id;
+      }
+
       let assign_async_chat_res = await ConsultationController.assignAsyncChat(request_data);
       let assign_async_success  = assign_async_chat_res && assign_async_chat_res.success ? true : false;
       if (assign_async_success) {

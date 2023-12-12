@@ -46,7 +46,7 @@ class CareTab extends Component {
       let date_obj = care_consultation.created_at ? new Date(care_consultation.created_at) : care_consultation.created_at;
       let date_num = DateUtils.getDateNumber(date_obj);
       let add_zero = date_num.toString().length === 1;
-      let date_str = DateUtils.getShortMonth(date_obj) + ' ' + DateUtils.getDateNumber(date_obj);
+      let date_str = DateUtils.getLongMonth(date_obj) + ' ' + DateUtils.getDateNumber(date_obj);
           date_str = add_zero ? DateUtils.getLongMonth(date_obj) + ' 0' + DateUtils.getDateNumber(date_obj) : date_str;
           date_str = !care_consultation.updated_at ? '' : date_str;
 
