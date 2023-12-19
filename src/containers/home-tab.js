@@ -78,6 +78,12 @@ class HomeTab extends Component {
           <Icon name='setting' size={30} />
         </TouchableOpacity>
       </View>
+      <TouchableOpacity style={{ padding: 20, margin: 20, borderWidth: 1, borderRadius: 12 }}
+                        onPress={ () => {
+                          this.props.navigation.push('AddPetFlow');
+                        }}>
+        <Text>Start Add Pet Flow</Text>
+      </TouchableOpacity>
       <HomeCtaButtons navigation={this.props.navigation} />
       { this.render_hero_articles()    }
       { this.render_article_sections() }

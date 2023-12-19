@@ -11,6 +11,7 @@ import Constants from 'expo-constants';
 import {
   HomeScreen,
   AddPetScreen,
+  AddPetFlowScreen,
   ArticleDisplayScreen,
   CompletedConsultationsScreen,
   ConsultationStartScreen,
@@ -101,6 +102,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home"       component={ HomeScreen }       />
         <Stack.Screen name='AddPet'     component={ AddPetScreen } options={{ presentation: 'modal' }} />
+        <Stack.Screen name='AddPetFlow' component={ AddPetFlowScreen } />
         <Stack.Screen name='ArticleDisplay' component={ ArticleDisplayScreen } />
         <Stack.Screen name='CompletedConsultations' component={ CompletedConsultationsScreen } />
         <Stack.Screen name='ConsultationStart' component={ ConsultationStartScreen } />
