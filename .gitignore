@@ -34,3 +34,8 @@ config.js
 
 # typescript
 *.tsbuildinfo
+
+# Expo
+.expo
+dist/
+web-build/
