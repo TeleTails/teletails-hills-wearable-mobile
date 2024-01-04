@@ -31,4 +31,16 @@ export default class PetsController {
       let response = await UtilitiesController.post(`/v5/api/pets/new/pet`, data, true);
       return response;
     })
+
+    // Get the latest date that the pet food 
+    static getLatestPetFoodUpdateDate = PetsController.exceptionWrapper(async () => {
+      let response = await UtilitiesController.post('/v5/api/pets/get/pet_food_update_date', {}, true);
+      console.log('response', response)
+      return response && response.success && response.data ? response.data.last_pet_food_update : null;
+    });
+
+    static getPetFood = PetsController.exceptionWrapper(async () => {
+      let response = await UtilitiesController.post('/v5/api/pets/get/pet_food_list', {}, true);
+      return response && response.success ? response.data : [];
+    });
 }

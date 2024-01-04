@@ -1,12 +1,15 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { Component, useState, useEffect, useRef } from "react";
+import { AppState, View } from 'react-native';
 import { NavigationContainer  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Device  from 'expo-device';
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { PetsController } from './src/controllers';
+import { setItem, getItem } from './storage';
 
 import {
   HomeScreen,
@@ -74,6 +77,34 @@ export default function App() {
       'Poppins-ExtraBold':  require('./assets/fonts/Poppins-ExtraBold.ttf'),
       'Poppins-Black':      require('./assets/fonts/Poppins-Black.ttf')
     });
+
+  AppState.addEventListener('change', async (nextAppState)=> {
+    if(nextAppState == 'active') {
+      let latest_pet_food_update_date = await PetsController.getLatestPetFoodUpdateDate();
+
+      let latest_pet_food_update_date_on_app = await getItem('latest_pet_food_update');
+      let pet_food_list = await getItem('pet_food_list');
+
+      let get_pet_food = !latest_pet_food_update_date_on_app || !pet_food_list;
+      
+      if(latest_pet_food_update_date_on_app) {
+        latest_pet_food_update_date_on_app = new Date(latest_pet_food_update_date_on_app);
+        latest_pet_food_update_date = new Date(latest_pet_food_update_date);
+
+        get_pet_food = latest_pet_food_update_date_on_app < latest_pet_food_update_date;
+      }
+
+      if(get_pet_food) {
+        console.log('getting food')
+        let pet_food_list = await PetsController.getPetFood();
+        await setItem('latest_pet_food_update', latest_pet_food_update_date);
+        await setItem('pet_food_list', JSON.stringify(pet_food_list));
+      } else {
+        console.log('not grabbing pet food');
+      }
+
+    }
+  });
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => { console.log(token) } );

@@ -3,7 +3,7 @@ import { config }           from '../../config';
 import { SignIn }           from '../containers';
 import { AuthController, UserController, ConsultationController } from '../controllers';
 import { setItem, getItem } from '../../storage';
-import { Text, Button, Icon } from '../components';
+import { Text, Input, Icon } from '../components';
 import { HomeCtaButtons, ArticlesSection, ArticlesHeroSection } from '../containers';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -19,6 +19,12 @@ class HomeTab extends Component {
 
   componentDidMount = async () => {
     let is_signed_in  = await getItem('token') ? true : false;
+    let pet_food_list = await getItem('pet_food_list');
+
+    if(typeof pet_food_list === 'string') {
+      pet_food_list = JSON.parse(pet_food_list);
+    }
+
     let partner_id    = config.partner_id;
     let sections      = [];
     let hero_articles = [];
@@ -40,7 +46,7 @@ class HomeTab extends Component {
       sections             = new_articles_res && new_articles_res.sections      ? new_articles_res.sections      : [];
     }
 
-    this.setState({ sections: sections, hero_articles: hero_articles });
+    this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list });
   }
 
   render_hero_articles = () => {
@@ -51,6 +57,42 @@ class HomeTab extends Component {
                            pressed_action={ (article) => {
                               this.props.navigation.push('ArticleDisplay', { url: article.url });
                            }}/>
+    </View>
+  }
+
+  render_search_section = () => {
+    let { search_results } = this.state;
+
+    const search_text = (search_value) => {
+      let { pet_food_list } = this.state;
+
+      search_value = search_value.toLowerCase();
+      let search_tokens = search_value.split(' ');
+
+      let search_results_cat = pet_food_list.cat_food_products.filter(obj => {
+          return search_tokens.every(term => obj.toLowerCase().includes(term));
+      });
+
+      let search_results_dog = pet_food_list.dog_food_products.filter(obj => {
+        return search_tokens.every(term => obj.toLowerCase().includes(term));
+      });
+
+      let search_results = search_results_cat.concat(search_results_dog);
+
+      search_results.sort((a,b)=>{return a < b ? -1 : 1})
+
+      this.setState({search_results})
+    }
+
+    return <View>
+      <Input type={'text'} onChangeText={search_text} />
+      {search_results && search_results.length ? 
+      <View>
+        <Text>Results</Text>
+        <View style={{flexDirection: 'column'}}>
+          {search_results.map(result=><Text style={{padding: 10}}>{result}</Text>)}
+        </View>
+      </View> : null}
     </View>
   }
 
@@ -81,6 +123,7 @@ class HomeTab extends Component {
       <HomeCtaButtons navigation={this.props.navigation} />
       { this.render_hero_articles()    }
       { this.render_article_sections() }
+      { this.render_search_section() }
     </View>
   }
 
