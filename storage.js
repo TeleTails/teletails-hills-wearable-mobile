@@ -17,7 +17,6 @@ let setItem = async (key, value) => {
       let stringified  = JSON.stringify(storage_obj);
       await AsyncStorage.setItem('storage', stringified);
     }
-
   } catch (err) {
     console.log("Save Error:")
     console.log(err)

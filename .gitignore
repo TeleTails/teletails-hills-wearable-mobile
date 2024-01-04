@@ -34,3 +34,11 @@ config.js
 
 # typescript
 *.tsbuildinfo
+
+# Expo
+.expo
+dist/
+web-build/
+
+android/app/src/main/AndroidManifest.xml
+app.json
