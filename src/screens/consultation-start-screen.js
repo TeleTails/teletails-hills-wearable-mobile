@@ -202,7 +202,6 @@ class ConsultationStartScreen extends Component {
         booking_confirmation_action={ async (availability_slot_id) => {
 
           if (!availability_slot_id) {
-            console.log(' ERROR ')
             return;
           }
 
@@ -222,7 +221,6 @@ class ConsultationStartScreen extends Component {
           let care_consultation_id = is_success && create_res.data && create_res.data.care_consultation && create_res.data.care_consultation._id ? create_res.data.care_consultation._id : '';
 
           if (!is_success || !care_consultation_id) {
-            console.log(' ERROR ')
             this.setState({ loading_create_consultation: false });
             return;
           }
@@ -236,7 +234,6 @@ class ConsultationStartScreen extends Component {
           let assign_success = assign_res && assign_res.success ? true : false;
 
           if (!assign_success) {
-            console.log(' ERROR ')
             this.setState({ loading_create_consultation: false });
             return;
           }

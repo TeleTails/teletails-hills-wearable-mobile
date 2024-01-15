@@ -4,6 +4,8 @@ import ArticleDisplayScreen from './article-display-screen';
 import CompletedConsultationsScreen       from './completed-consultations-screen';
 import ConsultationVideoAppointmentScreen from './consultation-video-appointment-screen';
 import ConsultationChatScreen  from './consultation-chat-screen';
+import ConsultationThreadScreen      from './consultation-thread-screen';
+import ConsultationStartThreadScreen from './consultation-start-thread-screen';
 import ConsultationStartScreen from './consultation-start-screen';
 import HomeScreen       from './home-screen';
 import PetDetailsScreen from './pet-details-screen';
@@ -18,7 +20,9 @@ export {
   ArticleDisplayScreen,
   CompletedConsultationsScreen,
   ConsultationStartScreen,
+  ConsultationStartThreadScreen,
   ConsultationChatScreen,
+  ConsultationThreadScreen,
   ConsultationVideoAppointmentScreen,
   HomeScreen,
   PetDetailsScreen,

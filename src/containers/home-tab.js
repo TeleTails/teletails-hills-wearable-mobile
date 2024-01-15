@@ -86,7 +86,7 @@ class HomeTab extends Component {
 
     return <View>
       <Input type={'text'} onChangeText={search_text} />
-      {search_results && search_results.length ? 
+      {search_results && search_results.length ?
       <View>
         <Text>Results</Text>
         <View style={{flexDirection: 'column'}}>
@@ -127,6 +127,12 @@ class HomeTab extends Component {
         <Text>Start Add Pet Flow</Text>
       </TouchableOpacity>
       <HomeCtaButtons navigation={this.props.navigation} />
+      <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
+        <Icon name='setting' size={30} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationThread') }}>
+        <Icon name='envelope' size={30} />
+      </TouchableOpacity>
       { this.render_hero_articles()    }
       { this.render_article_sections() }
       { this.render_search_section() }

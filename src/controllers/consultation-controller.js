@@ -117,4 +117,19 @@ export default class ConsultationController {
     let response = await UtilitiesController.get(`/v4/api/chat_consultations/${partner_id}`, {}, true);
     return response;
   });
+
+  static createThread = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/care/new/client_thread`, data, true);
+    return response;
+  });
+
+  static sendThreadMessage = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/care/new/consultation_message`, data, true);
+    return response
+  });
+
+  static getThreadMessages = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/care/get/consultation_messages`, data, true);
+    return response
+  });
 }

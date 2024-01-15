@@ -19,6 +19,8 @@ import {
   CompletedConsultationsScreen,
   ConsultationStartScreen,
   ConsultationChatScreen,
+  ConsultationThreadScreen,
+  ConsultationStartThreadScreen,
   ConsultationVideoAppointmentScreen,
   PetDetailsScreen,
   PetsScreen,
@@ -87,7 +89,7 @@ export default function App() {
       let pet_food_list = await getItem('pet_food_list');
 
       let get_pet_food = !latest_pet_food_update_date_on_app || !pet_food_list;
-      
+
       if(latest_pet_food_update_date_on_app) {
         latest_pet_food_update_date_on_app = new Date(latest_pet_food_update_date_on_app);
         latest_pet_food_update_date = new Date(latest_pet_food_update_date);
@@ -138,6 +140,8 @@ export default function App() {
         <Stack.Screen name='CompletedConsultations' component={ CompletedConsultationsScreen } />
         <Stack.Screen name='ConsultationStart' component={ ConsultationStartScreen } />
         <Stack.Screen name='ConsultationChat'  component={ ConsultationChatScreen } />
+        <Stack.Screen name='ConsultationStartThread'      component={ ConsultationStartThreadScreen } />
+        <Stack.Screen name='ConsultationThread'           component={ ConsultationThreadScreen } />
         <Stack.Screen name='ConsultationVideoAppointment' component={ ConsultationVideoAppointmentScreen } />
         <Stack.Screen name='PetDetails' component={ PetDetailsScreen } />
         <Stack.Screen name='Pets'       component={ PetsScreen }       />
