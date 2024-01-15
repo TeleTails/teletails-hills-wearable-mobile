@@ -5,7 +5,7 @@ import { Video     } from 'expo-av';
 import { DateUtils, StringUtils } from '../utils';
 import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Image, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView, FlatList, Modal } from 'react-native';
 import { setItem, getItem } from '../../storage';
-import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors } from '../components';
+import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors, MediaModal } from '../components';
 import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';
 import { ConsultationController }   from '../controllers';
 import { WebView } from 'react-native-webview';
@@ -17,7 +17,9 @@ class ConsultationThreadScreen extends Component {
     this.state = {
       thread_id: '',
       messages: [],
-      display_pdf: false
+      display_pdf: false,
+      loading_send_message: false,
+      display_attachment_modal: false
     }
   }
 
@@ -90,7 +92,7 @@ class ConsultationThreadScreen extends Component {
   }
 
   render_input_section = () => {
-    return <View style={{ height: 150, padding: 15, paddingTop: 5, paddingBottom: 5 }}>
+    return <View style={{ height: 150, padding: 15, paddingTop: 5, paddingBottom: 5, flexDirection: 'row' }}>
       <TextInput
         style={styles.message_text_input}
         value={this.state.message_text}
@@ -101,6 +103,17 @@ class ConsultationThreadScreen extends Component {
         }}
         multiline={true}
       />
+      <View style={{ marginTop: 15, marginBottom: 15, justifyContent: 'center' }}>
+        <TouchableOpacity style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY, alignItems: 'center', justifyContent: 'center', marginLeft: 12 }}
+                          onPress={ () => { this.send_text_message_action() }}>
+          { this.state.loading_send_message ? <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+                                            : <Icon name='arrow-up' size={18} color='white' /> }
+        </TouchableOpacity>
+        <TouchableOpacity style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY, alignItems: 'center', justifyContent: 'center', marginLeft: 12, marginTop: 5 }}
+                          onPress={ () => { this.setState({ display_attachment_modal: true }) }}>
+          <Icon name='paperclip' size={18} color='white' />
+        </TouchableOpacity>
+      </View>
     </View>
   }
 
@@ -119,6 +132,7 @@ class ConsultationThreadScreen extends Component {
           <Line />
           { this.render_input_section()    }
           { this.render_pdf_modal()        }
+          { this.render_attachment_modal() }
         </SafeAreaView>
       </KeyboardAvoidingView>
     </Screen>
@@ -139,6 +153,78 @@ class ConsultationThreadScreen extends Component {
           />
         </Screen>
     </Modal>
+  }
+
+  render_attachment_modal = () => {
+    return <MediaModal display={this.state.display_attachment_modal}
+                       button_title='Send Attachment'
+                       close_action={ () => {
+                         this.setState({ display_attachment_modal: false })
+                       }}
+                       media_action={ (media_object) => {
+                         if (media_object && media_object.type === 'image') {
+                           this.send_image_attachment(media_object)
+                         }
+
+                         if (media_object && media_object.type === 'video') {
+                           this.send_video_attachment(media_object)
+                         }
+                       }} />
+  }
+
+  send_image_attachment = async (media_object) => {
+    let message_request_data = {
+       content: {
+         url: media_object.url,
+       },
+       consultation_id: this.state.thread_id,
+       type: 'IMAGE'
+     }
+
+     let message_send_res = await ConsultationController.sendThreadMessage(message_request_data);
+     is_success           = message_send_res && message_send_res.success && message_send_res.success === true ? true : false;
+
+     if (is_success) {
+       this.pull_messages(this.state.thread_id);
+       this.setState({ display_attachment_modal: false })
+     }
+  }
+
+  send_video_attachment = async (media_object) => {
+    let message_request_data = {
+       content: {
+         url: media_object.url,
+       },
+       consultation_id: this.state.thread_id,
+       type: 'VIDEO'
+     }
+
+     let message_send_res = await ConsultationController.sendThreadMessage(message_request_data);
+     is_success           = message_send_res && message_send_res.success && message_send_res.success === true ? true : false;
+
+     if (is_success) {
+       this.pull_messages(this.state.thread_id);
+       this.setState({ display_attachment_modal: false })
+     }
+  }
+
+  send_text_message_action = async () => {
+    let message_text = this.state.message_text;
+    let thread_id    = this.state.thread_id;
+    let is_success   = false;
+
+    this.setState({ loading_send_message: true });
+
+    if (message_text) {
+      let message_request_data = { consultation_id: thread_id, type: 'TEXT', content: { text: message_text } }
+      let message_send_res     = await ConsultationController.sendThreadMessage(message_request_data);
+      is_success               = message_send_res && message_send_res.success && message_send_res.success === true ? true : false;
+    }
+
+    if (is_success) {
+      this.pull_messages(thread_id);
+      this.setState({ message_text: '', loading_send_message: false })
+    }
   }
 
   pull_messages = async (thread_id) => {
