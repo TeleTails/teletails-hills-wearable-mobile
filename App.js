@@ -22,6 +22,9 @@ import {
   ConsultationThreadScreen,
   ConsultationStartThreadScreen,
   ConsultationVideoAppointmentScreen,
+  HealthWeightScreen,
+  HealthGiPicsScreen,
+  HealthBodyConditionScreen,
   PetDetailsScreen,
   PetsScreen,
   SettingsScreen,
@@ -143,6 +146,9 @@ export default function App() {
         <Stack.Screen name='ConsultationStartThread'      component={ ConsultationStartThreadScreen } />
         <Stack.Screen name='ConsultationThread'           component={ ConsultationThreadScreen } />
         <Stack.Screen name='ConsultationVideoAppointment' component={ ConsultationVideoAppointmentScreen } />
+        <Stack.Screen name='HealthWeight'        component={ HealthWeightScreen } />
+        <Stack.Screen name='HealthGiPics'        component={ HealthGiPicsScreen } />
+        <Stack.Screen name='HealthBodyCondition' component={ HealthBodyConditionScreen } />
         <Stack.Screen name='PetDetails' component={ PetDetailsScreen } />
         <Stack.Screen name='Pets'       component={ PetsScreen }       />
         <Stack.Screen name="Settings"   component={ SettingsScreen }   />

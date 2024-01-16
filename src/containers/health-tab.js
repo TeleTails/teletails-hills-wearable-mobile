@@ -25,7 +25,21 @@ class HealthTab extends Component {
   render() {
 
     return <View style={{  }}>
-      <Text style={{ height: 100 }}>Health Tab</Text>
+      <Text style={{ height: 30 }}>Health Tab</Text>
+      <View style={{ padding: 20 }}>
+        <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12, marginBottom: 5 }}
+                          onPress={ () => { this.props.navigation.push('HealthWeight') }}>
+          <Text>Add Weight</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12, marginBottom: 5 }}
+                          onPress={ () => { this.props.navigation.push('HealthGiPics') }}>
+          <Text>Add GI Image</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12 }}
+                          onPress={ () => { this.props.navigation.push('HealthBodyCondition') }}>
+          <Text>Add Body Condition Images</Text>
+        </TouchableOpacity>
+      </View>
       <Text>{ this.state.is_signed_in ? 'Signed In' : 'Not Signed In' }</Text>
       <SignIn />
     </View>

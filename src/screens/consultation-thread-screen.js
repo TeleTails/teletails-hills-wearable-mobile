@@ -30,8 +30,6 @@ class ConsultationThreadScreen extends Component {
     this.setState({ thread_id: thread_id, user_id: user_id });
   }
 
-  // THREAD ID FROM PROP TO STATE
-  // PULL MESSAGES FOR THREAD_ID
   // DETAILS AT THE TOP OF THE THREADS SCROLLING SECTION
   // Back Button To Home if opened from new thread screen
 

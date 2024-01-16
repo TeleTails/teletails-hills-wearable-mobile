@@ -7,6 +7,9 @@ import ConsultationChatScreen  from './consultation-chat-screen';
 import ConsultationThreadScreen      from './consultation-thread-screen';
 import ConsultationStartThreadScreen from './consultation-start-thread-screen';
 import ConsultationStartScreen from './consultation-start-screen';
+import HealthWeightScreen from './health-weight-screen';
+import HealthGiPicsScreen from './health-gi-pics-screen';
+import HealthBodyConditionScreen from './health-body-condition-screen';
 import HomeScreen       from './home-screen';
 import PetDetailsScreen from './pet-details-screen';
 import PetsScreen       from './pets-screen';
@@ -24,6 +27,9 @@ export {
   ConsultationChatScreen,
   ConsultationThreadScreen,
   ConsultationVideoAppointmentScreen,
+  HealthWeightScreen,
+  HealthGiPicsScreen,
+  HealthBodyConditionScreen,
   HomeScreen,
   PetDetailsScreen,
   PetsScreen,
