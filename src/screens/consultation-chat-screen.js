@@ -167,7 +167,7 @@ class ConsultationChatScreen extends Component {
         <Line hide={true} />
         <TouchableOpacity style={{ paddingBottom: 20, paddingTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: 12, paddingLeft: 20, paddingRight: 20, borderWidth: 1 }}
                           onPress={ () => {
-                            this.props.navigation.push('ConsultationStart', { type: 'CHAT', is_rechat: true, provider_id: provider_id })
+                            this.props.navigation.push('ConsultationStartThread', { is_rechat: true, provider_id: provider_id })
                           }}>
           <View>
             <Text style={{ fontWeight: '500', fontSize: 15 }}>Start Another Chat</Text>

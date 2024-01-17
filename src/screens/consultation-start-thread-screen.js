@@ -19,12 +19,19 @@ class ConsultationStartThreadScreen extends Component {
       selected_pet_id: '',
       subject: '',
       message_text: '',
-      loading_start_thread: false
+      loading_start_thread: false,
+      provider_id: '',
+      is_rechat: false
     }
   }
 
   componentDidMount = async () => {
+    let is_rechat   = this.props && this.props.route && this.props.route.params && this.props.route.params.is_rechat   && this.props.route.params.is_rechat === true ? true : false;
+    let provider_id = this.props && this.props.route && this.props.route.params && this.props.route.params.provider_id ?  this.props.route.params.provider_id : '';
+
     this.pull_pets();
+
+    this.setState({ is_rechat: is_rechat, provider_id: provider_id })
   }
 
   render_progress_bar = () => {
@@ -120,7 +127,7 @@ class ConsultationStartThreadScreen extends Component {
 
     return <View style={{ padding: 20, paddingBottom: 0, paddingTop: 0 }}>
       <Text style={styles.section_title}>Confirmation</Text>
-      <Button title='Add Info' style={{ marginTop: 20 }} onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: this.state.thread_id }) }}/>
+      <Button title='Add Info' style={{ marginTop: 20 }} onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: this.state.thread_id, back_to_home: true }) }}/>
       <Button title='Back To Home' style={{ marginTop: 20 }} onPress={ () => { this.props.navigation.pop(); }}/>
     </View>
   }
@@ -170,11 +177,16 @@ class ConsultationStartThreadScreen extends Component {
       subject: this.state.subject
     }
 
+    if (this.state.is_rechat && this.state.provider_id) {
+      request_data['is_rechat']   = true;
+      request_data['provider_id'] = this.state.provider_id;
+    }
+
     let new_thread_res = await ConsultationController.createThread(request_data);
         thread_success = new_thread_res && new_thread_res.success;
-    let thread_id      = is_success && new_thread_res.data && new_thread_res.data.care_consultation && new_thread_res.data.care_consultation._id ? new_thread_res.data.care_consultation._id : '';
+    let thread_id      = thread_success && new_thread_res.data && new_thread_res.data.care_consultation && new_thread_res.data.care_consultation._id ? new_thread_res.data.care_consultation._id : '';
 
-    if (is_thread_success && thread_id && this.state.message_text ) {
+    if (thread_success && thread_id && this.state.message_text ) {
       let message_request_data = { consultation_id: thread_id, type: 'TEXT', content: { text: this.state.message_text } }
       let new_message_res      = await ConsultationController.sendThreadMessage(message_request_data);
           message_success      = new_message_res && new_message_res.success;
