@@ -1,9 +1,10 @@
 import { Component } from 'react';
 import { config }           from '../../config';
 import { SignIn }           from '../containers';
+import { StringUtils }      from '../utils';
 import { AuthController, UserController, ConsultationController } from '../controllers';
 import { setItem, getItem } from '../../storage';
-import { Text, Input, Icon } from '../components';
+import { Text, Input, Icon, Line } from '../components';
 import { HomeCtaButtons, ArticlesSection, ArticlesHeroSection } from '../containers';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -13,7 +14,8 @@ class HomeTab extends Component {
     super(props);
     this.state = {
       sections: [],
-      hero_articles: []
+      hero_articles: [],
+      active_threads: []
     }
   }
 
@@ -40,6 +42,8 @@ class HomeTab extends Component {
       let video_res    = await ConsultationController.getUpcomingVideoConsultations(partner_id);
       let videos       = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
 
+      this.get_active_threads();
+
     } else {
       let new_articles_res = await UserController.getNewUserArticles();
       hero_articles        = new_articles_res && new_articles_res.hero_articles ? new_articles_res.hero_articles : [];
@@ -47,6 +51,36 @@ class HomeTab extends Component {
     }
 
     this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list });
+  }
+
+  render_active_threads = () => {
+    let active_threads = this.state.active_threads;
+
+    if (!active_threads || active_threads.length === 0) {
+      return null;
+    }
+
+    let thread_rows = active_threads.map((thread, ind) => {
+      let thread_id = thread._id;
+      let subject   = thread.subject || 'Provider Message';
+      let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
+      return <View>
+        <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                          onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
+          <View>
+            <Text style={{ fontSize: 16, fontWeight: '500', color: '#040415' }}>{ subject }</Text>
+            <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ pet_name }</Text>
+          </View>
+          <Icon name='chevron-right' size={13} color='grey' />
+        </TouchableOpacity>
+        <Line />
+      </View>
+    })
+
+    return <View style={{ paddingLeft: 20, paddingRight: 20 }}>
+      <Text style={styles.section_title}>Provider Messages</Text>
+      { thread_rows }
+    </View>
   }
 
   render_hero_articles = () => {
@@ -127,22 +161,37 @@ class HomeTab extends Component {
         <Text>Start Add Pet Flow</Text>
       </TouchableOpacity>
       <HomeCtaButtons navigation={this.props.navigation} />
-      <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
-        <Icon name='setting' size={30} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationThread') }}>
-        <Icon name='envelope' size={30} />
-      </TouchableOpacity>
+      <View style={{ marginTop: 20, marginBottom: 20 }}>
+        <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
+          <Icon name='setting' size={30} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationThread') }}>
+          <Icon name='envelope' size={30} />
+        </TouchableOpacity>
+      </View>
+      { this.render_active_threads()   }
       { this.render_hero_articles()    }
       { this.render_article_sections() }
-      { this.render_search_section() }
+      { this.render_search_section()   }
     </View>
+  }
+
+  get_active_threads = async () => {
+    let user_id      = await getItem('user_id');
+    let request_data = { client_id: user_id }
+    ConsultationController.getActiveThreads(request_data).then((response) => {
+      let active_threads = response.success && response.data && response.data.care_consultations ? response.data.care_consultations : [];
+      this.setState({ active_threads: active_threads });
+    }).catch((err) => {  });
   }
 
 }
 
 const styles = StyleSheet.create({
-
+  section_title: {
+    fontSize: 22,
+    fontWeight: 'semibold'
+  }
 });
 
 export default HomeTab
