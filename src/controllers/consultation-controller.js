@@ -132,4 +132,9 @@ export default class ConsultationController {
     let response = await UtilitiesController.post(`/v5/api/care/get/consultation_messages`, data, true);
     return response
   });
+
+  static getActiveThreads = ConsultationController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/care/get/client_active_threads`, data, true);
+    return response
+  });
 }

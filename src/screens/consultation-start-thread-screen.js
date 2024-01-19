@@ -14,24 +14,46 @@ class ConsultationStartThreadScreen extends Component {
     super(props);
     this.state = {
       pets: [],
+      current_section: 'pets',
       selected_pet: {},
       selected_pet_id: '',
-      selected_category: '',
+      subject: '',
       message_text: '',
-      loading_start_thread: false
+      loading_start_thread: false,
+      provider_id: '',
+      is_rechat: false
     }
   }
 
   componentDidMount = async () => {
+    let is_rechat   = this.props && this.props.route && this.props.route.params && this.props.route.params.is_rechat   && this.props.route.params.is_rechat === true ? true : false;
+    let provider_id = this.props && this.props.route && this.props.route.params && this.props.route.params.provider_id ?  this.props.route.params.provider_id : '';
+
     this.pull_pets();
+
+    this.setState({ is_rechat: is_rechat, provider_id: provider_id })
+  }
+
+  render_progress_bar = () => {
+    let section    = this.state.current_section;
+    let percentage = '20%';
+        percentage = section === 'pets'         ? '33%' : percentage;
+        percentage = section === 'subject'      ? '66%' : percentage;
+        percentage = section === 'confirmation' ? '100%' : percentage;
+
+    return <View style={styles.progress_bar_container}>
+      <View style={styles.progress_bar}>
+        <View style={{ height: '100%', width: percentage, backgroundColor: 'blue', borderRadius: 20 }}></View>
+      </View>
+    </View>
   }
 
   render_pet_list = () => {
-    if (this.state.selected_pet_id && this.state.selected_category) {
+    if (this.state.current_section !== 'pets') {
       return null;
     }
 
-    let pets     = this.state.pets || [];
+    let pets = this.state.pets || [];
 
     let pet_rows = pets.map((pet, index) => {
       let is_last = index === pets.length - 1;
@@ -42,7 +64,6 @@ class ConsultationStartThreadScreen extends Component {
       let type    = StringUtils.sentenceCase(pet.type.toLowerCase());
       let descrpt = gender + ' ' + type;
       let age     = '';
-      let selected= pet_id === this.state.selected_pet_id;
 
       if (pet.age) {
         age = ', Age ' + pet.age;
@@ -54,53 +75,35 @@ class ConsultationStartThreadScreen extends Component {
 
       return <View key={pet_id}>
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-                          onPress={ () => { this.setState({ selected_pet_id: pet_id, selected_pet: pet }) }}>
+                          onPress={ () => { this.setState({ selected_pet_id: pet_id, selected_pet: pet, current_section: 'subject' }) }}>
          <View>
            <Text style={{ fontSize: 16, fontWeight: '500', color: '#040415' }}>{ name }</Text>
            <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ descrpt + age }</Text>
          </View>
-         { selected ? <Icon name='check-circle' solid={true} size={20} color={Colors.GREEN} />  : null }
         </TouchableOpacity>
         <Line hide={is_last} />
       </View>
     })
 
-    return <View style={{ padding: 20 }}>
+    return <View style={{ padding: 20, paddingTop: 0 }}>
       <Text style={styles.section_title}>Select a pet</Text>
       { pet_rows }
     </View>
   }
 
-  render_category_selection = () => {
-    if (this.state.selected_pet_id && this.state.selected_category) {
+  render_message_interface = () => {
+    if (this.state.current_section !== 'subject') {
       return null;
     }
 
-    let categories    = [ 'allergies', 'anxiety', 'behavior', 'dental', 'general_advice', 'joint_health', 'nutrition', 'sensitive_stomach', 'skin_and_ears' ];
-    let category_rows = categories.map((category) => {
-      let display_category = StringUtils.keyToDisplayString(category);
-      let is_selected      = category === this.state.selected_category;
-      return <View>
-        <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.setState({ selected_category: category }) }}>
-          <Text style={styles.selection_row_title}>{ display_category }</Text>
-          { is_selected ? <Icon name='check-circle' solid={true} size={20} color={Colors.GREEN} />  : null }
-        </TouchableOpacity>
-        <Line />
-      </View>
-    })
-
-    return <View style={{ padding: 20, paddingTop: 0 }}>
-      <Text style={styles.section_title}>Select a category</Text>
-      { category_rows }
-    </View>
-  }
-
-  render_message_interface = () => {
-    return <View style={{ padding: 20, paddingBottom: 0 }}>
-      <Text style={styles.section_title}>Pet</Text>
-      <Text style={styles.selection_row_title} onPress={ () => { this.setState({ selected_pet: {}, selected_pet_id: '' }) } }>{ StringUtils.displayName(this.state.selected_pet) }</Text>
-      <Text style={styles.section_title}>Category</Text>
-      <Text style={styles.selection_row_title} onPress={ () => { this.setState({ selected_category: '' }) } }>{ StringUtils.keyToDisplayString(this.state.selected_category) }</Text>
+    return <View style={{ padding: 20, paddingBottom: 0, paddingTop: 0 }}>
+      <Text style={styles.section_title}>Enter a Subject</Text>
+      <Input value={ this.state.subject }
+             style={{ marginBottom: 20, marginTop: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+             border_color='#e7e7e7'
+             onChangeText={(input_text)=>{
+               this.setState({ subject: input_text });
+             }}/>
       <Text style={styles.section_title}>Enter a message</Text>
       <TextInput
         style={styles.message_text_input}
@@ -112,7 +115,20 @@ class ConsultationStartThreadScreen extends Component {
         }}
         multiline={true}
       />
-      <Button title='View Consultation Details' loading={this.state.loading_start_thread} style={{ marginTop: 20 }} onPress={ () => { this.create_thread_action() }}/>
+      <Text style={{ fontSize: 16, color: 'grey', marginTop: 16 }}>By continuing, I acknowledge that this is not an emergency.</Text>
+      <Button title='Send Message' loading={this.state.loading_start_thread} style={{ marginTop: 20 }} onPress={ () => { this.create_thread_action() }}/>
+    </View>
+  }
+
+  render_confirmation = () => {
+    if (this.state.current_section !== 'confirmation') {
+      return null;
+    }
+
+    return <View style={{ padding: 20, paddingBottom: 0, paddingTop: 0 }}>
+      <Text style={styles.section_title}>Confirmation</Text>
+      <Button title='Add Info' style={{ marginTop: 20 }} onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: this.state.thread_id, back_to_home: true }) }}/>
+      <Button title='Back To Home' style={{ marginTop: 20 }} onPress={ () => { this.props.navigation.pop(); }}/>
     </View>
   }
 
@@ -121,10 +137,23 @@ class ConsultationStartThreadScreen extends Component {
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
     return <Screen title='New Message' scroll={true} navigation={this.props.navigation} left_action={this.back_button_action}>
-      { this.render_pet_list() }
-      { this.render_category_selection() }
-      { this.render_message_interface()  }
+      { this.render_progress_bar()      }
+      { this.render_pet_list()          }
+      { this.render_message_interface() }
+      { this.render_confirmation()      }
     </Screen>
+  }
+
+  back_button_action = () => {
+    let current_display_section = this.state.current_section;
+
+    let new_display_section = current_display_section === 'subject'  ? 'pets'     : new_display_section;
+
+    if (current_display_section === 'pets'|| current_display_section === 'confirmation') {
+      this.props.navigation.pop();
+    } else {
+      this.setState({ current_section: new_display_section })
+    }
   }
 
   create_thread_action = async () => {
@@ -134,32 +163,41 @@ class ConsultationStartThreadScreen extends Component {
     let thread_success  = false;
     let message_success = false;
 
+    if (!this.state.subject || !this.state.message_text) {
+      return null;
+    }
+
     this.setState({ loading_start_thread: true });
 
     let request_data = {
       patient_id: this.state.selected_pet_id,
       client_id: user_id,
       partner_id: partner_id,
-      category: this.state.selected_category
+      category: '',
+      subject: this.state.subject
+    }
+
+    if (this.state.is_rechat && this.state.provider_id) {
+      request_data['is_rechat']   = true;
+      request_data['provider_id'] = this.state.provider_id;
     }
 
     let new_thread_res = await ConsultationController.createThread(request_data);
         thread_success = new_thread_res && new_thread_res.success;
-    let thread_id      = is_success && new_thread_res.data && new_thread_res.data.care_consultation && new_thread_res.data.care_consultation._id ? new_thread_res.data.care_consultation._id : '';
+    let thread_id      = thread_success && new_thread_res.data && new_thread_res.data.care_consultation && new_thread_res.data.care_consultation._id ? new_thread_res.data.care_consultation._id : '';
 
-    if (is_thread_success && thread_id && this.state.message_text) {
+    if (thread_success && thread_id && this.state.message_text ) {
       let message_request_data = { consultation_id: thread_id, type: 'TEXT', content: { text: this.state.message_text } }
       let new_message_res      = await ConsultationController.sendThreadMessage(message_request_data);
           message_success      = new_message_res && new_message_res.success;
     }
 
     if (thread_success && message_success) {
-      this.props.navigation.push('ConsultationThread', { thread_id: thread_id });
+      this.setState({ thread_id: thread_id, current_section: 'confirmation' })
     }
 
     this.setState({ loading_start_thread: false });
   }
-  // let thread_id = '65a575a9bc294e8ff2a56788';
 
   pull_pets = async () => {
     let pets_response = await PetsController.getPets();
@@ -198,8 +236,19 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: '#e7e7e7',
-    fontSize: 15,
-    height: 90,
+    fontSize: 16,
+    height: 120,
     marginTop: 15
+  },
+  progress_bar_container: {
+    paddingRight: 20,
+    paddingLeft: 20,
+    marginTop: 20,
+    marginBottom: 20
+  },
+  progress_bar: {
+    height: 10,
+    borderRadius: 20,
+    backgroundColor: '#e7e7e7'
   }
 });

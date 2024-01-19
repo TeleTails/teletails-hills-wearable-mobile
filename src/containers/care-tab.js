@@ -14,7 +14,8 @@ class CareTab extends Component {
     this.state = {
       cta_orientation: '',
       chat_consultations: [],
-      video_consultations: []
+      video_consultations: [],
+      active_threads: []
     }
   }
 
@@ -31,8 +32,40 @@ class CareTab extends Component {
 
       let orientation = chats.length === 0 && videos.length === 0 ? 'vertical' : 'horizontal';
 
+      this.get_active_threads();
+
       this.setState({ chat_consultations: chats, video_consultations: videos, cta_orientation: orientation });
     }
+  }
+
+  render_active_threads = () => {
+    let active_threads = this.state.active_threads;
+
+    if (!active_threads || active_threads.length === 0) {
+      return null;
+    }
+
+    let thread_rows = active_threads.map((thread, ind) => {
+      let thread_id = thread._id;
+      let subject   = thread.subject || 'Provider Message';
+      let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
+      return <View>
+        <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                          onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
+          <View>
+            <Text style={styles.selection_row_title}>{ subject }</Text>
+            <Text style={{ fontSize: 14, color: '#4c4c4c' }}>{ pet_name }</Text>
+          </View>
+          <Icon name='chevron-right' size={14} />
+        </TouchableOpacity>
+        <Line />
+      </View>
+    })
+
+    return <View style={styles.section_container}>
+      <Text style={styles.section_title}>Provider Messages</Text>
+      { thread_rows }
+    </View>
   }
 
   render_active_chats = () => {
@@ -142,8 +175,18 @@ class CareTab extends Component {
       <CareCtaButtons navigation={this.props.navigation} orientation={ this.state.cta_orientation } />
       { this.render_active_chats()    }
       { this.render_upcoming_videos() }
-      { this.render_completed() }
+      { this.render_active_threads()  }
+      { this.render_completed()       }
     </View>
+  }
+
+  get_active_threads = async () => {
+    let user_id      = await getItem('user_id');
+    let request_data = { client_id: user_id }
+    ConsultationController.getActiveThreads(request_data).then((response) => {
+      let active_threads = response.success && response.data && response.data.care_consultations ? response.data.care_consultations : [];
+      this.setState({ active_threads: active_threads });
+    }).catch((err) => {  });
   }
 
 }

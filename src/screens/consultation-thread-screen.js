@@ -24,14 +24,14 @@ class ConsultationThreadScreen extends Component {
   }
 
   componentDidMount = async () => {
-    let thread_id = this.props && this.props.route && this.props.route.params && this.props.route.params.thread_id ? this.props.route.params.thread_id : '';
-    let user_id   = await getItem('user_id');
+    let thread_id    = this.props && this.props.route && this.props.route.params && this.props.route.params.thread_id    ? this.props.route.params.thread_id    : '';
+    let back_to_home = this.props && this.props.route && this.props.route.params && this.props.route.params.back_to_home ? this.props.route.params.back_to_home : false;
+    let user_id      = await getItem('user_id');
     this.pull_messages(thread_id);
-    this.setState({ thread_id: thread_id, user_id: user_id });
+    this.setState({ thread_id: thread_id, user_id: user_id, back_to_home: back_to_home });
   }
 
   // DETAILS AT THE TOP OF THE THREADS SCROLLING SECTION
-  // Back Button To Home if opened from new thread screen
 
   get_message_row_item = (message, idx) => {
     let sender_name  = message.sender ? StringUtils.displayName(message.sender) : '';
@@ -119,7 +119,7 @@ class ConsultationThreadScreen extends Component {
 
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
-    return <Screen title='Direct Message' navigation={this.props.navigation}>
+    return <Screen title='Direct Message' navigation={this.props.navigation} back_to_home={this.state.back_to_home}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
