@@ -4,7 +4,6 @@ import { PetsController }   from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text }   from '../components';
 import { SignIn } from '../containers';
-// import { LineChart } from "react-native-chart-kit";
 
 class HealthTab extends Component {
 
@@ -17,15 +16,11 @@ class HealthTab extends Component {
 
   componentDidMount = async () => {
     let pets_res = await PetsController.getPets();
-    let token    = await getItem('token');
-
-    this.setState({ is_signed_in: token ? true : false })
   }
 
   render() {
 
     return <View style={{  }}>
-      <Text style={{ height: 30 }}>Health Tab</Text>
       <View style={{ padding: 20 }}>
         <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12, marginBottom: 5 }}
                           onPress={ () => { this.props.navigation.push('HealthWeight', { pet_id: '63d052fc3db4010240557c42' }) }}>
@@ -40,8 +35,6 @@ class HealthTab extends Component {
           <Text>Add Body Condition Images</Text>
         </TouchableOpacity>
       </View>
-      <Text>{ this.state.is_signed_in ? 'Signed In' : 'Not Signed In' }</Text>
-      <SignIn />
     </View>
   }
 

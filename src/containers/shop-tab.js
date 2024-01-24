@@ -1,6 +1,8 @@
 import { Component } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text } from '../components';
+import { setItem, getItem } from '../../storage';
+import { Text   } from '../components';
+import { SignIn } from '../containers';
 
 class ShopTab extends Component {
 
@@ -11,10 +13,18 @@ class ShopTab extends Component {
     }
   }
 
+  componentDidMount = async () => {
+    let token = await getItem('token');
+
+    this.setState({ is_signed_in: token ? true : false })
+  }
+
   render() {
 
     return <View style={{  }}>
       <Text style={{ height: 100 }}>Shop Tab</Text>
+      <Text>{ this.state.is_signed_in ? 'Signed In' : 'Not Signed In' }</Text>
+      <SignIn />
     </View>
   }
 

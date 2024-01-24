@@ -117,8 +117,7 @@ class HealthGiPicsScreen extends Component {
   }
 
   render() {
-    let { health_entries } = this.state;
-
+    
     return <Screen scroll={true} title='GI Pics' navigation={this.props.navigation}>
       <Text style={styles.section_title}>New Entry</Text>
       { this.render_add_image_buttons() }
