@@ -32,7 +32,7 @@ export default class PetsController {
       return response;
     })
 
-    // Get the latest date that the pet food 
+    // Get the latest date that the pet food
     static getLatestPetFoodUpdateDate = PetsController.exceptionWrapper(async () => {
       let response = await UtilitiesController.post('/v5/api/pets/get/pet_food_update_date', {}, true);
       console.log('response', response)
@@ -51,7 +51,7 @@ export default class PetsController {
 
     static createHealthEntry = PetsController.exceptionWrapper(async (data) => {
       let response = await UtilitiesController.post('/v5/api/care/new/health_entry', data, true);
-      return response && response.success ? response.data : [];
+      return response;
     });
-    
+
 }

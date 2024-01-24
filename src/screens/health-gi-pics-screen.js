@@ -13,212 +13,248 @@ class HealthGiPicsScreen extends Component {
     super(props);
     this.state = {
       images: [],
+      health_entries: [],
+      expanded_entry_id: '',
       opened_modal: false
     }
-
-    this.drawImage = this.drawImage.bind(this);
-    this.addImage = this.addImage.bind(this);
-    this.addHealthEntry = this.addHealthEntry.bind(this);
-    this.drawRecord = this.drawRecord.bind(this);
-    this.drawPastImage = this.drawPastImage.bind(this);
-    this.clearImage = this.clearImage.bind(this);
   }
 
   componentDidMount = async () => {
-        /********** HARDCODED DATA */
-        let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjNkMDUyYzkzZGI0MDExYjk2NTU3YzBlIiwicm9sZSI6IkNMSUVOVCIsImhvc3RfbmFtZSI6ImhpbGxzIiwiaWF0IjoxNzA0ODQyNTQzLCJleHAiOjE3ODI2MDI1NTB9.THkdZqGHqOs6Re9Zf-nUeYDjq1XZVerAFd0sJiACtFk';
-
-        await setItem('token', token);
-        await setItem('user_id', '60bf8bca86755e442b095415');
-        await setItem('partner_id', '61fd4d95cbb0c41ec9705073');
-    
-        let patient_id = '63d052fc3db4010240557c42';
-        /********** END HARDCODED DATA */
-
+    let patient_id = this.props && this.props.route && this.props.route.params && this.props.route.params.pet_id ? this.props.route.params.pet_id : '';
     let partner_id = await getItem('partner_id');
     let user_id    = await getItem('user_id');
 
-    let data = {
-      type: 'GI_PICS',
-      patient_id,
-      partner_id
-    }
+    this.pull_past_entries(patient_id)
 
-    let health_entries = await PetsController.getHealthEntries(data);
-
-    console.log('health_entries', health_entries);
-
-    health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
-
-    this.setState({ partner_id, patient_id, user_id, health_entries });
+    this.setState({ partner_id: partner_id, patient_id: patient_id, user_id: user_id });
   }
 
-  /*
-  patientHealthEntries {
-   type: 'GI_PICS',
-   patient_id: String,
-   client_id: String,
-   entry_data: {
-     image_url_1: String,
-     image_url_2: String,
-     image_url_3: String,
-     date: DateTime
-   },
-   has_thread: false,
-   partner_id: String
-  }
-  */
-
-  drawImage(image_url, image_index) {
-    return image_url ? 
-      <View style={{height: 120, width: 100}}>
-        <Image style={{height: 100, width: 100, borderRadius: 10}} resizeMode='cover' source={{uri: image_url}} />
-        <TouchableOpacity onPress={()=>this.clearImage(image_index)}><Text>clear</Text></TouchableOpacity>
+  render_image_block = (image_url, index) => {
+    if (image_url) {
+      return <View style={styles.preview_image_container}>
+        <Image style={styles.preview_image} resizeMode='cover' source={{ uri: image_url }} />
+        <TouchableOpacity style={styles.preview_image_trash}
+                          onPress={ () => { this.remove_image_preview(index) }}>
+          <Icon name='trash' size={18} />
+        </TouchableOpacity>
       </View>
-       : 
-      <TouchableOpacity onPress={()=>{this.setState({opened_modal: true, image_index})}} style={{height: 100, width: 100, backgroundColor: 'gray', borderRadius: 10}}>{image_index === 0 ? <Text style={{textAlign: 'center', alignSelf: 'center'}}>Required</Text> : null}</TouchableOpacity>
-  }
-
-  async addImage(media_object) {
-
-    console.log('media_object', media_object)
-
-    let { images, image_index } = this.state;
-
-    images = images.filter(image=>!!image)
-
-    let has_three_images = images.length === 3;
-
-    if(has_three_images) {
-      images[image_index] = media_object.url;
     } else {
-      images.push(media_object.url)
+      return <TouchableOpacity style={styles.add_image_container}
+                               onPress={ ()=> { this.setState({ opened_modal: true }) }}>
+        <Icon name='plus-circle' color='#e7e7e7' />
+        <Text style={styles.add_image_button_title}>Add Image</Text>
+      </TouchableOpacity>
     }
-
-    this.setState({images, opened_modal: false})
   }
 
-  async addHealthEntry() {
-    let { partner_id, patient_id, user_id, images } = this.state;
+  render_add_image_buttons = () => {
+    let images = this.state.images;
 
-    images = images.filter(image=>!!image);
-    let mapped_images = images.map((image, i)=>{return {[`image_url_${i+1}`]: image}});
-    mapped_images = Object.assign({}, ...mapped_images);
-
-    if(images.length) {
-      let data = {
-        type: 'GI_PICS', 
-        patient_id, 
-        client_id: user_id, 
-        partner_id, 
-        entry_data: {
-          ...mapped_images,
-          date: new Date()
-        }
-      }
-
-      console.log('data1', data);
-      
-      await PetsController.createHealthEntry(data);
-
-      data = {
-        type: 'GI_PICS',
-        patient_id,
-        partner_id
-      }
-
-      console.log('health_entries', health_entries);
-
-      let health_entries = await PetsController.getHealthEntries(data);
-
-      console.log('health_entries', health_entries);
-
-      health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
-
-      this.setState({ health_entries });
-    }
-
-  }
-
-  drawPastImage(image_url) {
-    return image_url ? 
-      <Image style={{height: 50, width: 50, borderRadius: 10}} resizeMode='cover' source={{uri: image_url}} /> : null
-  }
-
-  drawRecord(record) {
-
-    console.log('record', record);
-
-    let { entry_data } = record;
-    let { weight, date } = entry_data;
-
-    date = new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(date));
-
-    let images = record.entry_data;
-
-    return <View style={{flexDirection: 'column'}}>
-      <Text>{date}</Text>
-      <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-        {this.drawPastImage(images.image_url_1)}
-        {this.drawPastImage(images.image_url_2)}
-        {this.drawPastImage(images.image_url_3)}
+    if (images && images.length === 0) {
+      return <View style={styles.add_image_buttons_container}>
+        <TouchableOpacity onPress={ ()=> { this.setState({ opened_modal: true }) }}
+                          style={styles.single_add_image_button}>
+          <Text style={{ fontWeight: 'medium', color: 'grey', fontSize: 17 }}>Add Image</Text>
+        </TouchableOpacity>
       </View>
+    }
+
+    let image_1_url = images && images[0] ? images[0] : '';
+    let image_2_url = images && images[1] ? images[1] : '';
+    let image_3_url = images && images[2] ? images[2] : '';
+
+    return <View style={styles.add_image_buttons_container}>
+      { this.render_image_block(image_1_url, 0) }
+      <View style={{ width: 10 }} />
+      { this.render_image_block(image_2_url, 1) }
+      <View style={{ width: 10 }} />
+      { this.render_image_block(image_3_url, 2) }
     </View>
   }
 
-  clearImage(index) {
-    let { images } = this.state;
+  render_submit_button = () => {
+    let no_images = this.state.images && this.state.images.length === 0;
 
-    images.splice(index, 1);
+    if (no_images) {
+      return null;
+    }
 
-    this.setState({images});
+    return <View>
+      <Button title='Submit'
+            style={{ borderRadius: 40, width: 200, alignSelf: 'center' }}
+            loading={this.state.loading_uploading_images}
+            onPress={ () => { this.add_health_entry() }}/>
+    </View>
+  }
+
+  render_past_entries = () => {
+    let health_entries = this.state.health_entries;
+    let entry_rows = health_entries.map((entry) => {
+      let entry_data  = entry.entry_data || {};
+      let date        = entry_data.date ? DateUtils.getLongMonth(entry_data.date) + ' ' + DateUtils.getDateNumber(entry_data.date) : '';
+      let image_url_1 = entry_data && entry_data.image_url_1 ? entry_data.image_url_1 : '';
+      let image_url_2 = entry_data && entry_data.image_url_2 ? entry_data.image_url_2 : '';
+      let image_url_3 = entry_data && entry_data.image_url_3 ? entry_data.image_url_3 : '';
+      let is_expanded = this.state.expanded_entry_id === entry._id;
+      return <View style={{ paddingRight: 20, paddingLeft: 20 }}>
+        <TouchableOpacity onPress={ () => { this.setState({ expanded_entry_id: is_expanded ? '' : entry._id })}}>
+          <Text style={{ fontSize: 16, fontWeight: 'medium' }}>{ date }</Text>
+        </TouchableOpacity>
+        { is_expanded ? <View style={{ flexDirection: 'row', marginTop: 15 }}>
+          { image_url_1 ? <Image style={{height: 80, width: 80, borderRadius: 10, marginRight: 10 }} resizeMode='cover' source={{ uri: image_url_1 }} /> : null  }
+          { image_url_2 ? <Image style={{height: 80, width: 80, borderRadius: 10, marginRight: 10 }} resizeMode='cover' source={{ uri: image_url_2 }} /> : null  }
+          { image_url_3 ? <Image style={{height: 80, width: 80, borderRadius: 10 }} resizeMode='cover' source={{ uri: image_url_3 }} /> : null  }
+        </View> : null }
+        <Line style={{ marginTop: 15, marginBottom: 15 }} />
+      </View>
+    })
+
+    return <View>
+      <Text style={styles.section_title}>Past Entries</Text>
+      <View style={{ height: 20 }} />
+      { entry_rows }
+    </View>
   }
 
   render() {
-
-    //uploadMediaFromLibrary
-
-    let { images, opened_modal, health_entries } = this.state;
-
-    while (images.length < 3) {
-      images.push(null);
-    }
+    let { health_entries } = this.state;
 
     return <Screen scroll={true} title='GI Pics' navigation={this.props.navigation}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-          {images.map(this.drawImage)}
-          </View>
-          <MediaModal display={opened_modal}
+      <Text style={styles.section_title}>New Entry</Text>
+      { this.render_add_image_buttons() }
+      { this.render_submit_button()     }
+      <View style={{ height: 20 }} />
+      { this.render_past_entries() }
+      { this.render_media_modal() }
+    </Screen>
+  }
+
+  render_media_modal = () => {
+    return <MediaModal display={this.state.opened_modal}
                        button_title='Add Image'
                        close_action={ () => {
                          this.setState({ opened_modal: false })
                        }}
                        media_action={ (media_object) => {
                          if (media_object && media_object.type === 'image') {
-                           this.addImage(media_object)
+                           this.add_image(media_object)
                          }
                        }} />
-          <Button title='Submit'
-                style={{ borderRadius: 40, marginTop: 10, width: 200, alignSelf: 'flex-end' }}
-                loading={this.state.loading_sending_email}
-                onPress={this.addHealthEntry}/>
-
-      {health_entries && health_entries.length ? <View style={{flexDirection: 'column'}}>
-        <Text>Past Records</Text>
-        <View style={{flexDirection: 'column', marginTop: 10}}>
-          {health_entries.map(this.drawRecord)}
-        </View>
-      </View> : null}
-    </Screen>
   }
+
+  add_image = async (media_object) => {
+    let images  = this.state.images;
+    let url     = media_object.url || '';
+    let new_arr = [ ...images ];
+    if (url) {
+      new_arr.push(url);
+    }
+    this.setState({ images: new_arr, opened_modal: false })
+  }
+
+  add_health_entry = async () => {
+
+    let partner_id    = this.state.partner_id;
+    let patient_id    = this.state.patient_id;
+    let user_id       = this.state.user_id;
+    let images        = this.state.images;
+    let mapped_images = images.map((image, i) => { return { [`image_url_${i+1}`] : image }});
+        mapped_images = Object.assign({}, ...mapped_images);
+
+    if(images.length) {
+      this.setState({ loading_uploading_images: true });
+
+      let request_data = {
+        type: 'GI_PICS',
+        patient_id: patient_id,
+        client_id:  user_id,
+        partner_id: partner_id,
+        entry_data: {
+          ...mapped_images,
+          date: new Date()
+        }
+      }
+
+      let create_res = await PetsController.createHealthEntry(request_data);
+      let is_success = create_res.success === true ? true : false;
+
+      this.pull_past_entries(patient_id);
+
+      this.setState({ loading_uploading_images: false, images: is_success ? [] : this.state.images });
+    }
+  }
+
+  remove_image_preview = (index) => {
+    let current_images = [ ...this.state.images ];
+    let new_images     = [];
+    current_images.forEach((img, i) => {
+      if (i !== index) {
+        new_images.push(img);
+      }
+    });
+    this.setState({ images: new_images });
+  }
+
+  pull_past_entries = async (patient_id) => {
+    let partner_id = await getItem('partner_id');
+    let user_id    = await getItem('user_id');
+
+    let request_data   = { type: 'GI_PICS', patient_id: patient_id, partner_id: partner_id }
+    let health_entries = await PetsController.getHealthEntries(request_data);
+        health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
+
+    this.setState({ health_entries: health_entries })
+  }
+
 }
 
 export default HealthGiPicsScreen;
 
 const styles = StyleSheet.create({
-
+  add_image_container: {
+    flex: 1,
+    borderWidth: 2,
+    borderRadius: 18,
+    borderColor: '#e7e7e7',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  add_image_button_title: {
+    fontWeight: 'medium',
+    color: 'grey', marginTop: 5
+  },
+  add_image_buttons_container: {
+    flexDirection: 'row',
+    padding: 20
+  },
+  preview_image: {
+    height: 100,
+    width: '100%',
+    borderRadius: 10
+  },
+  preview_image_container: {
+    flex: 1,
+    alignItems: 'center'
+  },
+  preview_image_trash: {
+    padding: 15,
+    paddingRight: 30,
+    paddingLeft: 30
+  },
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    marginLeft: 20, marginTop: 10
+  },
+  single_add_image_button: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#e7e7e7',
+    padding: 15,
+    width: '100%',
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });

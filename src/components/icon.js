@@ -94,6 +94,9 @@ class Icon extends Component {
       case 'setting':
         component = <Image style={ style_obj } source={ require('../../assets/icons/setting.png') } />
         break;
+      case 'trash':
+        component = <Image style={ style_obj } source={ require('../../assets/icons/trash.png') } />
+        break;
       case 'video':
         component = <Image style={ style_obj } source={ require('../../assets/icons/video.png') } />
         break;

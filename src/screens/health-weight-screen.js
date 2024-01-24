@@ -12,141 +12,112 @@ class HealthWeightScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      partner_id: '',
+      patient_id: '',
+      user_id: '',
+      weight: 0,
+      health_entries: []
     }
-
-    this.updateStateValue = this.updateStateValue.bind(this);
-    this.addHealthEntry = this.addHealthEntry.bind(this);
-    this.drawRecord = this.drawRecord.bind(this);
   }
 
   componentDidMount = async () => {
-
-    /********** HARDCODED DATA */
-    let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjNkMDUyYzkzZGI0MDExYjk2NTU3YzBlIiwicm9sZSI6IkNMSUVOVCIsImhvc3RfbmFtZSI6ImhpbGxzIiwiaWF0IjoxNzA0ODQyNTQzLCJleHAiOjE3ODI2MDI1NTB9.THkdZqGHqOs6Re9Zf-nUeYDjq1XZVerAFd0sJiACtFk';
-
-    await setItem('token', token);
-    await setItem('user_id', '60bf8bca86755e442b095415');
-    await setItem('partner_id', '61fd4d95cbb0c41ec9705073');
-
-    let patient_id = '63d052fc3db4010240557c42';
-    /********** END HARDCODED DATA */
-
+    let patient_id = this.props && this.props.route && this.props.route.params && this.props.route.params.pet_id ? this.props.route.params.pet_id : '';
     let partner_id = await getItem('partner_id');
     let user_id    = await getItem('user_id');
 
-    let data = {
-      type: 'WEIGHT',
-      patient_id,
-      partner_id
-    }
+    this.pull_past_entries(patient_id);
 
-    let health_entries = await PetsController.getHealthEntries(data);
-
-    console.log('health_entries', health_entries);
-
-    health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
-
-    this.setState({ partner_id, patient_id, user_id, health_entries });
+    this.setState({ partner_id: partner_id, patient_id: patient_id, user_id: user_id });
   }
 
-  /*
-  patientHealthEntries {
-   type: 'GI_PICS',
-   patient_id: String,
-   client_id: String,
-   entry_data: {
-     weight: Number,
-     date: DateTime
-   },
-   has_thread: false,
-   partner_id: String
-  }
-  */
-
-  async addHealthEntry() {
-    let { update_weight, partner_id, patient_id, user_id } = this.state;
-
-    update_weight = update_weight ? update_weight.trim() : "";
-
-    if(update_weight !== "") {
-      let data = {
-        type: 'WEIGHT', 
-        patient_id, 
-        client_id: user_id, 
-        partner_id, 
-        entry_data: {
-          weight: parseFloat(update_weight),
-          date: new Date()
-        }
-      }
-      
-      await PetsController.createHealthEntry(data);
-
-      data = {
-        type: 'WEIGHT',
-        patient_id,
-        partner_id
-      }
-
-      let health_entries = await PetsController.getHealthEntries(data);
-
-      console.log('health_entries', health_entries);
-
-      health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
-
-      this.setState({ health_entries });
-    }
-
+  render_weight_input_section = () => {
+    return <View style={{ padding: 20 }}>
+      <Text style={styles.section_title}>Add Weight</Text>
+      <Input keyboardType='decimal-pad' value={this.state.weight} onChangeText={ (weight) => {  this.setState({ weight: weight }) }} />
+      <Button title='Submit'
+              style={{ borderRadius: 40, marginTop: 10, width: 200, alignSelf: 'flex-end' }}
+              loading={this.state.loading_submit_weight}
+              onPress={ () => { this.add_health_entry() }}/>
+    </View>
   }
 
-  updateStateValue(name, value) {
-    this.setState({
-      [name]: value
+  render_weight_entries = () => {
+    let health_entries = this.state.health_entries;
+    let entry_rows = health_entries.map((entry, idx) => {
+      let entry_data = entry && entry.entry_data ? entry.entry_data : {};
+      let weight     = entry_data.weight || 0;
+      let date       = entry_data.date ? DateUtils.getLongMonth(entry_data.date) + ' ' + DateUtils.getDateNumber(entry_data.date) : '';
+
+      return <View style={{ flexDirection: 'column' }}>
+        <View style={{ flexDirection: 'column' }}>
+          <Text style={{ fontSize: 20 }}>{ weight } lbs</Text>
+          <Text style={{ fontSize: 15, color: 'grey' }}>{ date   }</Text>
+        </View>
+        <Line style={{ marginTop: 15, marginBottom: 15 }} />
+      </View>
     })
-  }
 
-  drawRecord(record) {
-
-    console.log('record', record);
-
-    let { entry_data } = record;
-    let { weight, date } = entry_data;
-
-    date = new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(date));
-
-    return <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-      <Text>{date}</Text>
-      <Text>{weight} lbs</Text>
+    return <View style={{ flexDirection: 'column', padding: 20, paddingTop: 0 }}>
+      <Text style={styles.section_title}>Past Entries</Text>
+      { entry_rows }
     </View>
   }
 
   render() {
-    let { health_entries } = this.state;
-
     return <Screen scroll={true} title='Weight' navigation={this.props.navigation}>
-      <Input type={'text'} onChangeText={(event)=>this.updateStateValue('update_weight', event)} />
-      <Button title='Submit'
-                style={{ borderRadius: 40, marginTop: 10, width: 200, alignSelf: 'flex-end' }}
-                loading={this.state.loading_sending_email}
-                onPress={this.addHealthEntry}/>
-
-      {health_entries && health_entries.length ? <View style={{flexDirection: 'column'}}>
-        <Text>Past Records</Text>
-        <View style={{flexDirection: 'column', marginTop: 10}}>
-          {health_entries.map(this.drawRecord)}
-        </View>
-      </View> : null}
+      { this.render_weight_input_section() }
+      { this.render_weight_entries()       }
     </Screen>
   }
+
+  add_health_entry = async () => {
+
+    let weight     = this.state.weight;
+    let client_id  = this.state.user_id;
+    let patient_id = this.state.patient_id;
+    let partner_id = this.state.partner_id;
+
+    if (weight) {
+      this.setState({ loading_submit_weight: true });
+
+      let request_data = {
+        type: 'WEIGHT',
+        patient_id: patient_id,
+        client_id: client_id,
+        partner_id: partner_id,
+        entry_data: {
+          weight: parseFloat(weight),
+          date: new Date()
+        }
+      }
+
+      let create_res = await PetsController.createHealthEntry(request_data);
+      let is_success = create_res.success === true ? true : false;
+
+      this.setState({ weight: '', loading_submit_weight: false });
+      this.pull_past_entries(patient_id);
+    }
+  }
+
+  pull_past_entries = async (patient_id) => {
+    let partner_id = await getItem('partner_id');
+    let user_id    = await getItem('user_id');
+
+    let request_data   = { type: 'WEIGHT', patient_id: patient_id, partner_id: partner_id }
+    let health_entries = await PetsController.getHealthEntries(request_data);
+        health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
+
+    this.setState({ health_entries: health_entries })
+  }
+
 }
 
 export default HealthWeightScreen;
 
 const styles = StyleSheet.create({
-
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    marginBottom: 15
+  }
 });

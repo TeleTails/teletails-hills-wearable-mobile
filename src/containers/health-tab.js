@@ -28,15 +28,15 @@ class HealthTab extends Component {
       <Text style={{ height: 30 }}>Health Tab</Text>
       <View style={{ padding: 20 }}>
         <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12, marginBottom: 5 }}
-                          onPress={ () => { this.props.navigation.push('HealthWeight') }}>
+                          onPress={ () => { this.props.navigation.push('HealthWeight', { pet_id: '63d052fc3db4010240557c42' }) }}>
           <Text>Add Weight</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12, marginBottom: 5 }}
-                          onPress={ () => { this.props.navigation.push('HealthGiPics') }}>
+                          onPress={ () => { this.props.navigation.push('HealthGiPics', { pet_id: '63d052fc3db4010240557c42' }) }}>
           <Text>Add GI Image</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{ borderWidth: 1, padding: 15, borderColor: '#e7e7e7', borderRadius: 12 }}
-                          onPress={ () => { this.props.navigation.push('HealthBodyCondition') }}>
+                          onPress={ () => { this.props.navigation.push('HealthBodyCondition', { pet_id: '63d052fc3db4010240557c42' }) }}>
           <Text>Add Body Condition Images</Text>
         </TouchableOpacity>
       </View>
@@ -50,46 +50,5 @@ class HealthTab extends Component {
 const styles = StyleSheet.create({
 
 });
-
-/*
-<View style={{ padding: 20 }}>
-  <Text>Bezier Line Chart</Text>
-  <LineChart
-    data={{
-      labels: ["January", "February", "March", "April", "May", "June"],
-      datasets: [
-        {
-          data: [ 65, 72, 75, 70, 65, 67 ]
-        }
-      ]
-    }}
-    width={ Dimensions.get("window").width - 40 } // from react-native
-    height={220}
-    yAxisSuffix="lbs"
-    yAxisInterval={1} // optional, defaults to 1
-    chartConfig={{
-      backgroundColor: "#e26a00",
-      backgroundGradientFrom: "#fb8c00",
-      backgroundGradientTo: "#ffa726",
-      decimalPlaces: 0, // optional, defaults to 2dp
-      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      style: {
-        borderRadius: 16
-      },
-      propsForDots: {
-        r: "4",
-        strokeWidth: "1",
-        stroke: "#ffa726"
-      }
-    }}
-    bezier
-    style={{
-      marginVertical: 8,
-      borderRadius: 16
-    }}
-  />
-</View>
-*/
 
 export default HealthTab
