@@ -23,6 +23,7 @@ export default class AuthController {
     }
 
     static setUser = async (user) => {
+      console.log('user', user)
       let user_obj = {
         _id: user._id || '',
         first_name: user.first_name || '',

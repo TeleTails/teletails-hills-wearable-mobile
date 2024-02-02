@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { Component, useState, useEffect, useRef } from "react";
+import React, { Component, useState, useEffect, useRef } from "react";
 import { AppState, View } from 'react-native';
 import { NavigationContainer  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -8,7 +8,7 @@ import * as Device  from 'expo-device';
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { PetsController } from './src/controllers';
+import { AuthController, PetsController } from './src/controllers';
 import { setItem, getItem } from './storage';
 
 import {
@@ -28,6 +28,10 @@ import {
   PetDetailsScreen,
   PetsScreen,
   SettingsScreen,
+  SignInWelcomeScreen,
+  SignUpInfoScreen,
+  SignUpLandingScreen,
+  SignUpSignInScreen,
   UserProfileScreen,
   VetLocatorScreen
 } from './src/screens';
@@ -84,8 +88,14 @@ export default function App() {
       'Poppins-Black':      require('./assets/fonts/Poppins-Black.ttf')
     });
 
+  let [user, setUser] = useState(null);
+
   AppState.addEventListener('change', async (nextAppState)=> {
     if(nextAppState == 'active') {
+
+      let new_user = await AuthController.getUser(true);
+      setUser(new_user);
+
       let latest_pet_food_update_date = await PetsController.getLatestPetFoodUpdateDate();
 
       let latest_pet_food_update_date_on_app = await getItem('latest_pet_food_update');
@@ -108,9 +118,12 @@ export default function App() {
       } else {
         console.log('not grabbing pet food');
       }
-
     }
   });
+
+  useEffect(() => {
+    console.log('Component re-rendered with user:', user);
+  }, [user]);
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => { console.log(token) } );
@@ -133,10 +146,16 @@ export default function App() {
     return null;
   }
 
+  console.log('re-rendering?', user)
+
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName={'SignUpLanding'} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home"       component={ HomeScreen }       />
+        <Stack.Screen name="SignInWelcomeScreen"       component={ SignInWelcomeScreen }       />
+        <Stack.Screen name="SignUpLanding"       component={ SignUpLandingScreen }       />
+        <Stack.Screen name="SignUpSignInScreen"       component={ SignUpSignInScreen }       />
+        <Stack.Screen name="SignUpInfoScreen"       component={ SignUpInfoScreen }       />
         <Stack.Screen name='AddPet'     component={ AddPetScreen } options={{ presentation: 'modal' }} />
         <Stack.Screen name='AddPetFlow' component={ AddPetFlowScreen } />
         <Stack.Screen name='ArticleDisplay' component={ ArticleDisplayScreen } />
@@ -156,5 +175,5 @@ export default function App() {
         <Stack.Screen name='VetLocator' component={ VetLocatorScreen } />
       </Stack.Navigator>
     </NavigationContainer>
-  );
+  )
 }

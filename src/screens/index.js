@@ -16,6 +16,10 @@ import PetsScreen       from './pets-screen';
 import SettingsScreen   from './settings-screen';
 import UserProfileScreen from './user-profile-screen';
 import VetLocatorScreen from './vet-locator-screen';
+import SignUpLandingScreen from './sign-up-landing-screen';
+import SignInWelcomeScreen from './sign-in-welcome-screen';
+import SignUpSignInScreen from './sign-up-sign-in-screen';
+import SignUpInfoScreen from './sign-up-info-screen';
 
 export {
   AddPetScreen,
@@ -34,6 +38,10 @@ export {
   PetDetailsScreen,
   PetsScreen,
   SettingsScreen,
+  SignUpInfoScreen,
+  SignUpLandingScreen,
+  SignUpSignInScreen,
+  SignInWelcomeScreen,
   UserProfileScreen,
   VetLocatorScreen
 }

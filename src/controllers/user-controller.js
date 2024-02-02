@@ -12,6 +12,16 @@ export default class UserController {
     }
   };
 
+  static completeUserSignUp = UserController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/users/update/user`, data, false);
+
+    if (response.success) {
+      await AuthController.getLoggedInUser();
+    }
+
+    return response;
+  });
+
   static updateProfile = UserController.exceptionWrapper(async (data) => {
       let response = await UtilitiesController.post(`/v4/api/user/update_profile`, data, true);
 

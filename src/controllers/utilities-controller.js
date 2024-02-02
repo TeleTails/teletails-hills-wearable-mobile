@@ -92,7 +92,7 @@ export default class UtilitiesController {
   }
 
   static post = UtilitiesController.postExceptionWrapper(async (url, body, internal, clearContentType) => {
-
+    console.log('getting here')
       if(internal) url = UtilitiesController.getUrl(url, false);
 
       let token = await UtilitiesController.getToken();
@@ -114,11 +114,17 @@ export default class UtilitiesController {
         }
       }
 
+      console.log('headers', headers);
+      console.log('url', url);
+      console.log('body', body);
+
       let response = await fetch(url, {
         method: 'POST',
         headers,
         body: JSON.stringify(body)
       });
+
+      console.log('response', )
 
       let res = await response.json();
 
