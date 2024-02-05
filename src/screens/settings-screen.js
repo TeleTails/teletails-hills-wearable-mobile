@@ -39,7 +39,7 @@ class SettingsScreen extends Component {
     await setItem('token', '');
     await setItem('user_id', '');
     await setItem('user', {});
-    this.props.navigation.pop();
+    this.props.navigation.popToTop();
   }
 
 }

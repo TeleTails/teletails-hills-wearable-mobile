@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Icon } from '../components';
+import { Text, Icon, Colors } from '../components';
 
 class Tabs extends Component {
 
@@ -37,7 +37,7 @@ class Tabs extends Component {
     let selected_tab = this.props.selected_tab;
 
     if (tab_name === selected_tab) {
-      return 'blue';
+      return Colors.PRIMARY;
     } else {
       return '#4c4c4c';
     }

@@ -46,7 +46,7 @@ class SignUpInfoScreen extends Component {
     let response = await UserController.completeUserSignUp(data);
 
     if(response && response.success) {
-      this.props.navigation.navigate('Home')
+      this.props.navigation.push('SignInWelcomeScreen')
     } else {
       this.setState({
         error_message: response.error

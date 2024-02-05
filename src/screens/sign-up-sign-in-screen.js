@@ -171,9 +171,9 @@ class SignUpSignInScreen extends Component {
     if(response && response.success) {
       let user = await AuthController.getUser(true);
       if(user && user.first_name) {
-        this.props.navigation.navigate('SignInWelcomeScreen')
+        this.props.navigation.push('SignInWelcomeScreen')
       } else {
-        this.props.navigation.navigate('SignUpInfoScreen')
+        this.props.navigation.push('SignUpInfoScreen')
       }
       this.setState({ loading_submit_code: false })
     } else if (response && response.error) {

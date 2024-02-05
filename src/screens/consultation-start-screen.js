@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
-import { Screen, Line, Text, Icon, Cards, IntakeFormQuestion, Button } from '../components';
+import { Screen, Line, Text, Icon, Cards, IntakeFormQuestion, Button, Colors } from '../components';
 import { PetsController, ConsultationController } from '../controllers';
 import { VideoCallSchedule, MessageList } from '../containers';
 import { config }            from '../../config';
@@ -52,7 +52,7 @@ class ConsultationStartScreen extends Component {
 
     return <View style={styles.progress_bar_container}>
       <View style={styles.progress_bar}>
-        <View style={{ height: '100%', width: percentage, backgroundColor: 'blue', borderRadius: 20 }}></View>
+        <View style={{ height: '100%', width: percentage, backgroundColor: Colors.PRIMARY, borderRadius: 20 }}></View>
       </View>
     </View>
   }
@@ -249,7 +249,8 @@ class ConsultationStartScreen extends Component {
   }
 
   render() {
-    return <Screen title='New Consult' scroll={true} navigation={this.props.navigation} left_action={this.back_button_action}>
+    let screen_title = this.get_screen_title();
+    return <Screen title={ screen_title } scroll={true} navigation={this.props.navigation} left_action={this.back_button_action}>
       { this.render_progress_bar()  }
       { this.render_pet_selection() }
       { this.render_triage()        }
@@ -257,6 +258,16 @@ class ConsultationStartScreen extends Component {
       { this.render_intake()        }
       { this.render_schedule()      }
     </Screen>
+  }
+
+  get_screen_title = () => {
+    let screen_title = 'New Consultation';
+    let type         = this.state.consultation_type;
+
+    screen_title = type === 'VIDEO' ? 'Video Visit' : screen_title;
+    screen_title = type === 'CHAT'  ? 'Live Chat'   : screen_title;
+
+    return screen_title;
   }
 
   category_selection_action = (category) => {

@@ -48,7 +48,7 @@ class SignInWelcomeScreen extends Component {
     }
 
     this.setState({ display_agree_error: false })
-    this.props.navigation.navigate('Home')
+    this.props.navigation.push('SignUpLanding')
   }
 }
 

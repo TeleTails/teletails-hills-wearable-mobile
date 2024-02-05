@@ -12,13 +12,24 @@ class SignUpLandingScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected_tab: 'home'
+      selected_tab: 'home',
+      display_animation: true,
+      navigate_to_home: false,
+      elapsed_seconds: 0
     }
   }
 
   componentDidMount = async () => {
     let t = setInterval(this._onHalfSecond, 500);
-    this.setState({ t: t });
+
+    let token = await getItem('token');
+    let user  = await this.check_token_and_user();
+
+    if (user && token && user._id) {
+      this.setState({ t: t, navigate_to_home: true });
+    } else {
+      this.setState({ t: t, display_animation: false });
+    }
   }
 
   componentWillUnmount = () => {
@@ -30,13 +41,33 @@ class SignUpLandingScreen extends Component {
       this.welcome_animation.play();
       this.setState({ welcome_animation_started: true });
     }
+
+    if (this.state.navigate_to_home && this.state.elapsed_seconds > 2) {
+      this.props.navigation.push('Home');
+      this.setState({ navigate_to_home: false, display_animation: false });
+    }
+
+    this.setState({ elapsed_seconds: this.state.elapsed_seconds + 0.5 });
   }
 
   continue_action = () => {
-    this.props.navigation.navigate('SignUpSignInScreen')
+    this.props.navigation.push('SignUpSignInScreen')
+  }
+
+  render_welcome_animation = () => {
+    if (!this.state.display_animation) {
+      return null;
+    }
+
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <LottieView loop={true} ref={animation => { this.welcome_animation = animation }} style={{ width: 150, height: 150 }} source={require('../../assets/animations/dog-pouncing.json')} />
+    </View>
   }
 
   render_preview_section = () => {
+    if (this.state.display_animation) {
+      return null;
+    }
 
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Image style={{ width: '90%' }} resizeMode='contain' source={ require('../../assets/images/landing-screen-preview.png') } />
@@ -44,6 +75,10 @@ class SignUpLandingScreen extends Component {
   }
 
   render_button_section = () => {
+    if (this.state.display_animation) {
+      return null;
+    }
+
     return <View style={{ backgroundColor: '#0255A5', height: 150, justifyContent: 'center', alignItems: 'center' }}>
       <TouchableOpacity style={{ borderWidth: 2, borderColor: 'white', borderRadius: 5, padding: 15, width: '80%', alignItems: 'center' }}
                         onPress={ () => {
@@ -61,10 +96,17 @@ class SignUpLandingScreen extends Component {
     return (
       <SafeAreaView style={{ backgroundColor: '#0255A5', flex: 1 }}>
         <View style={{ height: top_padding }} />
-          { this.render_preview_section() }
-          { this.render_button_section()  }
+          { this.render_welcome_animation() }
+          { this.render_preview_section()   }
+          { this.render_button_section()    }
       </SafeAreaView>
     );
+  }
+
+  check_token_and_user = async () => {
+    await setItem('user', {});
+    let user = await AuthController.getUser(true);
+    return user;
   }
 }
 
