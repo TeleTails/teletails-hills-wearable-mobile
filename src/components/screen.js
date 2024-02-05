@@ -134,7 +134,8 @@ class Screen extends Component {
     //
     sign_in_view  = false;
 
-    let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+    let top_padding    = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+    let boreder_radius = new_style && new_style.borderRadius ? new_style.borderRadius : 0;
 
     if (enable_scroll) {
       return (
@@ -165,7 +166,7 @@ class Screen extends Component {
         <SafeAreaView style={[ styles.main_container, new_style ]} >
             <View style={{ height: top_padding }} />
             { this.render_navigation_bar() }
-            <View style={{ flex: 1, alignItems: 'center' }}>
+            <View style={{ flex: 1, alignItems: 'center', borderRadius: boreder_radius, overflow: 'hidden' }}>
                 <View style={{ maxWidth: 450, width: '100%', flex: 1 }}>
                   { sign_in_view ? this.render_sign_in() : this.props.children }
                 </View>

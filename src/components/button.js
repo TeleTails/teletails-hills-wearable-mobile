@@ -27,7 +27,7 @@ class Button extends Component {
     let styles_array = [ styles.default_style, { backgroundColor: Colors.PRIMARY }, btn_style ];
         styles_array = outline ? [ styles.outline_style, { borderColor: Colors.PRIMARY }, btn_style ] : styles_array;
 
-    if(inactive) {
+    if (inactive) {
       let intactive_btn_style = styles.inactive_button;
         if(typeof intactive_btn_style !== 'number') {
         intactive_btn_style['backgroundColor'] = Colors.PRIMARY_FADED || '#8bdaf7';
@@ -37,14 +37,18 @@ class Button extends Component {
       btn_action = this.props.onPress ? this.props.onPress : () => { };
     }
 
+    if (is_loading) {
+      btn_action = () => { };
+    }
+
     return (
       <TouchableOpacity style={styles_array}
                         onPress={btn_action}>
         <View style={{ height: 25, width: 25 }}>
-          { is_loading  ? <LottieView autoPlay style={{ width: 25, height: 25 }} source={ require('../../assets/animations/white-spinner.json') } /> : null }
           { !is_loading && icon_name ? <Icon name={icon_name} size={19} style={{ marginTop: 2 }} solid={true} color={ outline ? Colors.PRIMARY : 'white' } /> : null }
         </View>
-        <Text style={title_style}>{ btn_title }</Text>
+        { is_loading  ? <LottieView autoPlay style={{ width: 25, height: 25 }} source={ require('../../assets/animations/white-spinner.json') } /> : null }
+        { !is_loading ? <Text style={title_style}>{ btn_title }</Text> : null }
         <View style={{ height: 25, width: 25 }}></View>
       </TouchableOpacity>
     );
@@ -66,7 +70,7 @@ class Button extends Component {
     if (title_font_size)   { title_style_obj['fontSize']   = title_font_size   }
     if (title_font_weight) { title_style_obj['fontWeight'] = title_font_weight }
 
-    return [ styles.default_title_style, { fontWeight: '500' }, title_style_obj ]
+    return [ styles.default_title_style, { fontWeight: 'bold' }, title_style_obj ]
   }
 
 }
