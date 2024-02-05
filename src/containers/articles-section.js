@@ -20,7 +20,7 @@ class ArticlesSection extends Component {
     let articles = section.articles;
 
     return <View style={{ marginTop: 20, marginBottom: 5 }}>
-      <Text style={{ fontWeight: 'semibold', fontSize: 17, marginBottom: 10, marginLeft: 15 }}>{ title }</Text>
+      <Text style={{ fontWeight: 'semibold', fontSize: 17, marginBottom: 10, marginLeft: 20 }}>{ title }</Text>
       <FlatList
         horizontal
         ref={(ref) => { this.flatListRef = ref }}
@@ -31,7 +31,7 @@ class ArticlesSection extends Component {
         renderItem={ ({item, index}) => {
           let article_title = item.title;
           let article_image = item.thumbnail_url;
-          let left_margin   = index === 0 ? 15 : 0;
+          let left_margin   = index === 0 ? 20 : 0;
           let content_html  = item.content_html;
           let article_id    = item.article_id;
           let bubble_height = Platform.OS === 'web' ? 126 : 130;
@@ -41,7 +41,7 @@ class ArticlesSection extends Component {
             url: item.url
           }
 
-          return <TouchableOpacity style={{ height: bubble_height, width: 163, marginLeft: left_margin, marginRight: 15, backgroundColor: '#f5f5f5', borderRadius: 12, overflow: 'hidden' }}
+          return <TouchableOpacity style={{ height: bubble_height, width: 163, marginLeft: left_margin, marginRight: 15, backgroundColor: '#f5f5f5', borderRadius: 12, overflow: 'hidden', backgroundColor: 'white' }}
                                    onPress={ () => {
                                      if (this.props.pressed_action) {
                                        this.props.pressed_action(article_nav_data);

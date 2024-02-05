@@ -35,18 +35,21 @@ class HomeScreen extends Component {
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
     return (
-      <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
-        <View style={{ height: top_padding }} />
-        <ScrollView style={{ backgroundColor: 'white' }}>
-          { this.render_tab_component() }
-        </ScrollView>
-        <Tabs selected_tab={this.state.selected_tab}
-              home_action={        () => { this.home_tab_action()    }}
-              health_action={      () => { this.health_action()      }}
-              vet_chat_action={    () => { this.vet_chat_action()    }}
-              shop_action={        () => { this.shop_action()        }}
-            />
-      </SafeAreaView>
+      <>
+        <SafeAreaView style={{ backgroundColor: '#F2F3F6', flex: 0 }} />
+        <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
+          <View style={{ height: top_padding }} />
+          <ScrollView style={{ backgroundColor: '#F2F3F6' }}>
+            { this.render_tab_component() }
+          </ScrollView>
+          <Tabs selected_tab={this.state.selected_tab}
+                home_action={        () => { this.home_tab_action()    }}
+                health_action={      () => { this.health_action()      }}
+                vet_chat_action={    () => { this.vet_chat_action()    }}
+                shop_action={        () => { this.shop_action()        }}
+              />
+        </SafeAreaView>
+      </>
     );
   }
 

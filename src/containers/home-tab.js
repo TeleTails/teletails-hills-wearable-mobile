@@ -4,9 +4,9 @@ import { SignIn }           from '../containers';
 import { StringUtils }      from '../utils';
 import { AuthController, UserController, ConsultationController } from '../controllers';
 import { setItem, getItem } from '../../storage';
-import { Text, Input, Icon, Line } from '../components';
+import { Text, Input, Icon, Line, Colors } from '../components';
 import { HomeCtaButtons, ArticlesSection, ArticlesHeroSection } from '../containers';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 
 class HomeTab extends Component {
 
@@ -68,18 +68,20 @@ class HomeTab extends Component {
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
           <View>
-            <Text style={{ fontSize: 16, fontWeight: '500', color: '#040415' }}>{ subject }</Text>
+            <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#040415' }}>{ subject }</Text>
             <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ pet_name }</Text>
           </View>
           <Icon name='chevron-right' size={13} color='grey' />
         </TouchableOpacity>
-        <Line />
+        <Line hide={ active_threads.length - 1 === ind } />
       </View>
     })
 
     return <View style={{ paddingLeft: 20, paddingRight: 20 }}>
-      <Text style={styles.section_title}>Provider Messages</Text>
-      { thread_rows }
+      <Text style={styles.section_title}>Your Provider Messages</Text>
+      <View style={{ backgroundColor: 'white', borderRadius: 12, paddingRight: 20, paddingLeft: 20, marginTop: 15 }}>
+        { thread_rows }
+      </View>
     </View>
   }
 
@@ -146,33 +148,52 @@ class HomeTab extends Component {
     </View>
   }
 
+  // <ImageBackground source={ require('../../assets/images/background-paw.png') } resizeMode="cover" style={{ height: 50, width: 50, marginLeft: 40 }}>
+  // </ImageBackground>
+  // <View style={{ marginTop: 20, marginBottom: 20 }}>
+  //   <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
+  //     <Icon name='setting' size={30} />
+  //   </TouchableOpacity>
+  //   <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationThread') }}>
+  //     <Icon name='envelope' size={30} />
+  //   </TouchableOpacity>
+  // </View>
+
   render() {
     return <View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 10 }}>
-        <Text style={{ fontSize: 26, fontWeight: 'semibold' }}>Welcome</Text>
-        <TouchableOpacity onPress={ () => { this.props.navigation.push('Settings') }}>
-          <Icon name='setting' size={30} />
-        </TouchableOpacity>
+
+      <ImageBackground source={ require('../../assets/images/background-paw.png') } resizeMode="contain" style={{ backgroundColor: Colors.PRIMARY, borderRadius: 14 }} imageStyle={{ marginLeft: '60%', marginBottom: 55 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, padding: 20, paddingBottom: 0 }}>
+          <Text style={{ fontSize: 26, fontWeight: 'semibold', color: 'white' }}>Welcome</Text>
+          <TouchableOpacity onPress={ () => { this.props.navigation.push('Settings') }}>
+            <Icon name='setting' size={24} color='white' />
+          </TouchableOpacity>
+        </View>
+        <View style={{  paddingLeft: 20 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'semibold', color: 'white' }}>Get Connected</Text>
+        </View>
+        <View style={{ height: 100 }} />
+        <View style={{ height: 60, backgroundColor: '#F2F3F6' }} />
+        <View style={{ position: 'absolute', width: '100%', marginTop: 130 }}>
+          <HomeCtaButtons navigation={this.props.navigation} />
+        </View>
+      </ImageBackground>
+
+      <View style={{ height: 250, paddingRight: 20, paddingLeft: 20, marginBottom: 15 }}>
+        <ImageBackground source={ require('../../assets/images/add-pet-cta.png') } resizeMode="contain" style={{ height: '100%' }} imageStyle={{  }}>
+          <Text style={{ marginTop: 80, marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>Add your pet for</Text>
+          <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>personalized</Text>
+          <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>care</Text>
+          <TouchableOpacity style={{ backgroundColor: '#F2F3F6', width: 102, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: 8, marginLeft: 20, marginTop: 20 }} onPress={ () => { this.props.navigation.push('AddPetFlow') }}>
+            <Text style={{ fontSize: 14, fontWeight: 'medium' }}>Add More</Text>
+          </TouchableOpacity>
+        </ImageBackground>
       </View>
-      <TouchableOpacity style={{ padding: 20, margin: 20, borderWidth: 1, borderRadius: 12 }}
-                        onPress={ () => {
-                          this.props.navigation.push('AddPetFlow');
-                        }}>
-        <Text>Start Add Pet Flow</Text>
-      </TouchableOpacity>
-      <HomeCtaButtons navigation={this.props.navigation} />
-      <View style={{ marginTop: 20, marginBottom: 20 }}>
-        <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
-          <Icon name='setting' size={30} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationThread') }}>
-          <Icon name='envelope' size={30} />
-        </TouchableOpacity>
-      </View>
+
       { this.render_active_threads()   }
       { this.render_hero_articles()    }
       { this.render_article_sections() }
-      { this.render_search_section()   }
+      { /* this.render_search_section() */ }
     </View>
   }
 
@@ -189,8 +210,9 @@ class HomeTab extends Component {
 
 const styles = StyleSheet.create({
   section_title: {
-    fontSize: 22,
-    fontWeight: 'semibold'
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
   }
 });
 

@@ -4,7 +4,7 @@ import { SignIn }           from '../containers';
 import { AuthController }   from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text, Button, Icon } from '../components';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 class HomeCtaButtons extends Component {
 
@@ -18,16 +18,25 @@ class HomeCtaButtons extends Component {
   render() {
     return <View style={styles.container}>
       <TouchableOpacity style={styles.button_container} onPress={ () => { this.props.navigation.push('ConsultationStart', { type: 'VIDEO' }) }}>
-        <Icon name='video-call' size={40} />
-        <Text style={styles.button_title}>Video Visit</Text>
+        <View style={styles.icon_container}>
+          <Image style={{ height: 26, width: 26 }} source={ require('../../assets/images/video-visit.png') } />
+        </View>
+        <Text style={styles.button_title}>Video</Text>
+        <Text style={styles.button_title}>Visit</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.middle_button_container} onPress={ () => { this.props.navigation.push('ConsultationStart', { type: 'CHAT' }) }}>
-        <Icon name='live-chat' size={42} />
-        <Text style={styles.button_title}>Live Chat</Text>
+        <View style={styles.icon_container}>
+          <Image style={{ height: 26, width: 26 }} source={ require('../../assets/images/live-chat.png') } />
+        </View>
+        <Text style={styles.button_title}>Live</Text>
+        <Text style={styles.button_title}>Chat</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button_container} onPress={ () => { this.props.navigation.push('VetLocator') }}>
-        <Icon name='location' size={40} />
-        <Text style={styles.button_title}>Office Visit</Text>
+        <View style={styles.icon_container}>
+          <Image style={{ height: 26, width: 26 }} source={ require('../../assets/images/connect-a-device.png') } />
+        </View>
+        <Text style={styles.button_title}>Connect a</Text>
+        <Text style={styles.button_title}>Device</Text>
       </TouchableOpacity>
     </View>
   }
@@ -43,9 +52,8 @@ const styles = StyleSheet.create({
     height: 100
   },
   button_title: {
-    marginBottom: 10,
-    marginTop: 10,
-    fontWeight: 'semibold'
+    fontWeight: 'medium',
+    fontSize: 15
   },
   button_container: {
     backgroundColor: 'white',
@@ -53,21 +61,32 @@ const styles = StyleSheet.create({
     height: '100%',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    borderWidth: 1,
-    borderRadius: 15
+    justifyContent: 'center',
+    borderRadius: 14,
+    height: 130,
+    width: 103
+  },
+  icon_container: {
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    backgroundColor: '#DBE6F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10
   },
   middle_button_container: {
-    marginRight: 5,
-    marginLeft: 5,
+    marginRight: 10,
+    marginLeft: 10,
     backgroundColor: 'white',
     flex: 1,
     height: '100%',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    borderWidth: 1,
-    borderRadius: 15
+    justifyContent: 'center',
+    borderRadius: 14,
+    height: 130,
+    width: 103
   }
 });
 
