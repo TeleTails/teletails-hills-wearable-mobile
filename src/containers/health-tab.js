@@ -17,12 +17,20 @@ class HealthTab extends Component {
     }
   }
 
-  componentDidMount = async () => {
+  pull_pets = async () => {
     let pets_res     = await PetsController.getPets();
     let pets         = pets_res && pets_res.data && pets_res.data.pets ? pets_res.data.pets : [];
     let selected_pet = pets && pets.length > 0 && pets[0] ? pets[0] : {};
 
+    if (this.state.selected_pet && this.state.selected_pet._id) {
+      selected_pet = this.state.selected_pet;
+    }
+
     this.setState({ pets: pets, selected_pet: selected_pet })
+  }
+
+  componentDidMount = async () => {
+    this.pull_pets();
   }
 
   render_pet_selection_list = () => {
@@ -33,37 +41,65 @@ class HealthTab extends Component {
       return null;
     }
 
-    let pet_rows = pets.map((pet) => {
+    let pet_rows = pets.map((pet, idx) => {
       let pet_id      = pet._id;
       let is_selected = selected_pet_id === pet_id;
       let pet_name    = StringUtils.displayName(pet);
-      return <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, paddingBottom: 10 }}
-                               onPress={ () => { this.setState({ display_pet_selection: false, selected_pet: pet }) }}>
-        <Text style={{ fontSize: 18 }}>{ pet_name }</Text>
-        { is_selected ? <Icon name='check-circle' size={22} color={Colors.GREEN} />
-                      : <View style={{ borderWidth: 2, borderColor: '#e7e7e7', height: 24, width: 24, borderRadius: 13 }} /> }
-      </TouchableOpacity>
+      return <View>
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15 }}
+                                 onPress={ () => { this.setState({ display_pet_selection: false, selected_pet: pet }) }}>
+          <Text style={{ fontSize: 15 }}>{ pet_name }</Text>
+          { is_selected ? <Icon name='check-circle' size={22} color={Colors.PRIMARY} />
+                        : <View style={{ borderWidth: 2, borderColor: '#e7e7e7', height: 24, width: 24, borderRadius: 13 }} /> }
+        </TouchableOpacity>
+        <Line hide={ idx === pets.length - 1 } />
+      </View>
     })
 
-    return <View style={{ paddingBottom: 10 }}>
+    return <View style={{ backgroundColor: 'white', borderRadius: 15, marginBottom: 20 }}>
       { pet_rows }
     </View>
   }
 
+  render_add_button_padding = () => {
+    if (this.state.display_pet_selection) {
+      return null;
+    }
+
+    return <View style={{ height: 30 }} />
+  }
+
+  render_add_button_components = () => {
+    if (this.state.display_pet_selection) {
+      return null;
+    }
+
+    return <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', borderRadius: 30, borderColor: 'grey', height: 55, width: 140, position: 'absolute', alignSelf: 'center', marginTop: 40 }}
+                             onPress={ () => { this.props.navigation.push('AddPet', { success_action: () => { this.pull_pets() } }) }}>
+      <Icon name='plus-circle' size={22} color={Colors.PRIMARY} />
+      <Text style={{ fontWeight: 'semibold', marginLeft: 8 }}>Add a pet</Text>
+    </TouchableOpacity>
+  }
   render_pet_section = () => {
     let pet        = this.state.selected_pet;
     let pets       = this.state.pets;
     let pet_name   = StringUtils.displayName(pet);
     let single_pet = pets && pets.length === 1;
+    let switch_ttl = this.state.display_pet_selection ? 'Done' : 'Switch Pet';
 
     return <View>
-      <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 20, paddingBottom: 20, alignItems: 'center' }}
-                        onPress={ () => { this.setState({ display_pet_selection: !this.state.display_pet_selection }) }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 26 }}>{ pet_name }</Text>
-        <Text style={{ fontSize: 16, color: 'blue' }}>{ single_pet ? '' : 'Switch Pet' }</Text>
-      </TouchableOpacity>
-      { this.render_pet_selection_list() }
-      <Line style={{ marginBottom: 20 }} />
+    <View>
+      <View style={{ backgroundColor: Colors.PRIMARY, padding: 20, paddingBottom: 0, borderTopRightRadius: 15, borderTopLeftRadius: 15 }}>
+        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 20, alignItems: 'center' }}
+                          onPress={ () => { this.setState({ display_pet_selection: !this.state.display_pet_selection }) }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>{ pet_name }</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>{ single_pet ? '' : switch_ttl }</Text>
+        </TouchableOpacity>
+        { this.render_pet_selection_list()    }
+      </View>
+      { this.render_add_button_padding() }
+    </View>
+    { this.render_add_button_components() }
     </View>
   }
 
@@ -74,7 +110,7 @@ class HealthTab extends Component {
       return null;
     }
 
-    return <View>
+    return <View style={{ padding: 20 }}>
       <TouchableOpacity style={styles.entry_button_container}
                         onPress={ () => { this.props.navigation.push('HealthWeight', { pet_id: selected_pet_id }) }}>
         <Text style={styles.entry_button_title}>Weight</Text>
@@ -105,9 +141,9 @@ class HealthTab extends Component {
   render() {
 
     return <View style={{  }}>
-      <View style={{ padding: 20 }}>
-        { this.render_pet_section()   }
-        { this.render_entry_buttons() }
+      <View>
+        { this.render_pet_section()        }
+        { this.render_entry_buttons()      }
       </View>
     </View>
   }
@@ -127,7 +163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   entry_button_title: {
-    fontWeight: 'bold',
+    fontWeight: 'medium',
     fontSize: 16
   },
   entry_button_cta_container: {
