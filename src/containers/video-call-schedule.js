@@ -62,7 +62,7 @@ class VideoCallSchedule extends Component {
     return <View>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
         <TouchableOpacity onPress={ () => { this.navigate_dates(true, false) }}>
-          <Icon name='chevron-circle-left' size={32} />
+          <Icon name='chevron-circle-left' size={30} color={ !disable_next ? '#e7e7e7' : Colors.PRIMARY } />
         </TouchableOpacity>
         <Text style={{ fontSize: 16, fontWeight: '500', color: Colors.TEXT_GREY, marginRight: 20, marginLeft: 20 }}>{ month_str }</Text>
         <TouchableOpacity onPress={ () => {
@@ -71,7 +71,7 @@ class VideoCallSchedule extends Component {
                             }
                             this.navigate_dates(false, true)
                           }}>
-          <Icon name='chevron-circle-right' size={32} />
+          <Icon name='chevron-circle-right' size={30} color={ disable_next ? '#e7e7e7' : Colors.PRIMARY} />
         </TouchableOpacity>
       </View>
       <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'center', marginTop: 20 }}>
@@ -95,16 +95,16 @@ class VideoCallSchedule extends Component {
         return null;
       }
 
-      return <TouchableOpacity style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', marginBottom: 10 }}
+      return <TouchableOpacity style={{ backgroundColor: '#e7e7e7', padding: 15, borderRadius: 10, alignItems: 'center', marginBottom: 10 }}
                                onPress={ () => {
                                  this.props.display_change_action('schedule_video_confirm');
                                  this.setState({ selected_slot: slot })
                                }}>
-        <Text style={{ fontWeight: 'bold', color: 16, color: '#474747' }}>{ start_time + ' - ' + duration + ' Minutes' }</Text>
+        <Text style={{ fontWeight: 'semibold', color: 15, color: '#474747' }}>{ start_time + ' - ' + duration + ' Minutes' }</Text>
       </TouchableOpacity>
     })
 
-    return <View>
+    return <View style={{ marginTop: 20 }}>
       { slot_rows }
     </View>
   }
@@ -117,12 +117,23 @@ class VideoCallSchedule extends Component {
     let duration      = selected_slot.duration ? selected_slot.duration.toString() : '15';
 
     return <View>
-      <Text style={{ fontWeight: '500', fontSize: 18, marginBottom: 5 }}>Selected Appointment Time</Text>
-      <Text style={{ fontSize: 16, color: Colors.TEXT_GREY }}>{ slot_date_str }</Text>
-      <Text style={{ fontSize: 16, color: Colors.TEXT_GREY }}>{ start_time }</Text>
-      <Text style={{ fontSize: 16, color: Colors.TEXT_GREY }}>{ duration + ' Minutes' }</Text>
+      <View style={{ backgroundColor: '#f5f5f5', borderRadius: 12, marginTop: 10, padding: 15 }}>
+        <Text style={{ fontSize: 16, fontWeight: 'medium', marginBottom: 10 }}>{ 'Appointment Details' }</Text>
+        <View style={styles.appointment_details_row}>
+          <Text style={styles.appointment_details_label}>Date</Text>
+          <Text style={styles.appointment_details_value}>{ slot_date_str }</Text>
+        </View>
+        <View style={styles.appointment_details_row}>
+          <Text style={styles.appointment_details_label}>Time</Text>
+          <Text style={styles.appointment_details_value}>{ start_time }</Text>
+        </View>
+        <View style={styles.appointment_details_row}>
+          <Text style={styles.appointment_details_label}>Duration</Text>
+          <Text style={styles.appointment_details_value}>{ duration + ' Minutes' }</Text>
+        </View>
+      </View>
       <Button title='Book Appointment'
-              style={{ marginTop: 20, marginBottom: 5 }}
+              style={{ marginTop: 30, marginBottom: 5 }}
               loading={this.props.loading_create_consultation}
               onPress={ () => {
                 this.props.booking_confirmation_action(selected_slot._id);
@@ -264,8 +275,26 @@ class VideoCallSchedule extends Component {
 }
 
 const styles = StyleSheet.create({
-  main_container: {
-
+  appointment_details_row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5
+  },
+  appointment_details_label: {
+    fontSize: 15,
+    flex: 1,
+    color: '#474747',
+    fontWeight: 'medium'
+  },
+  appointment_details_value: {
+    fontSize: 15,
+    width: 165,
+    color: '#474747'
+  },
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
   }
 });
 

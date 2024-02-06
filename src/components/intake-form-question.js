@@ -32,7 +32,7 @@ class IntakeFormQuestion extends Component {
 
     let choice_rows = choices.map((choice_str) => {
       let selected_choice = this.state.response_object && this.state.response_object.choice_response ? this.state.response_object.choice_response : '';
-      let selected_style  = [styles.selected_choice, { backgroundColor: 'black' }];
+      let selected_style  = styles.selected_choice;
       let default_style   = styles.default_choice;
       let is_selected     = selected_choice === choice_str;
       let choice_style    = is_selected ? selected_style : default_style;
@@ -44,7 +44,7 @@ class IntakeFormQuestion extends Component {
                                  this.update_parent_object(updated_res_obj);
                                  this.setState({ response_object: updated_res_obj });
                                }}>
-        <Text style={{ fontSize: 16, textAlign: 'center', color: is_selected ? 'white' : 'black', fontWeight: 'semibold' }}>{ choice_str }</Text>
+        <Text style={{ fontSize: 15, textAlign: 'center', color: is_selected ? 'white' : '#474747', fontWeight: 'semibold' }}>{ choice_str }</Text>
       </TouchableOpacity>
     })
 
@@ -118,19 +118,18 @@ class IntakeFormQuestion extends Component {
 const styles = StyleSheet.create({
   selected_choice: {
     padding: 15,
-    borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 5,
+    backgroundColor: Colors.PRIMARY
   },
   default_choice: {
     padding: 15,
-    borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 5,
-    backgroundColor: 'white'
+    backgroundColor: '#e7e7e7'
   },
   question_text: {
-    fontSize: 16,
+    fontSize: 15,
     marginTop: 15,
     marginBottom: 15
   }

@@ -44,7 +44,7 @@ class Screen extends Component {
     }
 
     return <TouchableOpacity onPress={left_btn_action}>
-      <Icon name='chevron-circle-left' size={30} />
+      <Icon name='chevron-circle-left' size={30} color={Colors.PRIMARY} />
     </TouchableOpacity>
   }
 
@@ -61,8 +61,6 @@ class Screen extends Component {
     if (!right_btn_action) {
       return <View style={{ width: 30 }}></View>;
     }
-
-
 
     return <TouchableOpacity onPress={ () => { right_btn_action() }}>
       <Icon name={ icon_name } size={30} solid={true} color={icon_color} />
@@ -84,7 +82,7 @@ class Screen extends Component {
 
     return <View style={nav_bar_container}>
       { this.render_left_nav_button() }
-      <Text style={{ fontSize: 18, color: '#000000', fontWeight: 'semibold' }}>{ title }</Text>
+      <Text style={{ fontSize: 18, color: '#000000', fontWeight: 'bold' }}>{ title }</Text>
       { this.render_right_nav_button() }
     </View>
   }

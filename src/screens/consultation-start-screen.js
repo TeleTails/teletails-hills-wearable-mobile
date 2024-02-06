@@ -78,9 +78,9 @@ class ConsultationStartScreen extends Component {
       <Text style={styles.section_title}>Select a pet</Text>
       { pet_rows }
       <TouchableOpacity onPress={ () => { this.props.navigation.push('AddPet', { success_action: () => { this.pull_pets() } }) }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
-        <Icon name='plus-circle' />
+        <Icon name='plus-circle' color={Colors.PRIMARY} />
         <View style={{ marginLeft: 15 }}>
-          <Text style={{ fontSize: 16, fontWeight: '500', color: '#535353' }}>{ 'Add A New Pet' }</Text>
+          <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#535353' }}>{ 'Add A New Pet' }</Text>
           <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ 'Add another pet to your account' }</Text>
         </View>
       </TouchableOpacity>
@@ -191,8 +191,8 @@ class ConsultationStartScreen extends Component {
     let patient_id  = this.state.selected_pet && this.state.selected_pet._id ? this.state.selected_pet._id : '';
 
     return <View style={styles.section_container}>
-      <Text style={styles.section_title}>Book a video session</Text>
-      <Text style={{ color: 'grey', fontSize: 16, marginBottom: 20 }}>Select a date and time for your video call</Text>
+      <Text style={[styles.section_title, { textAlign: 'center' }]}>Book a video session</Text>
+      <Text style={{ color: 'grey', fontSize: 15, marginBottom: 20, textAlign: 'center' }}>Select a date and time for your video call</Text>
       <VideoCallSchedule
         practice_id={practice_id}
         partner_id={partner_id}
@@ -407,12 +407,17 @@ const styles = StyleSheet.create({
     height: 30
   },
   selection_row_title: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'medium'
   },
-  section_title: {
+  section_title_og: {
     fontSize: 22,
     fontWeight: 'semibold'
+  },
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
   },
   progress_bar_container: {
     paddingRight: 20,
@@ -426,7 +431,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e7e7e7'
   },
   triage_question: {
-    fontSize: 16,
+    fontSize: 15,
     marginTop: 15,
     marginBottom: 15
   },
@@ -434,8 +439,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   triage_button: {
-    borderWidth: 1,
     flex: 1,
+    backgroundColor: '#e7e7e7',
     padding: 15,
     alignItems: 'center',
     justifyContent: 'center',
@@ -443,21 +448,21 @@ const styles = StyleSheet.create({
   },
   triage_button_title: {
     fontWeight: 'semibold',
-    fontSize: 15
+    fontSize: 15,
+    color: '#474747',
   },
   triage_button_selected: {
-    borderWidth: 1,
     flex: 1,
     padding: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
-    backgroundColor: 'blue'
+    backgroundColor: Colors.PRIMARY
   },
   triage_button_title_selected: {
     fontWeight: 'semibold',
     fontSize: 15,
-    color: 'white'
+    color: 'white',
   },
   triage_button_buffer: {
     width: 10
