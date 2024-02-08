@@ -77,25 +77,31 @@ class MediaModal extends Component {
                           onPress={ () => {
                             let media_url  = '';
                             let media_type = 'video';
-                            if (this.props.media_action) {
-                              this.setState({ loading_upload: true }, async () => {
-
+                            this.setState({ loading_upload: true }, async () => {
                                 let upload_object = this.state.upload_object;
                                 let media_type    = upload_object.type;
                                 let media_uri     = upload_object.uri;
 
-                                let upload_response = await MediaController.uploadMediaFromLibrary(media_uri);
-                                let is_success      = upload_response && upload_response.success ? true : false;
-                                let uploaded_url    = is_success && upload_response && upload_response.message && upload_response.message.Location ? upload_response.message.Location : '';
+                                if (this.props.media_action) {
+                                    if(!this.props.keep_as_local) {
+                                      let upload_response = await MediaController.uploadMediaFromLibrary(media_uri);
+                                      let is_success      = upload_response && upload_response.success ? true : false;
+                                      let uploaded_url    = is_success && upload_response && upload_response.message && upload_response.message.Location ? upload_response.message.Location : '';
 
-                                this.setState({ loading_upload: false });
-
-                                if (is_success) {
-                                  this.props.media_action({ type: media_type, url: uploaded_url });
-                                }
+                                      if (is_success) {
+                                        this.props.media_action({ type: media_type, url: uploaded_url });
+                                      }
+                                    } else {
+                                      this.props.media_action({ type: media_type, url: media_uri });
+                                    }
+                                } 
+                                this.setState({
+                                  photo_uri: '',
+                                  video_uri: '',
+                                  loading_upload: false,
+                                  upload_object: null
+                                })
                               });
-
-                            }
                           }}/>
                 </View>
 
@@ -120,8 +126,6 @@ class MediaModal extends Component {
 
       let result = await ImagePicker.launchImageLibraryAsync({
          mediaTypes: ImagePicker.MediaTypeOptions.All,
-         allowsEditing: true,
-         aspect: [4, 3],
          quality: 1,
          base64: true,
        });
@@ -170,7 +174,6 @@ class MediaModal extends Component {
       let result = await ImagePicker.launchCameraAsync({
          mediaTypes: ImagePicker.MediaTypeOptions.All,
          allowsEditing: true,
-         aspect: [4, 3],
          quality: 1,
          base64: true
        })

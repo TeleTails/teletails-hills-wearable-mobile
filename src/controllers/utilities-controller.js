@@ -92,7 +92,6 @@ export default class UtilitiesController {
   }
 
   static post = UtilitiesController.postExceptionWrapper(async (url, body, internal, clearContentType) => {
-    console.log('getting here')
       if(internal) url = UtilitiesController.getUrl(url, false);
 
       let token = await UtilitiesController.getToken();
