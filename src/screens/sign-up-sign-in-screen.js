@@ -88,7 +88,7 @@ class SignUpSignInScreen extends Component {
                               </TouchableOpacity>
                             : <View style={{ alignItems: 'center', marginTop: 15 }}>
                                 <Text style={{ fontSize: 16, color: 'grey' }}>{ "Didn't get a code?" }</Text>
-                                <Text style={{ fontSize: 16, color: 'grey', width: 240, paddingLeft: 15 }}>{ "Tray again in: " + this.state.seconds_remaining + ' seconds.' }</Text>
+                                <Text style={{ fontSize: 16, color: 'grey', width: 240, paddingLeft: 15 }}>{ "Try again in: " + this.state.seconds_remaining + ' seconds.' }</Text>
                               </View> }
     </View>
   }

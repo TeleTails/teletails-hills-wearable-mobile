@@ -3,7 +3,7 @@ import { config }           from '../../config';
 import { SignIn }           from '../containers';
 import { AuthController }   from '../controllers';
 import { setItem, getItem } from '../../storage';
-import { Text, Button, Icon } from '../components';
+import { Text, Button, Icon, Colors } from '../components';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 
 class CareCtaButtons extends Component {
@@ -43,7 +43,7 @@ class CareCtaButtons extends Component {
   }
 
   render_horizontal_orientation = () => {
-    return <View style={styles.container}>
+    return <View style={[ styles.container, { position: 'absolute', width: '100%', marginTop: 40 } ]}>
       <TouchableOpacity style={styles.button_container} onPress={ () => { this.props.navigation.push('ConsultationStart', { type: 'VIDEO' }) }}>
         <Icon name='video-call' size={40} />
         <Text style={styles.button_title}>Video Visit</Text>
@@ -67,7 +67,8 @@ class CareCtaButtons extends Component {
       return null;
     }
 
-    return <View>
+    return <View style={{ backgroundColor: Colors.PRIMARY, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+      <Text style={{ color: 'white', fontSize: 22, fontWeight: 'semibold', marginLeft: 20, marginTop: 15, marginBottom: 15 }}>Get Connected</Text>
       { orientation === 'horizontal' ? this.render_horizontal_orientation() : null }
       { orientation === 'vertical'   ? this.render_vertical_orientation()   : null }
     </View>

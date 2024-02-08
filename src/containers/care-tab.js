@@ -170,9 +170,12 @@ class CareTab extends Component {
 
   render() {
 
+    let cta_orientation = this.state.cta_orientation;
+        cta_orientation = 'horizontal';
+
     return <View style={{  }}>
       <View style={styles.vertical_buffer} />
-      <CareCtaButtons navigation={this.props.navigation} orientation={ this.state.cta_orientation } />
+      <CareCtaButtons navigation={this.props.navigation} orientation={ cta_orientation } />
       { this.render_active_chats()    }
       { this.render_upcoming_videos() }
       { this.render_active_threads()  }
@@ -193,7 +196,7 @@ class CareTab extends Component {
 
 const styles = StyleSheet.create({
   vertical_buffer: {
-    height: 30
+    
   },
   chat_row_container: {
     flex: 1,

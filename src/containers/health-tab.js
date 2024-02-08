@@ -114,6 +114,17 @@ class HealthTab extends Component {
       <TouchableOpacity style={styles.entry_button_container}
                         onPress={ () => { this.props.navigation.push('HealthWeight', { pet_id: selected_pet_id }) }}>
         <Text style={styles.entry_button_title}>Weight</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 15 }}>
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY }}><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>FEB</Text><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>07</Text></View>
+          <View style={{ height: 2, borderRadius: 4, flex: 1, backgroundColor: Colors.PRIMARY, marginRight: 5, marginLeft: 5 }} />
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY }}><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>FEB</Text><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>08</Text></View>
+          <View style={{ height: 2, borderRadius: 4, flex: 1, backgroundColor: Colors.PRIMARY, marginRight: 5, marginLeft: 5 }} />
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY }}><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>FEB</Text><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>09</Text></View>
+          <View style={{ height: 2, borderRadius: 4, flex: 1, backgroundColor: Colors.PRIMARY, marginRight: 5, marginLeft: 5 }} />
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY }}><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>FEB</Text><Text style={{ fontSize: 9, fontWeight: 'bold', color: 'white' }}>10</Text></View>
+          <View style={{ height: 2, borderRadius: 4, flex: 1, backgroundColor: Colors.PRIMARY, marginRight: 5, marginLeft: 5 }} />
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 40, width: 40, borderRadius: 20, backgroundColor: Colors.PRIMARY }}><Icon name='plus-circle' color='white' /></View>
+        </View>
         <View style={styles.entry_button_cta_container}>
           <Text style={styles.entry_button_cta_title}>Add Weight</Text>
           <Icon name='chevron-circle-right' size={18} />
@@ -122,6 +133,7 @@ class HealthTab extends Component {
       <TouchableOpacity style={styles.entry_button_container}
                         onPress={ () => { this.props.navigation.push('HealthGiPics', { pet_id: selected_pet_id }) }}>
         <Text style={styles.entry_button_title}>GI Images</Text>
+        <View style={{ height: 50 }}></View>
         <View style={styles.entry_button_cta_container}>
           <Text style={styles.entry_button_cta_title}>Add Images</Text>
           <Icon name='chevron-circle-right' size={18} />
@@ -130,6 +142,7 @@ class HealthTab extends Component {
       <TouchableOpacity style={styles.entry_button_container}
                         onPress={ () => { this.props.navigation.push('HealthBodyCondition', { pet_id: selected_pet_id }) }}>
         <Text style={styles.entry_button_title}>Body Condition Images</Text>
+        <View style={{ height: 50 }}></View>
         <View style={styles.entry_button_cta_container}>
           <Text style={styles.entry_button_cta_title}>Add Images</Text>
           <Icon name='chevron-circle-right' size={18} />
@@ -153,7 +166,6 @@ class HealthTab extends Component {
 const styles = StyleSheet.create({
   entry_button_container: {
     backgroundColor: '#e7e7e7',
-    height: 120,
     borderRadius: 25,
     marginBottom: 15,
     padding: 25,
