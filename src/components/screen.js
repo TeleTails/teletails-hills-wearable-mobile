@@ -87,35 +87,18 @@ class Screen extends Component {
     </View>
   }
 
-  render_sign_in = () => {
-    // return <SignInUniversal
-    //           success_action={ async () => {
-    //             let user    = await AuthController.getUser(true);
-    //             let user_id = user && user.user_id ? user.user_id : '';
-    //             let token   = user && user.token   ? user.token   : '';
-    //             if (this.props.auth_success) {
-    //               this.props.auth_success();
-    //             }
-    //             await UtilitiesController.checkNotifications();
-    //             this.setState({ display_sign_in: !user_id || !token });
-    //           }}/>
-  }
-
   render() {
 
     let passed_style  = this.props.style || {};
     let new_style     = Object.assign({}, passed_style)
     let enable_scroll = this.props.scroll === true ? true : false;
     let is_web        = Platform.OS === 'web';
-    let sign_in_view  = this.props.auth === true ? true : false;
-        sign_in_view  = sign_in_view === true && this.state.display_sign_in ? true : false;
     let disply_bg_img = this.props.bg_image === true ? true : false;
     let bg_white      = this.props.bg_white === true ? true : false;
-    //
+
     // let image_bg = require('../assets/images/default-bg-image.png');
     //     image_bg = bg_white ? require('../assets/images/default-bg-image-white.png') : image_bg;
     //     image_bg = disply_bg_img && this.state.display_sign_in && is_web ? require('../assets/images/web-sign-in-bg.png') : image_bg;
-
 
     // refreshControl={
     //   <RefreshControl
@@ -130,8 +113,8 @@ class Screen extends Component {
     //   }} />
     // }
     //
-    sign_in_view  = false;
 
+    let  sign_in_view  = false;
     let top_padding    = Platform.OS === "android" ? StatusBar.currentHeight : 0;
     let boreder_radius = new_style && new_style.borderRadius ? new_style.borderRadius : 0;
 
@@ -150,7 +133,7 @@ class Screen extends Component {
             <ScrollView style={{ flex: 1 }}>
               <View style={{ flex: 1, alignItems: 'center' }}>
                   <View style={{ maxWidth: 450, width: '100%', flex: 1 }}>
-                    { sign_in_view ? this.render_sign_in() : this.props.children }
+                    { this.props.children }
                   </View>
               </View>
             </ScrollView>
@@ -166,7 +149,7 @@ class Screen extends Component {
             { this.render_navigation_bar() }
             <View style={{ flex: 1, alignItems: 'center', borderRadius: boreder_radius, overflow: 'hidden' }}>
                 <View style={{ maxWidth: 450, width: '100%', flex: 1 }}>
-                  { sign_in_view ? this.render_sign_in() : this.props.children }
+                  { this.props.children }
                 </View>
             </View>
         </SafeAreaView>

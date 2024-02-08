@@ -60,7 +60,7 @@ class SignUpLandingScreen extends Component {
     }
 
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <LottieView loop={true} ref={animation => { this.welcome_animation = animation }} style={{ width: 150, height: 150 }} source={require('../../assets/animations/dog-pouncing.json')} />
+      <LottieView loop={true} ref={animation => { this.welcome_animation = animation }} style={{ width: 150, height: 150 }} source={require('../../assets/animations/dog-trot.json')} />
     </View>
   }
 

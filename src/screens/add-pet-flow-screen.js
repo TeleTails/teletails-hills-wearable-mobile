@@ -294,7 +294,7 @@ class AddPetFlowScreen extends Component {
 
     return <View style={[ styles.section_container, { height: window_height } ]}>
       <View style={{ flex: 1, justifyContent: 'center' }}>
-        <LottieView loop={true} ref={animation => { this.pounce_animation = animation }} style={{ width: 200, height: 200, alignSelf: 'center' }} source={require('../../assets/animations/dog-pouncing.json')} />
+        <LottieView loop={true} ref={animation => { this.pounce_animation = animation }} style={{ width: 200, height: 200, alignSelf: 'center' }} source={require('../../assets/animations/dog-bows.json')} />
       </View>
       <View style={{ height: 130, alignItems: 'center' }}>
         <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: 'semibold' }}>{ "We can't wait to meet " + this.state.pet_name }</Text>

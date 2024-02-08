@@ -39,7 +39,7 @@ class HomeScreen extends Component {
         <SafeAreaView style={{ backgroundColor: '#F2F3F6', flex: 0 }} />
         <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
           <View style={{ height: top_padding }} />
-          <ScrollView style={{ backgroundColor: '#F2F3F6' }}>
+          <ScrollView style={{ backgroundColor: '#F2F3F6' }} contentContainerStyle={{ flexGrow: 1 }}>
             { this.render_tab_component() }
           </ScrollView>
           <Tabs selected_tab={this.state.selected_tab}
