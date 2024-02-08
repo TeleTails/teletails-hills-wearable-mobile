@@ -43,11 +43,17 @@ class ConsultationThreadScreen extends Component {
     let is_video     = message.type === 'VIDEO';
     let is_pdf       = message.type === 'PDF';
     let bg_color     = message.from === this.state.user_id ? '#f5f5f5' : 'white';
+    let sender_img   = message.sender && message.sender.photo_url && message.from !== this.state.user_id ? message.sender.photo_url : '';
     return <View style={{ backgroundColor: bg_color }}>
       <View style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20 }}>
-        <Text style={{ fontSize: 16, marginBottom: 2  }}>{ sender_name }</Text>
-        <Text style={{ color: 'grey', marginBottom: 10}}>{ sent_date   }</Text>
-        { is_text  ? <Text style={{ fontSize: 16, color: 'grey' }}>{message_text }</Text> : null }
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+          { sender_img ? <Image style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} source={{ uri: sender_img }} /> : null }
+          <View style={{ justifyContent: 'center' }}>
+            <Text style={{ fontSize: 15, marginBottom: 2, fontWeight: 'medium'  }}>{ sender_name }</Text>
+            <Text style={{ fontSize: 14, color: 'grey' }}>{ sent_date }</Text>
+          </View>
+        </View>
+        { is_text  ? <Text style={{ fontSize: 16, color: '#4c4c4c' }}>{message_text }</Text> : null }
         { is_image ? <TouchableOpacity style={styles.image_message}
                         onPress={ () => {
                           this.setState({ display_pdf: true, pdf_url: media_url })
