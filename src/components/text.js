@@ -23,34 +23,34 @@ class Text extends Component {
     if (font_weight) {
       switch (font_weight) {
         case 'thin':
-          font_family = 'Poppins-Thin';
+          font_family = 'Montserrat-Thin';
           break;
         case 'extralight':
-          font_family = 'Poppins-ExtraLight';
+          font_family = 'Montserrat-ExtraLight';
           break;
         case 'light':
-          font_family = 'Poppins-Light';
+          font_family = 'Montserrat-Light';
           break;
         case 'regular':
-          font_family = 'Poppins-Regular';
+          font_family = 'Montserrat-Regular';
           break;
         case 'medium':
-          font_family = 'Poppins-Medium';
+          font_family = 'Montserrat-Medium';
           break;
         case 'semibold':
-          font_family = 'Poppins-SemiBold';
+          font_family = 'Montserrat-SemiBold';
           break;
         case 'bold':
-          font_family = 'Poppins-Bold';
+          font_family = 'Montserrat-Bold';
           break;
         case 'extrabold':
-          font_family = 'Poppins-ExtraBold';
+          font_family = 'Montserrat-ExtraBold';
           break;
         case 'black':
-          font_family = 'Poppins-Black';
+          font_family = 'Montserrat-Black';
           break;
         default:
-          font_family = 'Poppins-Regular'
+          font_family = 'Montserrat-Regular'
       }
     }
 

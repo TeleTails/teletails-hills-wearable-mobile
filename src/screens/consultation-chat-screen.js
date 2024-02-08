@@ -300,8 +300,10 @@ class ConsultationChatScreen extends Component {
       return this.render_feedback_section();
     }
 
+    // right_action={ () => { this.display_options_modal() }} right_icon='ellipsis' right_btn_color={'black'}
+    
     return (
-      <Screen navigation={this.props.navigation} title='Chat Consultation' back_to_home={this.state.back_to_home} right_action={ () => { this.display_options_modal() }} right_icon='ellipsis' right_btn_color={'black'}>
+      <Screen navigation={this.props.navigation} title='Chat Consultation' back_to_home={this.state.back_to_home}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
