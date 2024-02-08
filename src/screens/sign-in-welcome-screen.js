@@ -1,6 +1,6 @@
 import LottieView from 'lottie-react-native';
 import { Component } from "react";
-import { StyleSheet, View, Image, TouchableOpacity, Linking } from 'react-native';
+import { StyleSheet, View, Image, TouchableOpacity, Linking,  } from 'react-native';
 import { Button, Text, Checkbox, Screen, Colors } from '../components';
 
 class SignInWelcomeScreen extends Component {
@@ -19,7 +19,6 @@ class SignInWelcomeScreen extends Component {
 
   render() {
 
-    let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
     let check_color = this.state.display_agree_error ? Colors.RED : '#e7e7e7';
 
     return (

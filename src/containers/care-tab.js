@@ -54,17 +54,19 @@ class CareTab extends Component {
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
           <View>
             <Text style={styles.selection_row_title}>{ subject }</Text>
-            <Text style={{ fontSize: 14, color: '#4c4c4c' }}>{ pet_name }</Text>
+            <Text style={styles.selection_row_subtitle}>{ pet_name }</Text>
           </View>
-          <Icon name='chevron-right' size={14} />
+          <Icon name='chevron-right' size={13} color='grey' />
         </TouchableOpacity>
-        <Line />
+        <Line hide={ active_threads.length - 1 === ind } />
       </View>
     })
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Provider Messages</Text>
-      { thread_rows }
+      <View style={styles.list_container}>
+        { thread_rows }
+      </View>
     </View>
   }
 
@@ -92,12 +94,13 @@ class CareTab extends Component {
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('ConsultationChat', { care_consultation_id: care_consultation_id }) }}>
           <View>
             <Text style={styles.selection_row_title}>{ name }</Text>
-            <Text style={{ fontSize: 14, color: '#4c4c4c' }}>{ category }</Text>
-            <Text style={{ fontSize: 14, color: '#4c4c4c' }}>{ date_str }</Text>
+            <View style={{ height: 3 }} />
+            <Text style={styles.selection_row_subtitle}>{ category }</Text>
+            <Text style={styles.selection_row_subtitle}>{ date_str }</Text>
           </View>
-          <Icon name='chevron-right' size={14} />
+          <Icon name='chevron-right' size={13} color='grey' />
         </TouchableOpacity>
-        <Line hide={false && idx === filtered_chats.length - 1} />
+        <Line hide={ idx === filtered_chats.length - 1 } />
       </View>
     })
 
@@ -105,7 +108,9 @@ class CareTab extends Component {
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Active Chats</Text>
-      { chat_rows }
+      <View style={styles.list_container}>
+        { chat_rows }
+      </View>
     </View>
   }
 
@@ -135,12 +140,13 @@ class CareTab extends Component {
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('ConsultationVideoAppointment', { care_consultation_id: care_consultation_id }) }}>
           <View>
             <Text style={styles.selection_row_title}>{ name }</Text>
-            <Text style={{ fontSize: 14, color: '#4c4c4c' }}>{ category }</Text>
-            <Text style={{ fontSize: 14, color: '#4c4c4c' }}>{ date_string + ' | ' + time_string }</Text>
+            <View style={{ height: 3 }} />
+            <Text style={styles.selection_row_subtitle}>{ category }</Text>
+            <Text style={styles.selection_row_subtitle}>{ date_string + ' | ' + time_string }</Text>
           </View>
-          <Icon name='chevron-right' size={14} />
+          <Icon name='chevron-right' size={13} color='grey' />
         </TouchableOpacity>
-        <Line hide={false && idx === filtered_chats.length - 1} />
+        <Line hide={ idx === filtered_chats.length - 1 } />
       </View>
     })
 
@@ -148,23 +154,27 @@ class CareTab extends Component {
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Upcoming Video Appointments</Text>
-      { video_rows }
+      <View style={styles.list_container}>
+        { video_rows }
+      </View>
     </View>
   }
 
   render_completed = () => {
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Completed Consultations</Text>
-        <View style={{ height: 5 }} />
+      <View style={styles.list_container}>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('CompletedConsultations', { type: 'CHAT' }) }}>
-          <Text style={{ fontWeight: 'regular', fontSize: 15 }}>View Completed Chats</Text>
-          <Icon name='arrow-right' size={15} />
+          <Text style={styles.selection_row_title}>View Completed Chats</Text>
+          <Icon name='arrow-right' size={13} color={'grey'} />
         </TouchableOpacity>
         <Line />
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('CompletedConsultations', { type: 'VIDEO' }) }}>
-          <Text style={{ fontWeight: 'regular', fontSize: 15 }}>View Completed Appointments</Text>
-          <Icon name='arrow-right' size={15} />
+          <Text style={styles.selection_row_title}>View Completed Appointments</Text>
+          <Icon name='arrow-right' size={13} color={'grey'} />
         </TouchableOpacity>
+      </View>
+      <View style={{ height: 30 }} />
     </View>
   }
 
@@ -196,7 +206,7 @@ class CareTab extends Component {
 
 const styles = StyleSheet.create({
   vertical_buffer: {
-    
+
   },
   chat_row_container: {
     flex: 1,
@@ -206,9 +216,16 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   section_container: {
+    marginTop: 25,
+    paddingLeft: 20,
+    paddingRight: 20
+  },
+  list_container: {
+    backgroundColor: 'white',
+    borderRadius: 12,
     paddingRight: 20,
     paddingLeft: 20,
-    marginTop: 30
+    marginTop: 15
   },
   selection_row_container: {
     flex: 1,
@@ -226,12 +243,18 @@ const styles = StyleSheet.create({
     height: 30
   },
   selection_row_title: {
-    fontSize: 16,
-    fontWeight: 'medium'
+    fontSize: 15,
+    fontWeight: 'medium',
+    color: '#040415'
+  },
+  selection_row_subtitle: {
+    fontSize: 14,
+    color: '#575762'
   },
   section_title: {
     fontSize: 18,
-    fontWeight: 'semibold'
+    fontWeight: 'medium',
+    color: '#0054A4'
   }
 });
 

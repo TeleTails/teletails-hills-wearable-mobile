@@ -1,7 +1,7 @@
 import LottieView from 'lottie-react-native';
 import analytics  from '@react-native-firebase/analytics';
 import { Component } from "react";
-import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView, Platform } from 'react-native';
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors } from '../components';
 import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';

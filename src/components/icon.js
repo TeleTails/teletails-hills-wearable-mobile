@@ -61,6 +61,9 @@ class Icon extends Component {
       case 'envelope':
         component = <Image style={ style_obj}  source={ require('../../assets/icons/envelope.png') } />
         break;
+      case 'envelope-rounded':
+        component = <Image style={ style_obj}  source={ require('../../assets/icons/envelope-rounded.png') } />
+        break;
       case 'home':
         component = <Image style={ style_obj } source={ require('../../assets/icons/home.png') } />
         break;

@@ -94,9 +94,6 @@ class SignUpSignInScreen extends Component {
   }
 
   render() {
-
-    let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
-
     return (
       <Screen hide_nav_bar={true} scroll={true} style={{ backgroundColor: Colors.PRIMARY }}>
         <View style={{ alignItems: 'center', paddingTop: 140 }}>
