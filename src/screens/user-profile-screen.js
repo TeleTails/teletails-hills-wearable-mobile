@@ -1,8 +1,8 @@
 import { Component }    from 'react';
 import { StringUtils }  from '../utils';
 import * as ImagePicker from 'expo-image-picker';
-import { AuthController, UserController } from '../controllers';
-import { Screen, Button, Input, Icon, Text } from '../components';
+import { AuthController, UserController, MediaController } from '../controllers';
+import { Screen, Button, Input, Icon, Text, MediaModal } from '../components';
 import { StyleSheet, View, Image, TouchableOpacity, Platform } from 'react-native';
 
 class UserProfileScreen extends Component {
@@ -11,6 +11,7 @@ class UserProfileScreen extends Component {
     super(props);
     this.state = {
       display_section: 'user_details', // 'user_details' 'user_edit_inputs'
+      opened_modal: false
     }
   }
 
@@ -36,7 +37,12 @@ class UserProfileScreen extends Component {
       success_all = success_all && profile_save_return.success;
 
       if(image) {
+        /* let upload_response = await MediaController.uploadMediaFromLibrary(image);
+        let is_success      = upload_response && upload_response.success ? true : false;
+        let uploaded_url    = is_success && upload_response && upload_response.message && upload_response.message.Location ? upload_response.message.Location : ''; */
+
         let profile_save_image_return = await UserController.updateProfileImage(image);
+        console.log('profile_save_image_return', profile_save_image_return)
         success_all = success_all && profile_save_image_return.success;
       }
 
@@ -61,18 +67,21 @@ class UserProfileScreen extends Component {
     </View>
   }
 
-  launch_media_selector = () => {
-    this.setState({ loading_preview: true }, async () => {
-      let image = await ImagePicker.launchImageLibraryAsync({
-         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-         allowsEditing: true,
-         aspect: [4, 3],
-         quality: 1,
-         base64: true
-       });
-
-       this.setState({ loading_preview: false, image });
-    });
+  render_media_modal = () => {
+    return <MediaModal display={this.state.opened_modal}
+              keep_as_local={true}
+              button_title='Add Image'
+              close_action={ () => {
+                this.setState({ opened_modal: false })
+              }}
+              media_action={ (media_object) => {
+                if (media_object && media_object.type === 'image') {
+                  this.setState({
+                    image: media_object.url,
+                    opened_modal: false
+                  })
+                }
+              }} />
   }
 
   render_profile_photo_edit = (photo_url) => {
@@ -81,12 +90,14 @@ class UserProfileScreen extends Component {
     let new_photo = this.state.image;
     let photo_uri = old_photo;
 
+    console.log('new_photo', new_photo)
+
     if(new_photo) {
-      photo_uri = new_photo.uri
+      photo_uri = new_photo
     }
 
     return <View style={styles.user_profile_photo}>
-      <TouchableOpacity onPress={ () => { this.launch_media_selector() }}
+      <TouchableOpacity onPress={ () => { this.setState({opened_modal: true}) }}
                         style={{ alignItems: 'center', marginBottom: 10 }}>
         {photo_uri ?
           <Image style={styles.preview_style} source={{ uri: photo_uri }} /> :
@@ -169,6 +180,7 @@ class UserProfileScreen extends Component {
         <View style={{ padding: 20 }}>
           { this.render_user_details()     }
           { this.render_user_edit_inputs() }
+          { this.render_media_modal()       }
         </View>
       </Screen>
     );

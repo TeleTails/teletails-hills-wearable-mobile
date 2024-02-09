@@ -6,6 +6,7 @@ import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Image, Platform,
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors, MediaModal } from '../components';
 import { ConsultationController, PetsController }   from '../controllers';
+import { MediaController }  from '../controllers';
 
 class HealthGiPicsScreen extends Component {
 
@@ -89,6 +90,7 @@ class HealthGiPicsScreen extends Component {
 
   render_past_entries = () => {
     let health_entries = this.state.health_entries;
+    console.log('health_entries', health_entries);
     let entry_rows = health_entries.map((entry) => {
       let entry_data  = entry.entry_data || {};
       let date        = entry_data.date ? DateUtils.getLongMonth(entry_data.date) + ' ' + DateUtils.getDateNumber(entry_data.date) : '';
@@ -130,15 +132,16 @@ class HealthGiPicsScreen extends Component {
 
   render_media_modal = () => {
     return <MediaModal display={this.state.opened_modal}
-                       button_title='Add Image'
-                       close_action={ () => {
-                         this.setState({ opened_modal: false })
-                       }}
-                       media_action={ (media_object) => {
-                         if (media_object && media_object.type === 'image') {
-                           this.add_image(media_object)
-                         }
-                       }} />
+              keep_as_local={true}
+              button_title='Add Image'
+              close_action={ () => {
+                this.setState({ opened_modal: false })
+              }}
+              media_action={ (media_object) => {
+                if (media_object && media_object.type === 'image') {
+                  this.add_image(media_object)
+                }
+              }} />
   }
 
   add_image = async (media_object) => {
@@ -152,35 +155,45 @@ class HealthGiPicsScreen extends Component {
   }
 
   add_health_entry = async () => {
+    this.setState({ loading_uploading_images: true }, async ()=>{
+      let partner_id    = this.state.partner_id;
+      let patient_id    = this.state.patient_id;
+      let user_id       = this.state.user_id;
+      let images        = this.state.images;
 
-    let partner_id    = this.state.partner_id;
-    let patient_id    = this.state.patient_id;
-    let user_id       = this.state.user_id;
-    let images        = this.state.images;
-    let mapped_images = images.map((image, i) => { return { [`image_url_${i+1}`] : image }});
-        mapped_images = Object.assign({}, ...mapped_images);
+      let media_uri;
+      for(var i = 0; i < images.length; i++) {
+        media_uri = images[i];
+        let upload_response = await MediaController.uploadMediaFromLibrary(media_uri);
+        let is_success      = upload_response && upload_response.success ? true : false;
+        let uploaded_url    = is_success && upload_response && upload_response.message && upload_response.message.Location ? upload_response.message.Location : '';
 
-    if(images.length) {
-      this.setState({ loading_uploading_images: true });
-
-      let request_data = {
-        type: 'GI_PICS',
-        patient_id: patient_id,
-        client_id:  user_id,
-        partner_id: partner_id,
-        entry_data: {
-          ...mapped_images,
-          date: new Date()
-        }
+        images[i] = uploaded_url;
       }
 
-      let create_res = await PetsController.createHealthEntry(request_data);
-      let is_success = create_res.success === true ? true : false;
+      let mapped_images = images.map((image, i) => { return { [`image_url_${i+1}`] : image }});
+          mapped_images = Object.assign({}, ...mapped_images);
 
-      this.pull_past_entries(patient_id);
+      if(images.length) {
+        let request_data = {
+          type: 'GI_PICS',
+          patient_id: patient_id,
+          client_id:  user_id,
+          partner_id: partner_id,
+          entry_data: {
+            ...mapped_images,
+            date: new Date()
+          }
+        }
 
-      this.setState({ loading_uploading_images: false, images: is_success ? [] : this.state.images });
-    }
+        let create_res = await PetsController.createHealthEntry(request_data);
+        let is_success = create_res.success === true ? true : false;
+
+        this.pull_past_entries(patient_id);
+
+        this.setState({ loading_uploading_images: false, images: is_success ? [] : this.state.images });
+      }
+    });
   }
 
   remove_image_preview = (index) => {

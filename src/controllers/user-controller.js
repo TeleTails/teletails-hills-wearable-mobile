@@ -32,6 +32,12 @@ export default class UserController {
       return response;
   });
 
+  static updateProfileImage = UserController.exceptionWrapper(async (image) => {
+    let response = await UtilitiesController.uploadFile(image, null, '/v4/api/user/upload_profile_image');
+
+    return response
+  });
+
   static getUserArticles = UserController.exceptionWrapper(async (data) => {
     let partner_name = config.partner_name;
     let response   = await UtilitiesController.get(`/v4/api/user/get_partner_articles/${partner_name}`, data, true);
