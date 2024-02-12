@@ -1,8 +1,8 @@
 import { Component }   from "react";
 import LottieView      from 'lottie-react-native';
 import { StringUtils } from '../utils';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Screen, Line, Text, Icon, Button }   from '../components';
+import { StyleSheet, View, TouchableOpacity }       from 'react-native';
+import { Screen, Line, Text, Icon, Button, Colors } from '../components';
 import { setItem, getItem } from '../../storage';
 import { PetsController }   from '../controllers';
 
@@ -56,10 +56,10 @@ class PetsScreen extends Component {
          <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                            onPress={ () => { this.open_pet_details(pet_id) }}>
           <View>
-            <Text style={{ fontSize: 16, fontWeight: '500', color: '#040415' }}>{ name }</Text>
+            <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#040415' }}>{ name }</Text>
             <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ descrpt + age }</Text>
           </View>
-          <Icon name='chevron-right' solid={true} size={15} color={'#cccccc'} />
+          <Icon name='chevron-right' solid={true} size={13} color={'#cccccc'} />
          </TouchableOpacity>
          <Line hide={is_last} />
        </View>
@@ -81,9 +81,9 @@ class PetsScreen extends Component {
   render_add_pet_button = () => {
     return <View style={{ marginTop: 5 }}>
       <TouchableOpacity onPress={ () => { this.props.navigation.push('AddPet') }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Icon name='plus-circle' />
+        <Icon name='plus-circle' color={ Colors.PRIMARY } />
         <View style={{ marginLeft: 15 }}>
-          <Text style={{ fontSize: 16, fontWeight: '500', color: '#535353' }}>{ 'Add A New Pet' }</Text>
+          <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#535353' }}>{ 'Add A New Pet' }</Text>
           <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ 'Add another pet to your account' }</Text>
         </View>
       </TouchableOpacity>

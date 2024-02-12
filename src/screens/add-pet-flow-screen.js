@@ -31,7 +31,9 @@ class AddPetFlowScreen extends Component {
       has_medications: false,
       medication_name: '',
       medications: [],
-      pounce_animation_started: false
+      pounce_animation_started: false,
+      pet_food_suggestions: [],
+      pet_food_list: { cat_food_products: [], dog_food_products: [] }
     }
   }
 
@@ -40,11 +42,16 @@ class AddPetFlowScreen extends Component {
     let display_section = 'sign_in';
     let token           = await getItem('token');
     let user_id         = await getItem('user_id');
+    let pet_food_list   = await getItem('pet_food_list');
+
+    if(typeof pet_food_list === 'string') {
+      pet_food_list = JSON.parse(pet_food_list);
+    }
 
     display_section = token && user_id ? 'pet_name' : 'sign_in';
-    // display_section = 'conclusion'
+    display_section = 'diet'
 
-    this.setState({ display_section: display_section, timer_interval: t });
+    this.setState({ display_section: display_section, timer_interval: t, pet_food_list: pet_food_list });
   }
 
   componentDidUpdate() {
@@ -305,12 +312,7 @@ class AddPetFlowScreen extends Component {
   }
 
   render_food_name_suggestions = () => {
-    let food_names = [
-      "Hill's Science Diet Adult Perfect Weight Hearty Vegetable & Chicken Stew Canned Dog Food",
-      "Hill's Science Diet Adult Perfect Weight Small & Mini Chicken Recipe Dry Dog Food",
-      "Hill's Prescription Diet ONC Care Dry Dog Food"
-    ]
-
+    let food_names  = this.state.pet_food_suggestions;
     let typed_food  = this.state.pet_food || '';
     let suggestions = food_names.filter((suggestion) => { return suggestion.toLowerCase().includes(typed_food.toLowerCase()) })
 
@@ -346,7 +348,8 @@ class AddPetFlowScreen extends Component {
              value={this.state.pet_food}
              style={{ }}
              onChangeText={ (text) => {
-               this.setState({ ...this.state, pet_food: text });
+               let pet_food_suggestions = this.diet_search_action(text);
+               this.setState({ ...this.state, pet_food: text, pet_food_suggestions: pet_food_suggestions });
              }}/>
       <Line style={{ marginTop: 20, marginBottom: 20 }}/>
       { this.render_food_name_suggestions() }
@@ -610,6 +613,34 @@ class AddPetFlowScreen extends Component {
     } else {
       this.setState({ display_section: new_display_section, started_animation: false })
     }
+  }
+
+  diet_search_action = (search_text) => {
+    let pet_food_list = this.state.pet_food_list;
+
+          search_text  = search_text.toLowerCase();
+    let search_tokens  = search_text.split(' ');
+    let search_results = [];
+
+    let search_results_cat = pet_food_list.cat_food_products.filter(obj => {
+        return search_tokens.every(term => obj.toLowerCase().includes(term));
+    });
+
+    let search_results_dog = pet_food_list.dog_food_products.filter(obj => {
+      return search_tokens.every(term => obj.toLowerCase().includes(term));
+    });
+
+    if (true || this.state.pet_type === 'Dog') {
+      search_results = [ ...search_results_dog ];
+    }
+
+    if (this.state.pet_type === 'Cat') {
+      search_results = [ ...search_results_cat ];
+    }
+
+    search_results.sort((a,b) => { return a < b ? -1 : 1 });
+
+    return search_results;
   }
 
 }
