@@ -49,7 +49,7 @@ class AddPetFlowScreen extends Component {
     }
 
     display_section = token && user_id ? 'pet_name' : 'sign_in';
-    display_section = 'diet'
+    // display_section = 'diet';
 
     this.setState({ display_section: display_section, timer_interval: t, pet_food_list: pet_food_list });
   }
@@ -269,7 +269,8 @@ class AddPetFlowScreen extends Component {
 
     let is_male   = this.state.pet_gender === 'MALE';
     let is_female = this.state.pet_gender === 'FEMALE';
-    let spayed_neutered_title = is_male ? 'Is ' + this.state.pet_name +' Neutered?' : 'Is ' + this.state.pet_name + ' Spayed?';
+    let pet_name  = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
+    let spayed_neutered_title = is_male ? 'Is ' + pet_name +' Neutered?' : 'Is ' + pet_name + ' Spayed?';
 
     return <View style={[ styles.section_container, { marginTop: '50%', alignItems: 'center' } ]}>
       <Text style={styles.section_title}>{ spayed_neutered_title }</Text>
@@ -298,13 +299,14 @@ class AddPetFlowScreen extends Component {
 
     let window        =  Dimensions.get('window');
     let window_height = window && window.height ? window.height - 200 : 800;
+    let pet_name      = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
 
     return <View style={[ styles.section_container, { height: window_height } ]}>
       <View style={{ flex: 1, justifyContent: 'center' }}>
         <LottieView loop={true} ref={animation => { this.pounce_animation = animation }} style={{ width: 200, height: 200, alignSelf: 'center' }} source={require('../../assets/animations/dog-bows.json')} />
       </View>
       <View style={{ height: 130, alignItems: 'center' }}>
-        <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: 'semibold' }}>{ "We can't wait to meet " + this.state.pet_name }</Text>
+        <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: 'semibold' }}>{ "We can't wait to meet " + pet_name }</Text>
         <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: 'regular', marginTop: 10 }}>Sharing more details ensures our team delivers personalized care. It'll only take a moment!</Text>
       </View>
       <Button title={ 'Continue' } onPress={ () => { this.setState({ display_section: 'diet' }) }} />
@@ -325,7 +327,7 @@ class AddPetFlowScreen extends Component {
       </View>
     })
 
-    if (food_suggestion_rows.length === 0) {
+    if (food_suggestion_rows.length === 0 && typed_food) {
       food_suggestion_rows.push(<View>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.setState({ pet_food: typed_food, food_selected: true }) }}>
           <Text style={styles.selection_row_title}>{ typed_food }</Text>
@@ -351,7 +353,7 @@ class AddPetFlowScreen extends Component {
                let pet_food_suggestions = this.diet_search_action(text);
                this.setState({ ...this.state, pet_food: text, pet_food_suggestions: pet_food_suggestions });
              }}/>
-      <Line style={{ marginTop: 20, marginBottom: 20 }}/>
+      <Line style={{ marginTop: 20 }}/>
       { this.render_food_name_suggestions() }
     </View>
   }
@@ -393,63 +395,72 @@ class AddPetFlowScreen extends Component {
           <Text style={{ fontWeight: 'semibold', fontSize: 15, color: is_canned ? 'white' : '#4c4c4c' }}>Canned</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.food_quantity_titles}>Cups</Text>
-      <View style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 30 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, padding: 10, borderRadius: 20, backgroundColor: '#e7e7e7' }}
-                            onPress={ () => {
-                              this.setState({ pet_food_cups: cups > 0 ? cups - 0.25 : 0 })
-                            }}>
-            <Icon name='minus-circle' color={ Colors.PRIMARY } size={17} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>1/4</Text>
-          </TouchableOpacity>
-          <Icon name='minus-circle' color={ Colors.PRIMARY } size={37} onPress={ () => { this.setState({ pet_food_cups: cups > 0 ? cups - 1 : 0 }) }} />
-          <View style={{ flexDirection: 'row', width: 80, justifyContent: 'center' }}>
-            <Text style={{ fontSize: 32, width: 30, textAlign: 'center', fontWeight: 'light' }}>{ cups_int.toString() }</Text>
-            <Text style={{ fontSize: 18, textAlign: 'center', fontWeight: 'light', marginTop: 15 }}>{ frac_str }</Text>
+
+      { this.state.pet_food_type ? <View>
+        <Text style={styles.food_quantity_titles}>Cups</Text>
+        <View style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 30 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, padding: 10, borderRadius: 20, backgroundColor: '#e7e7e7' }}
+                              onPress={ () => {
+                                this.setState({ pet_food_cups: cups > 0 ? cups - 0.25 : 0 })
+                              }}>
+              <Icon name='minus-circle' color={ Colors.PRIMARY } size={17} />
+              <Text style={{ marginLeft: 5, fontSize: 12 }}>1/4</Text>
+            </TouchableOpacity>
+            <Icon name='minus-circle' color={ Colors.PRIMARY } size={37} onPress={ () => { this.setState({ pet_food_cups: cups > 0 ? cups - 1 : 0 }) }} />
+            <View style={{ flexDirection: 'row', width: 80, justifyContent: 'center' }}>
+              <Text style={{ fontSize: 32, width: 30, textAlign: 'center', fontWeight: 'light' }}>{ cups_int.toString() }</Text>
+              <Text style={{ fontSize: 18, textAlign: 'center', fontWeight: 'light', marginTop: 15 }}>{ frac_str }</Text>
+            </View>
+            <Icon name='plus-circle' color={ Colors.PRIMARY } size={40} onPress={ () => { this.setState({ pet_food_cups: cups + 1 }) }} />
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10, padding: 10, borderRadius: 20, backgroundColor: '#e7e7e7' }}
+                              onPress={ () => {
+                                this.setState({ pet_food_cups: cups + 0.25 })
+                              }}>
+              <Icon name='plus-circle' color={ Colors.PRIMARY } size={17} />
+              <Text style={{ marginLeft: 5, fontSize: 12 }}>1/4</Text>
+            </TouchableOpacity>
           </View>
-          <Icon name='plus-circle' color={ Colors.PRIMARY } size={40} onPress={ () => { this.setState({ pet_food_cups: cups + 1 }) }} />
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10, padding: 10, borderRadius: 20, backgroundColor: '#e7e7e7' }}
-                            onPress={ () => {
-                              this.setState({ pet_food_cups: cups + 0.25 })
-                            }}>
-            <Icon name='plus-circle' color={ Colors.PRIMARY } size={17} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>1/4</Text>
-          </TouchableOpacity>
         </View>
-      </View>
-      <Text style={styles.food_quantity_titles}>Times A Day</Text>
-      <View style={{ flexDirection: 'row', marginBottom: 30 }}>
-        <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: one_time ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 1 }) }}><Text style={{ color: one_time ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>1</Text></TouchableOpacity>
-        <View style={{ width: 5 }} />
-        <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: two_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 2 }) }}><Text style={{ color: two_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>2</Text></TouchableOpacity>
-        <View style={{ width: 5 }} />
-        <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: three_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 3 }) }}><Text style={{ color: three_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>3</Text></TouchableOpacity>
-        <View style={{ width: 5 }} />
-        <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: four_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 4 }) }}><Text style={{ color: four_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>4</Text></TouchableOpacity>
-      </View>
-      <Text style={styles.food_quantity_titles}>Notes</Text>
-      <Input value={this.state.pet_food_notes}
-             style={{  }}
-             onChangeText={ (text) => {
-               this.setState({ ...this.state, pet_food_notes: text });
-             }}/>
-       { display_next ? <Button title={ 'Next' }
-                                style={{ marginTop: 20 }}
-                                onPress={ () => { this.setState({ display_section: 'health_issues' }) }} />
-                      : null }
+      </View> : null }
+
+      { this.state.pet_food_cups > 0 ? <View>
+        <Text style={styles.food_quantity_titles}>Times A Day</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 30 }}>
+          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: one_time ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 1 }) }}><Text style={{ color: one_time ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>1</Text></TouchableOpacity>
+          <View style={{ width: 5 }} />
+          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: two_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 2 }) }}><Text style={{ color: two_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>2</Text></TouchableOpacity>
+          <View style={{ width: 5 }} />
+          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: three_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 3 }) }}><Text style={{ color: three_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>3</Text></TouchableOpacity>
+          <View style={{ width: 5 }} />
+          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: four_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 4 }) }}><Text style={{ color: four_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>4</Text></TouchableOpacity>
+        </View>
+      </View> : null }
+
+      { display_next ? <View>
+        <Text style={styles.food_quantity_titles}>Notes</Text>
+        <Input value={this.state.pet_food_notes}
+               style={{  }}
+               onChangeText={ (text) => {
+                 this.setState({ ...this.state, pet_food_notes: text });
+               }}/>
+        <Button title={ 'Next' }
+                style={{ marginTop: 20 }}
+                onPress={ () => { this.setState({ display_section: 'health_issues' }) }} />
+        </View> : null }
     </View>
   }
 
   render_diet = () => {
     if (this.state.display_section !== 'diet') { return null }
 
-    let section_title = this.state.pet_name + "'s Diet";
+    let pet_name      = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
+    let section_title = pet_name + "'s Diet";
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>{ section_title }</Text>
       { this.render_diet_food_name(!this.state.food_selected) }
-      { this.render_diet_quantity(this.state.food_selected)  }
+      { this.render_diet_quantity(this.state.food_selected)   }
     </View>
   }
 
@@ -472,7 +483,7 @@ class AddPetFlowScreen extends Component {
                             this.setState({ health_issues: selected_issues });
                           }}>
           <Text style={{ fontWeight: 'medium', fontSize: 16 }}>{ health_issue }</Text>
-          { display_check ? <Icon name='check-circle' size={17} /> : null }
+          { display_check ? <Icon name='check-circle' size={18} color={Colors.PRIMARY} /> : null }
         </TouchableOpacity>
         <Line />
       </View>
@@ -480,7 +491,7 @@ class AddPetFlowScreen extends Component {
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>{ 'Any Health Issues?' }</Text>
-      <Line />
+      <Line style={{ marginTop: 20 }}/>
       { health_issue_rows }
       <Button title={ 'Next' }
               style={{ marginTop: 20 }}
@@ -499,7 +510,8 @@ class AddPetFlowScreen extends Component {
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 20, paddingBottom: 20, justifyContent: 'space-between' }}>
           <Text style={{ fontSize: 16, fontWeight: 'medium' }}>{ medication_name }</Text>
           <Icon name='close'
-                size={18}
+                size={20}
+                color={ Colors.PRIMARY }
                 onPress={ () => {
                   let medications_arr = [ ...medications ];
                   medications_arr.splice(idx, 1);
@@ -518,7 +530,7 @@ class AddPetFlowScreen extends Component {
                this.setState({ ...this.state, medication_name: text });
              }}/>
       <Button title={ 'Add' }
-              style={{ marginTop: 10, alignSelf: 'flex-end' }}
+              style={{ marginTop: 10, alignSelf: 'flex-end', padding: 10 }}
               onPress={ () => {
                 if (this.state.medication_name) {
                   let meds_array = [ ...this.state.medications ];
@@ -630,7 +642,7 @@ class AddPetFlowScreen extends Component {
       return search_tokens.every(term => obj.toLowerCase().includes(term));
     });
 
-    if (true || this.state.pet_type === 'Dog') {
+    if (this.state.pet_type === 'Dog') {
       search_results = [ ...search_results_dog ];
     }
 
