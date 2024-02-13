@@ -26,6 +26,7 @@ import {
   HealthGiPicsScreen,
   HealthBodyConditionScreen,
   PetDetailsScreen,
+  PetDetailsEditScreen,
   PetsScreen,
   SettingsScreen,
   SignInWelcomeScreen,
@@ -169,6 +170,7 @@ export default function App() {
         <Stack.Screen name='HealthGiPics'        component={ HealthGiPicsScreen } />
         <Stack.Screen name='HealthBodyCondition' component={ HealthBodyConditionScreen } />
         <Stack.Screen name='PetDetails' component={ PetDetailsScreen } />
+        <Stack.Screen name='PetDetailsEdit' component={ PetDetailsEditScreen } options={{ presentation: 'modal' }} />
         <Stack.Screen name='Pets'       component={ PetsScreen }       />
         <Stack.Screen name="Settings"   component={ SettingsScreen }   />
         <Stack.Screen name='UserProfile'component={ UserProfileScreen }/>

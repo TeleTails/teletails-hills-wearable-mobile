@@ -28,6 +28,8 @@ class PetDetailsScreen extends Component {
     let pet_res = await PetsController.getPet(pet_id);
 
     if (pet_res && pet_res.success) {
+      this.get_pet_diet(pet_id);
+      this.get_pet_health(pet_id);
       let pet = pet_res && pet_res.data && pet_res.data.pet ? pet_res.data.pet : {};
       this.setState({ ...pet, pet_id: pet_id });
     }
@@ -108,90 +110,27 @@ class PetDetailsScreen extends Component {
     let is_female = this.state.gender === 'FEMALE';
 
     return <View style={{ padding: 20 }}>
-
-      { this.render_pet_details_label_value('Name',     name)     }
-      { this.render_pet_details_label_value('Breed',    breed)    }
-      { this.render_pet_details_label_value('Type',     type)     }
-      { this.render_pet_details_label_value('Birthday', this.state.birthday) }
-      { this.render_pet_details_label_value('Gender',   gender)   }
-      { this.render_pet_details_label_value('Weight',   weight)   }
-
-      { is_female && this.state.spayed   ? this.render_pet_details_label_value('Spayed', 'True')   : null }
-      { is_male   && this.state.neutered ? this.render_pet_details_label_value('Neutered', 'True') : null }
-
-      <View style={{ height: 20 }} />
-      <Button title='Edit Pet' onPress={ () => { this.setState({ display_section: 'pet_edit_inputs' }) }} />
-    </View>
-  }
-
-  render_pet_gender_selection = () => {
-    return <View style={{ marginTop: 10, marginBottom: 10 }}>
-      <Text style={{ fontSize: 15, color: Colors.TEXT_GREY }}>Pet Gender</Text>
-      <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-
-        <Checkbox label='Male'   style={styles.checkbox} checked={this.state.gender === 'MALE'}   onPress={ () => { this.setState({ gender: 'MALE' }) }} />
-        <Checkbox label='Female' style={styles.checkbox} checked={this.state.gender === 'FEMALE'} onPress={ () => { this.setState({ gender: 'FEMALE' }) }} />
-
+      <View style={styles.section_title_container}>
+        <Text style={styles.section_title}>Bio</Text>
+        <TouchableOpacity style={styles.edit_button}
+                          onPress={ () => {
+                            this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                          }}>
+          <Text style={styles.edit_button_title}>Edit</Text>
+        </TouchableOpacity>
       </View>
+      <View style={{ padding: 20, backgroundColor: 'white', borderRadius: 12, paddingRight: 20, paddingLeft: 20, paddingBottom: 10, marginTop: 15 }}>
+        { this.render_pet_details_label_value('Name',     name)     }
+        { this.render_pet_details_label_value('Breed',    breed)    }
+        { this.render_pet_details_label_value('Type',     type)     }
+        { this.render_pet_details_label_value('Birthday', this.state.birthday) }
+        { this.render_pet_details_label_value('Gender',   gender)   }
+        { this.render_pet_details_label_value('Weight',   weight)   }
 
-      <View style={{ marginBottom: 5 }}>
-        <Text style={{ fontSize: 15, color: Colors.TEXT_GREY }}>Is your pet spayed or neutered?</Text>
-        <View style={{ flexDirection: 'row' }}>
-          <Checkbox label='Yes' style={styles.checkbox} checked={this.state.spayed  ||  this.state.neutered} onPress={ () => { this.setState({ neutered: true,  spayed: true }) }} />
-          <Checkbox label='No'  style={styles.checkbox} checked={!this.state.spayed && !this.state.neutered} onPress={ () => { this.setState({ neutered: false, spayed: false })}} />
-        </View>
+        { is_female && this.state.spayed   ? this.render_pet_details_label_value('Spayed', 'True')   : null }
+        { is_male   && this.state.neutered ? this.render_pet_details_label_value('Neutered', 'True') : null }
       </View>
     </View>
-  }
-
-  render_pet_edit_inputs = () => {
-    if (this.state.display_section !== 'pet_edit_inputs') {
-      return null;
-    }
-
-    return <View style={{ padding: 20 }}>
-       <Input label='Pet Name'
-              value={this.state.name}
-              style={{ marginBottom: 12 }}
-              onChangeText={ (text) => {
-                this.setState({ ...this.state, name: text });
-              }}/>
-
-       <Input label='Pet Type'
-              value={this.state.type}
-              style={{ marginBottom: 12 }}
-              onChangeText={ (text) => {
-                this.setState({ ...this.state, type: text });
-              }}/>
-
-      <Input label='Pet Weight (in lbs)'
-             value={this.state.weight.toString()}
-             placeholder='0.0'
-             keyboardType='number-pad'
-             style={{ marginBottom: 12 }}
-             onChangeText={ (text) => {
-               this.setState({ ...this.state, weight: text });
-             }}/>
-
-       <Input label='Pet Birthday'
-              placeholder='MM/DD/YYYY'
-              style={{ marginBottom: 12 }}
-              type='date-mmddyyyy'
-              value={this.state.birthday}
-              onChangeText={ (text) => {
-                this.setState({ ...this.state, birthday: text });
-              }}/>
-
-        { this.render_breed_input() }
-
-        { this.render_pet_gender_selection() }
-
-        { this.render_error_message() }
-
-        <Button title='Save Pet'
-                loading={this.state.loading_save_pet}
-                onPress={ () => { this.save_pet() }}/>
-      </View>
   }
 
   render_error_message = () => {
@@ -256,22 +195,125 @@ class PetDetailsScreen extends Component {
                   onChangeText={ (text) => {
                     this.setState({ ...this.state, breed: text });
                   }}/>
+  }
 
+  render_pet_diet = () => {
+    let has_diet = false;
+    return <View style={{ padding: 20, paddingTop: 10 }}>
+      <View style={styles.section_title_container}>
+        <Text style={styles.section_title}>Diet</Text>
+        { has_diet ? <TouchableOpacity style={styles.edit_button}
+                                       onPress={ () => {
+                                         this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                                       }}>
+                       <Text style={styles.edit_button_title}>Edit</Text>
+                     </TouchableOpacity> : null }
+      </View>
+      <View style={styles.section_container}>
+        { !has_diet ? <TouchableOpacity style={styles.add_button}
+                                        onPress={ () => {
+                                          this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                                        }}>
+                        <Icon name='plus-circle' color='white' size={18} />
+                        <Text style={styles.add_button_title}>ADD DIET</Text>
+                      </TouchableOpacity> : null }
+      </View>
+    </View>
+  }
+
+  render_pet_health_issues = () => {
+    let has_health_issues = false;
+    return <View style={{ padding: 20, paddingTop: 10 }}>
+      <View style={styles.section_title_container}>
+        <Text style={styles.section_title}>Health Issues</Text>
+        { has_health_issues ? <TouchableOpacity style={styles.edit_button}
+                                                onPress={ () => {
+                                                  this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                                                }}>
+                                <Text style={styles.edit_button_title}>Edit</Text>
+                              </TouchableOpacity> : null }
+      </View>
+      <View style={styles.section_container}>
+        { !has_health_issues ? <TouchableOpacity style={styles.add_button}
+                                                 onPress={ () => {
+                                                   this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                                                 }}>
+                                 <Icon name='plus-circle' color='white' size={18} />
+                                 <Text style={styles.add_button_title}>ADD HEALTH ISSUES</Text>
+                               </TouchableOpacity> : null }
+      </View>
+    </View>
+  }
+
+  render_pet_medications = () => {
+    let has_medications = false;
+    return <View style={{ padding: 20, paddingTop: 10 }}>
+      <View style={styles.section_title_container}>
+        <Text style={styles.section_title}>Medications</Text>
+        { has_medications ? <TouchableOpacity style={styles.edit_button}
+                                              onPress={ () => {
+                                                this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                                              }}>
+                              <Text style={styles.edit_button_title}>Edit</Text>
+                            </TouchableOpacity> : null }
+      </View>
+      <View style={styles.section_container}>
+        { !has_medications ? <TouchableOpacity style={styles.add_button}
+                                               onPress={ () => {
+                                                 this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                                               }}>
+                               <Icon name='plus-circle' color='white' size={18} />
+                               <Text style={styles.add_button_title}>ADD MEDICATIONS</Text>
+                             </TouchableOpacity> : null }
+      </View>
+    </View>
   }
 
   render() {
-    return <Screen title='Pet Details' scroll={true} navigation={this.props.navigation}>
-      { this.render_pet_details()     }
-      { this.render_pet_edit_inputs() }
+    let pet_name = this.state ? StringUtils.displayName(this.state) : 'Pet Info';
+    return <Screen title={ pet_name } scroll={true} navigation={this.props.navigation} style={{ backgroundColor: Colors.BACKGROUND_GREY }}>
+      { this.render_pet_details()       }
+      { this.render_pet_diet()          }
+      { this.render_pet_health_issues() }
+      { this.render_pet_medications()   }
     </Screen>
   }
 
+  get_pet_diet = (pet_id) => {
+    PetsController.getPetHealth({ patient_id: pet_id }).then((response) => {
+
+    })
+  }
+
+  get_pet_health = (pet_id) =>{
+    PetsController.getPetDiet({ patient_id: pet_id }).then((response) => {
+
+    })
+  }
 
 }
 
 export default PetDetailsScreen;
 
 const styles = StyleSheet.create({
+  add_button: {
+    alignSelf: 'center',
+    marginBottom: 30,
+    marginTop: 20,
+    flexDirection: 'row',
+    backgroundColor: Colors.PRIMARY,
+    padding: 15,
+    borderRadius: 30,
+    width: 230,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  add_button_title: {
+    fontSize: 13,
+    fontWeight: 'semibold',
+    color: 'white',
+    marginLeft: 8
+  },
   checkbox: {
     padding: 10,
     paddingLeft: 0,
@@ -283,6 +325,19 @@ const styles = StyleSheet.create({
     borderColor: '#bbbbc0',
     overflow: 'hidden'
   },
+  edit_button: {
+    backgroundColor: Colors.PRIMARY,
+    height: 35,
+    width: 75,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12
+  },
+  edit_button_title: {
+    fontSize: 15,
+    fontWeight: 'semibold',
+    color: 'white'
+  },
   pet_details_row: {
     flexDirection: 'row',
     paddingLeft: 10
@@ -292,11 +347,31 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label_text: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#575762'
   },
+  section_container: {
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingRight: 20,
+    paddingLeft: 20,
+    paddingBottom: 10,
+    marginTop: 15
+  },
+  section_title: {
+    marginLeft: 10,
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
+  },
+  section_title_container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
   value_text: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#040415'
   }
 });

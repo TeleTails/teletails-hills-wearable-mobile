@@ -12,6 +12,7 @@ import HealthGiPicsScreen from './health-gi-pics-screen';
 import HealthBodyConditionScreen from './health-body-condition-screen';
 import HomeScreen       from './home-screen';
 import PetDetailsScreen from './pet-details-screen';
+import PetDetailsEditScreen from './pet-details-edit-screen';
 import PetsScreen       from './pets-screen';
 import SettingsScreen   from './settings-screen';
 import UserProfileScreen from './user-profile-screen';
@@ -36,6 +37,7 @@ export {
   HealthBodyConditionScreen,
   HomeScreen,
   PetDetailsScreen,
+  PetDetailsEditScreen,
   PetsScreen,
   SettingsScreen,
   SignUpInfoScreen,
