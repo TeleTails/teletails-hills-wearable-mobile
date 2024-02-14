@@ -44,7 +44,8 @@ class PetDetailsScreen extends Component {
       name: this.state.name,
       breed: this.state.breed,
       type: this.state.type,
-      birthday: this.state.birthday,
+      age_num_years: this.state.age_num_years,
+      age_num_months: this.state.age_num_months,
       gender: this.state.gender,
       spayed: this.state.spayed,
       neutered: this.state.neutered,
@@ -105,16 +106,39 @@ class PetDetailsScreen extends Component {
     let gender = this.state.gender ? StringUtils.sentenceCase(this.state.gender.toLowerCase()) : '';
     let weight = this.state.weight || 0;
         weight = weight.toString() + ' lbs';
+    let pet_id = this.state.pet_id;
 
     let is_male   = this.state.gender === 'MALE';
     let is_female = this.state.gender === 'FEMALE';
+
+    let { age_num_months, age_num_years, spayed, neutered } = this.state;
+
+    let pet = {
+      gender,
+      weight,
+      breed,
+      type,
+      name,
+      age_num_years,
+      age_num_months,
+      spayed, 
+      neutered,
+      pet_id
+    }
 
     return <View style={{ padding: 20 }}>
       <View style={styles.section_title_container}>
         <Text style={styles.section_title}>Bio</Text>
         <TouchableOpacity style={styles.edit_button}
                           onPress={ () => {
-                            this.props.navigation.push('PetDetailsEdit', { success_action: () => {  } });
+                            this.props.navigation.push('PetDetailsEdit', { success_action: async () => {  let pet_res = await PetsController.getPet(pet_id);
+
+                              if (pet_res && pet_res.success) {
+                                this.get_pet_diet(pet_id);
+                                this.get_pet_health(pet_id);
+                                let pet = pet_res && pet_res.data && pet_res.data.pet ? pet_res.data.pet : {};
+                                this.setState({ ...pet, pet_id: pet_id });
+                              } }, pet });
                           }}>
           <Text style={styles.edit_button_title}>Edit</Text>
         </TouchableOpacity>

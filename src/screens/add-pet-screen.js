@@ -15,10 +15,11 @@ class AddPetScreen extends Component {
       display_section: 'pet_inputs', // 'pet_type', 'pet_inputs'
       pet_name: '',
       pet_type: 'Dog',
-      pet_birthday: '',
       pet_breed: '',
       pet_other_breed: '',
       pet_gender: '',
+      age_num_years: 0,
+      age_num_months: 0,
       pet_weight: '',
       pet_is_spayed: false,
       pet_is_neutered: false,
@@ -54,11 +55,12 @@ class AddPetScreen extends Component {
       name: this.state.pet_name,
       breed: this.state.pet_breed,
       type: this.state.pet_type,
-      birthday: this.state.pet_birthday,
       gender: this.state.pet_gender,
       spayed: this.state.pet_is_spayed,
       neutered: this.state.pet_is_neutered,
-      weight: patient_weight
+      weight: patient_weight,
+      age_num_months: this.state.age_num_months,
+      age_num_years: this.state.age_num_years
     }
 
     if (patient_info.breed) {
@@ -158,14 +160,22 @@ class AddPetScreen extends Component {
                this.setState({ ...this.state, pet_weight: text });
              }}/>
 
-       <Input type={'masked'}
-              label='Pet Birthday (MM/DD/YYYY)'
-              placeholder='MM/DD/YYYY'
-              type='date-mmddyyyy'
-              value={this.state.pet_birthday}
+        <Input
+              label='Pet Age in Years'
+              placeholder='Number of Years'
+              value={this.state.age_num_years}
               style={{ marginBottom: 12 }}
               onChangeText={ (text) => {
-                this.setState({ ...this.state, pet_birthday: text });
+                this.setState({ ...this.state, age_num_years: text });
+              }}/>
+
+       <Input
+              label='Pet Age Months'
+              placeholder='Number of Months'
+              value={this.state.age_num_months}
+              style={{ marginBottom: 12 }}
+              onChangeText={ (text) => {
+                this.setState({ ...this.state, age_num_months: text });
               }}/>
 
         { this.render_breed_input() }

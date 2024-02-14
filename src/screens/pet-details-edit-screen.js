@@ -11,17 +11,25 @@ class PetDetailsEditScreen extends Component {
 
   constructor(props) {
     super(props);
+
+    let { name, type, age_num_years, age_num_months, breed, gender, weight, spayed, neutered, pet_id } = props.route.params.pet;
+
+    console.log('props.route.params.pet', props.route.params.pet)
+
     this.state = {
+      pet_id,
       display_section: 'pet_inputs', // 'pet_type', 'pet_inputs'
-      pet_name: '',
-      pet_type: 'Dog',
-      pet_birthday: '',
-      pet_breed: '',
+      pet_name: name,
+      pet_type: type,
+      age_num_years,
+      age_num_months,
+      pet_breed: breed,
+      pet_selected_breed: StringUtils.displayStringToKey(breed),
       pet_other_breed: '',
-      pet_gender: '',
-      pet_weight: '',
-      pet_is_spayed: false,
-      pet_is_neutered: false,
+      pet_gender: gender.toUpperCase(),
+      pet_weight: weight,
+      pet_is_spayed: spayed,
+      pet_is_neutered: neutered,
       started_animation: false,
       timer_interval: null,
       error_message: ''
@@ -54,11 +62,13 @@ class PetDetailsEditScreen extends Component {
       name: this.state.pet_name,
       breed: this.state.pet_breed,
       type: this.state.pet_type,
-      birthday: this.state.pet_birthday,
+      age_num_years: this.state.age_num_years,
+      age_num_months: this.state.age_num_months,
       gender: this.state.pet_gender,
       spayed: this.state.pet_is_spayed,
       neutered: this.state.pet_is_neutered,
-      weight: patient_weight
+      weight: patient_weight,
+      patient_id: this.state.pet_id
     }
 
     if (patient_info.breed) {
@@ -67,7 +77,7 @@ class PetDetailsEditScreen extends Component {
       patient_info.breed = patient_info.breed !== 'other' ? StringUtils.keyToDisplayString(patient_info.breed) : patient_info.breed;
     }
 
-    let pet_add_return = await PetsController.addPet(patient_info);
+    let pet_add_return = await PetsController.updatePet(patient_info);
 
     if(pet_add_return.success) {
       // let tags_response = await UserController.refreshUserTags({});
@@ -158,15 +168,23 @@ class PetDetailsEditScreen extends Component {
                this.setState({ ...this.state, pet_weight: text });
              }}/>
 
-       <Input type={'masked'}
-              label='Pet Birthday (MM/DD/YYYY)'
-              placeholder='MM/DD/YYYY'
-              type='date-mmddyyyy'
-              value={this.state.pet_birthday}
-              style={{ marginBottom: 12 }}
-              onChangeText={ (text) => {
-                this.setState({ ...this.state, pet_birthday: text });
-              }}/>
+      <Input
+            label='Pet Age in Years'
+            placeholder='Number of Years'
+            value={this.state.age_num_years.toString()}
+            style={{ marginBottom: 12 }}
+            onChangeText={ (text) => {
+              this.setState({ ...this.state, age_num_years: text });
+            }}/>
+
+      <Input
+            label='Pet Age Months'
+            placeholder='Number of Months'
+            value={this.state.age_num_months.toString()}
+            style={{ marginBottom: 12 }}
+            onChangeText={ (text) => {
+              this.setState({ ...this.state, age_num_months: text });
+            }}/>
 
         { this.render_breed_input() }
 
@@ -219,7 +237,7 @@ class PetDetailsEditScreen extends Component {
           <View style={styles.breed_container}>
             <Picker
               style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
-              selectedValue={this.state.pet_breed}
+              selectedValue={this.state.pet_selected_breed}
               onValueChange={ (selected_breed) => {
                 this.setState({ pet_breed: selected_breed })
               }}>
