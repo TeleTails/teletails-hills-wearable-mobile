@@ -7,7 +7,7 @@ class Input extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      border_color: this.props.border_color || '#bbbbc0',
+      border_color: this.props.border_color || '#dddddf',
       is_active: false
     }
   }
@@ -21,7 +21,7 @@ class Input extends Component {
                       autoCapitalize={ combined_props.autoCapitalize }
                       autoCorrect={ combined_props.autoCorrect }
                       keyboardType='number-pad'
-                      onBlur={  () => { this.setState({ is_active: false, border_color: this.props.border_color || '#bbbbc0' }) }}
+                      onBlur={  () => { this.setState({ is_active: false, border_color: this.props.border_color || '#dddddf' }) }}
                       onFocus={ () => { this.setState({ is_active: true,  border_color: Colors.PRIMARY }) }}
                       style={[ styles.default_style, combined_props.active_style, combined_props.passed_style ]}
                       onChangeText={ (input_str) => {
@@ -58,7 +58,7 @@ class Input extends Component {
                       keyboardType={ combined_props.keyboardType }
                       secureTextEntry={ combined_props.secureTextEntry }
                       textContentType={ combined_props.textContentType }
-                      onBlur={  () => { this.setState({ is_active: false, border_color: this.props.border_color || '#bbbbc0' }) }}
+                      onBlur={  () => { this.setState({ is_active: false, border_color: this.props.border_color || '#dddddf' }) }}
                       onFocus={ () => { this.setState({ is_active: true,  border_color: Colors.PRIMARY }) }}
                       style={[ styles.default_style, combined_props.active_style, combined_props.passed_style ]}
                       onChangeText={ combined_props.change_action }
@@ -119,7 +119,7 @@ class Input extends Component {
 const styles = StyleSheet.create({
   default_style: {
     color: Colors.TEXT_GREY,
-    borderWidth: 1,
+    borderWidth: 2,
     padding: 15,
     paddingTop: 18,
     paddingBottom: 18,
