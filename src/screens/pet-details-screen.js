@@ -22,6 +22,8 @@ class PetDetailsScreen extends Component {
       add_new_diet: false,
       add_new_health: false,
       loading_save_pet: false,
+      diet_loaded: false,
+      health_loaded: false,
       error_message: ''
     }
   }
@@ -45,7 +47,7 @@ class PetDetailsScreen extends Component {
         <Text style={styles.label_text}>{ label }</Text>
       </View>
       <View style={{ flex: 1 }}>
-        { check_icon ? <Icon name='check-circle' size={18} color={Colors.GREEN} />
+        { check_icon ? <Icon name='check-circle' size={18} style={{ alignSelf: 'flex-start' }} color={Colors.GREEN} />
                      : <Text style={styles.value_text}>{ value }</Text> }
       </View>
     </View>
@@ -106,6 +108,8 @@ class PetDetailsScreen extends Component {
   }
 
   render_pet_diet = () => {
+    if (!this.state.diet_loaded) { return null }
+
     let add_new_diet = this.state.add_new_diet;
     let pet_diet     = this.state.pet_diet;
 
@@ -147,6 +151,8 @@ class PetDetailsScreen extends Component {
   }
 
   render_pet_health_issues = () => {
+    if (!this.state.health_loaded) { return null }
+
     let pet_health        = this.state.pet_health;
     let pet_health_id     = pet_health && pet_health._id ? pet_health._id : '';
     let health_issues     = pet_health && pet_health.health_issues ? pet_health.health_issues : [];
@@ -183,6 +189,8 @@ class PetDetailsScreen extends Component {
   }
 
   render_pet_medications = () => {
+    if (!this.state.health_loaded) { return null }
+
     let pet_health      = this.state.pet_health;
     let pet_health_id   = pet_health && pet_health._id ? pet_health._id : '';
     let medications     = pet_health && pet_health.medications ? pet_health.medications : [];
@@ -244,9 +252,9 @@ class PetDetailsScreen extends Component {
       let is_success = response && response.success;
       if (is_success) {
         let pet_diet = response && response.data && response.data.pet_diet;
-        this.setState({ pet_diet: pet_diet });
+        this.setState({ pet_diet: pet_diet, diet_loaded: true });
       } else {
-        this.setState({ add_new_diet: true });
+        this.setState({ add_new_diet: true, diet_loaded: true });
       }
     })
   }
@@ -256,7 +264,9 @@ class PetDetailsScreen extends Component {
       let is_success = response && response.success;
       if (is_success) {
         let pet_health = response && response.data && response.data.pet_health;
-        this.setState({ pet_health: pet_health });
+        this.setState({ pet_health: pet_health, health_loaded: true });
+      } else {
+        this.setState({ health_loaded: true });
       }
     })
   }

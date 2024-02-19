@@ -85,6 +85,7 @@ class PetDetailsEditScreen extends Component {
         pet_name  = pet_name || 'Your Pet';
     let is_male   = pet.gender === 'MALE';
     let is_female = pet.gender === 'FEMALE';
+    let is_sp_nt  = pet.spayed === true ? true : false;
     let is_dog    = pet.type && pet.type.toLowerCase() === 'dog';
     let is_cat    = pet.type && pet.type.toLowerCase() === 'cat';
     let age_years = pet.age_num_years  ? pet.age_num_years  : 0;
@@ -173,12 +174,24 @@ class PetDetailsEditScreen extends Component {
       <View style={{ marginBottom: 20 }}>
         <Text style={styles.input_title}>{ s_n_title }</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <TouchableOpacity style={ is_male ? styles.selected_selection_button : styles.selection_button }   onPress={ () => { this.update_state_pet('gender', 'MALE') }}>
-            <Text style={ is_male ? styles.selected_selection_title : styles.selection_title }>Yes</Text>
+          <TouchableOpacity style={ is_sp_nt ? styles.selected_selection_button : styles.selection_button }
+                            onPress={ () => {
+                              let updated_pet  = Object.assign({}, this.state.pet);
+                              updated_pet['spayed']   = true;
+                              updated_pet['neutered'] = true;
+                              this.setState({ pet: updated_pet });
+                            }}>
+            <Text style={ is_sp_nt ? styles.selected_selection_title : styles.selection_title }>Yes</Text>
           </TouchableOpacity>
           <View style={{ width: 8 }} />
-          <TouchableOpacity style={ is_female ? styles.selected_selection_button : styles.selection_button } onPress={ () => { this.update_state_pet('gender', 'FEMALE') }}>
-            <Text style={ is_female ? styles.selected_selection_title : styles.selection_title }>No</Text>
+          <TouchableOpacity style={ !is_sp_nt ? styles.selected_selection_button : styles.selection_button }
+                            onPress={ () => {
+                              let updated_pet  = Object.assign({}, this.state.pet);
+                              updated_pet['spayed']   = false;
+                              updated_pet['neutered'] = false;
+                              this.setState({ pet: updated_pet });
+                            }}>
+            <Text style={ !is_sp_nt ? styles.selected_selection_title : styles.selection_title }>No</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -194,24 +207,41 @@ class PetDetailsEditScreen extends Component {
                   type: pet.type,
                   gender: pet.gender,
                   breed: pet.breed,
-                  age_num_years: pet.age_num_years,
-                  age_num_months: pet.age_num_months,
+                  age_num_years: pet.age_num_years || 0,
+                  age_num_months: pet.age_num_months || 0,
                   spayed: pet.spayed,
                   neutered: pet.neutered
                 }
 
                 this.setState({ loading_button: true });
-                let pet_save_response = await PetsController.updatePet(patient_info);
 
-                if(pet_save_response.success) {
-                  let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
-                  success_action();
-                  this.props.navigation.pop();
-                  this.setState({ loading_button: false });
-                } else {
-                  let error_msg = pet_save_response && pet_save_response.error ? pet_save_response.error : '';
-                  this.setState({ loading_save_pet: false, error_message: error_msg, loading_button: false });
+                if (this.state.add_new) {
+                  let pet_add_response = await PetsController.addPet(patient_info);
+                  delete patient_info.patient_id;
+                  if(pet_add_response.success) {
+                    let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                    success_action();
+                    this.props.navigation.pop();
+                    this.setState({ loading_button: false });
+                  } else {
+                    let error_msg = pet_add_response && pet_add_response.error ? pet_add_response.error : '';
+                    this.setState({ loading_save_pet: false, error_message: error_msg, loading_button: false });
+                  }
                 }
+
+                if (!this.state.add_new && pet_id) {
+                  let pet_save_response = await PetsController.updatePet(patient_info);
+                  if(pet_save_response.success) {
+                    let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                    success_action();
+                    this.props.navigation.pop();
+                    this.setState({ loading_button: false });
+                  } else {
+                    let error_msg = pet_save_response && pet_save_response.error ? pet_save_response.error : '';
+                    this.setState({ loading_save_pet: false, error_message: error_msg, loading_button: false });
+                  }
+                }
+
 
               }} />
 
@@ -620,8 +650,12 @@ class PetDetailsEditScreen extends Component {
   }
 
   get_pet = async () => {
-    this.setState({ loading_screen: true });
     let pet_id  = this.state.pet_id;
+
+    if (!pet_id) { return }
+
+    this.setState({ loading_screen: true });
+
     let pet_res = await PetsController.getPet(pet_id);
     if (pet_res && pet_res.success) {
       let pet  = pet_res && pet_res.data && pet_res.data.pet ? pet_res.data.pet : {};

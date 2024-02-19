@@ -75,7 +75,7 @@ class HealthTab extends Component {
     }
 
     return <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', borderRadius: 30, borderColor: 'grey', height: 55, width: 140, position: 'absolute', alignSelf: 'center', marginTop: 40 }}
-                             onPress={ () => { this.props.navigation.push('AddPet', { success_action: () => { this.pull_pets() } }) }}>
+                             onPress={ () => { this.props.navigation.push('PetDetailsEdit', { type: 'bio', add_new: true, success_action: () => { this.pull_pets() }}) }}>
       <Icon name='plus-circle' size={22} color={Colors.PRIMARY} />
       <Text style={{ fontWeight: 'semibold', marginLeft: 8 }}>Add a pet</Text>
     </TouchableOpacity>

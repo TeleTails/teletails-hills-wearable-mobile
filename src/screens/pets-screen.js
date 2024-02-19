@@ -80,7 +80,7 @@ class PetsScreen extends Component {
 
   render_add_pet_button = () => {
     return <View style={{ marginTop: 5 }}>
-      <TouchableOpacity onPress={ () => { this.props.navigation.push('AddPet') }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <TouchableOpacity onPress={ () => { this.props.navigation.push('PetDetailsEdit', { type: 'bio', add_new: true, success_action: () => { this.pull_pets() }}) }} style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Icon name='plus-circle' color={ Colors.PRIMARY } />
         <View style={{ marginLeft: 15 }}>
           <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#535353' }}>{ 'Add A New Pet' }</Text>
