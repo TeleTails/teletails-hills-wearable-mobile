@@ -147,21 +147,33 @@ class PetDetailsScreen extends Component {
   }
 
   render_pet_health_issues = () => {
-    let has_health_issues = false;
+    let pet_health        = this.state.pet_health;
+    let pet_health_id     = pet_health && pet_health._id ? pet_health._id : '';
+    let health_issues     = pet_health && pet_health.health_issues ? pet_health.health_issues : [];
+    let has_health_issues = health_issues.length > 0 ? true : false;
+
+    let health_issue_rows = health_issues.map((health_issue, index) => {
+      let bottom_margin = index === health_issues.length - 1 ? 0 : 10;
+      return <Text style={[styles.value_text, { marginBottom: 15 }]}>{ health_issue }</Text>
+    })
+
     return <View style={{ padding: 20, paddingTop: 10 }}>
       <View style={styles.section_title_container}>
         <Text style={styles.section_title}>Health Issues</Text>
         { has_health_issues ? <TouchableOpacity style={styles.edit_button}
                                                 onPress={ () => {
-                                                  this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'health_issues', success_action: () => {  } });
+                                                  this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'health_issues', success_action: () => { this.get_pet_health(this.state.pet_id) } });
                                                 }}>
                                 <Text style={styles.edit_button_title}>Edit</Text>
                               </TouchableOpacity> : null }
       </View>
       <View style={styles.section_container}>
+        { has_health_issues  ? <View>
+                                { health_issue_rows }
+                               </View> : null }
         { !has_health_issues ? <TouchableOpacity style={styles.add_button}
                                                  onPress={ () => {
-                                                   this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'health_issues', success_action: () => {  } });
+                                                   this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'health_issues', success_action: () => { this.get_pet_health(this.state.pet_id) } });
                                                  }}>
                                  <Icon name='plus-circle' color='white' size={18} />
                                  <Text style={styles.add_button_title}>ADD HEALTH ISSUES</Text>
@@ -171,21 +183,35 @@ class PetDetailsScreen extends Component {
   }
 
   render_pet_medications = () => {
-    let has_medications = false;
+    let pet_health      = this.state.pet_health;
+    let pet_health_id   = pet_health && pet_health._id ? pet_health._id : '';
+    let medications     = pet_health && pet_health.medications ? pet_health.medications : [];
+    let has_medications = medications.length > 0 ? true : false;
+
+    let medication_rows = medications.map((medication, index) => {
+      let bottom_margin = index === medications.length - 1 ? 0 : 10;
+      let display_name  = medication ? StringUtils.sentenceCase(medication.toLowerCase()) : '';
+      return <Text style={[styles.value_text, { marginBottom: 15 }]}>{ display_name }</Text>
+    })
+
     return <View style={{ padding: 20, paddingTop: 10 }}>
       <View style={styles.section_title_container}>
         <Text style={styles.section_title}>Medications</Text>
         { has_medications ? <TouchableOpacity style={styles.edit_button}
                                               onPress={ () => {
-                                                this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'medications', success_action: () => {  } });
+                                                this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'medications', success_action: () => { this.get_pet_health(this.state.pet_id) } });
                                               }}>
                               <Text style={styles.edit_button_title}>Edit</Text>
                             </TouchableOpacity> : null }
       </View>
       <View style={styles.section_container}>
+        { has_medications  ? <View>
+                               { medication_rows }
+                             </View>
+                           : null }
         { !has_medications ? <TouchableOpacity style={styles.add_button}
                                                onPress={ () => {
-                                                 this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'medications', success_action: () => {  } });
+                                                 this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'medications', success_action: () => { this.get_pet_health(this.state.pet_id) } });
                                                }}>
                                <Icon name='plus-circle' color='white' size={18} />
                                <Text style={styles.add_button_title}>ADD MEDICATIONS</Text>
@@ -227,8 +253,11 @@ class PetDetailsScreen extends Component {
 
   get_pet_health = (pet_id) =>{
     PetsController.getPetHealth({ patient_id: pet_id }).then((response) => {
-      console.log(" === GET HEALTH ====");
-      console.log(response)
+      let is_success = response && response.success;
+      if (is_success) {
+        let pet_health = response && response.data && response.data.pet_health;
+        this.setState({ pet_health: pet_health });
+      }
     })
   }
 

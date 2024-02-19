@@ -36,7 +36,10 @@ class PetDetailsEditScreen extends Component {
       pet_food_cups: 0,
       pet_food_times: 0,
       pet_food_notes: '',
-      health_issues: []
+      health_issues: [],
+      medications: [],
+      medication_name: '',
+      delete_medication_name: ''
     }
   }
 
@@ -45,6 +48,7 @@ class PetDetailsEditScreen extends Component {
 
     this.get_pet_food_list();
     this.get_pet();
+    this.get_pet_health();
     this.get_pet_diet();
 
     this.setState({ timer_interval: t });
@@ -284,13 +288,19 @@ class PetDetailsEditScreen extends Component {
                 let sel_health_issues = this.state.health_issues;
                 let request_data  = {
                   patient_id: pet_id,
+                  health_issues: sel_health_issues
                 }
 
                 this.setState({ loading_button: true });
 
                 let health_save_res = await PetsController.createUpdateHealthEntry(request_data);
+                let is_success      = health_save_res && health_save_res.success ? true : false;
 
-                console.log(health_save_res)
+                if (is_success) {
+                  let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                  success_action();
+                  this.props.navigation.pop();
+                }
 
                 this.setState({ loading_button: false });
               }} />
@@ -300,8 +310,87 @@ class PetDetailsEditScreen extends Component {
   render_add_edit_medications = (display) => {
     if (!display) { return null }
 
-    return <View>
+    let medications  = this.state.medications || [];
 
+    let med_name_rows = medications.map((medication_name, idx) => {
+      let display_name = medication_name ? StringUtils.sentenceCase(medication_name.toLowerCase()) : '';
+      let is_loading   = this.state.delete_medication_name === medication_name;
+      return <View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 20, paddingBottom: 20, justifyContent: 'space-between' }}>
+          <Text style={{ fontSize: 16, fontWeight: 'medium' }}>{ display_name }</Text>
+          { is_loading ?  <View style={{ width: 25, height: 25, backgroundColor: Colors.PRIMARY, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+                            <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+                          </View>
+                       :  <Icon name='close'
+                                size={25}
+                                color={ Colors.PRIMARY }
+                                onPress={ async () => {
+                                  let pet_id          = this.state.pet_id;
+                                  let medications_arr = [ ...medications ];
+                                      medications_arr.splice(idx, 1);
+
+                                  let request_data = {
+                                    patient_id: pet_id,
+                                    medications: medications_arr
+                                  }
+
+                                  this.setState({ delete_medication_name: medication_name });
+
+                                  let health_save_res = await PetsController.createUpdateHealthEntry(request_data);
+                                  let is_success      = health_save_res && health_save_res.success ? true : false;
+
+                                  if (is_success) {
+                                    let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                                    this.setState({ medications: medications_arr });
+                                    this.get_pet_health(true);
+                                    success_action();
+                                  }
+
+                                  this.setState({ delete_medication_name: '' });
+                                }}/> }
+        </View>
+        <Line />
+      </View>
+    })
+
+    return <View style={{ padding: 20 }}>
+      <Input value={this.state.medication_name}
+             label='Medication Name'
+             style={{  }}
+             onChangeText={ (text) => {
+               this.setState({ ...this.state, medication_name: text });
+             }}/>
+      <Button title={ 'Add' }
+              style={{ marginTop: 10, alignSelf: 'flex-end', padding: 10, width: 120 }}
+              loading={this.state.loading_button}
+              onPress={ async () => {
+                if (this.state.medication_name) {
+                  let pet_id     = this.state.pet_id;
+                  let meds_array = [ ...this.state.medications ];
+                      meds_array.push(this.state.medication_name)
+
+                  let request_data = {
+                    patient_id: pet_id,
+                    medications: meds_array
+                  }
+
+                  this.setState({ loading_button: true });
+
+                  let health_save_res = await PetsController.createUpdateHealthEntry(request_data);
+                  let is_success      = health_save_res && health_save_res.success ? true : false;
+
+                  if (is_success) {
+                    let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                    success_action();
+                    this.get_pet_health(true);
+                    this.setState({ medication_name: '' });
+                  }
+
+                  this.setState({ loading_button: false });
+                }
+              }} />
+      <Line style={{ marginTop: 20 }} />
+      { med_name_rows }
     </View>
   }
 
@@ -539,6 +628,25 @@ class PetDetailsEditScreen extends Component {
       let type = pet && pet.type ? pet.type : '';
       this.setState({ pet: pet, original_pet: pet, pet_type: type });
     }
+    this.setState({ loading_screen: false });
+  }
+
+  get_pet_health = async (skip_loading) => {
+    if (this.state.display_section !== 'health_issues' && this.state.display_section !== 'medications') { return }
+    this.setState({ loading_screen: skip_loading ? false : true });
+    let pet_id     = this.state.pet_id;
+    let health_res = await PetsController.getPetHealth({ patient_id: pet_id });
+
+    if (health_res && health_res.success) {
+      let pet_health    = health_res && health_res.data && health_res.data.pet_health ? health_res.data.pet_health : {};
+      let health_issues = pet_health && pet_health.health_issues ? pet_health.health_issues : [];
+      let medications   = pet_health && pet_health.medications   ? pet_health.medications   : [];
+      this.setState({
+        health_issues: health_issues,
+        medications: medications
+      });
+    }
+
     this.setState({ loading_screen: false });
   }
 

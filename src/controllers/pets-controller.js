@@ -45,17 +45,17 @@ export default class PetsController {
     });
 
     static getHealthEntries = PetsController.exceptionWrapper(async (data) => {
-      let response = await UtilitiesController.post('/v5/api/care/get/health_entries', data, true);
+      let response = await UtilitiesController.post('/v5/api/pets/get/health_entries', data, true);
       return response && response.success ? response.data : [];
     });
 
     static createHealthEntry = PetsController.exceptionWrapper(async (data) => {
-      let response = await UtilitiesController.post('/v5/api/care/new/health_entry', data, true);
+      let response = await UtilitiesController.post('/v5/api/pets/new/health_entry', data, true);
       return response;
     });
 
     static createUpdateHealthEntry = PetsController.exceptionWrapper(async (data) => {
-      let response = await UtilitiesController.post('/v5/api/care/create_update/pet_health', data, true);
+      let response = await UtilitiesController.post('/v5/api/pets/create_update/pet_health', data, true);
       return response;
     });
 
