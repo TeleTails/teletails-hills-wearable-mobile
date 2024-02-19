@@ -12,18 +12,21 @@ class PetDetailsEditScreen extends Component {
   constructor(props) {
     super(props);
 
-    let type   = this.props && this.props.route && this.props.route.params && this.props.route.params.type   ? this.props.route.params.type   : '';
-    let pet_id = this.props && this.props.route && this.props.route.params && this.props.route.params.pet_id ? this.props.route.params.pet_id : '';
+    let type    = this.props && this.props.route && this.props.route.params && this.props.route.params.type    ? this.props.route.params.type    : '';
+    let pet_id  = this.props && this.props.route && this.props.route.params && this.props.route.params.pet_id  ? this.props.route.params.pet_id  : '';
+    let add_new = this.props && this.props.route && this.props.route.params && this.props.route.params.add_new ? this.props.route.params.add_new : false;
 
     this.state = {
       display_section: type, // new, bio, diet, health_issues, medications
       pet_id: pet_id,
+      add_new: add_new,
       pet: {},
       original_pet: {},
       pet_breed_selected: false,
       started_animation: false,
       loading_screen: false,
       loading_button: false,
+      add_new_diet: false,
       pet_food_list: { cat_food_products: [], dog_food_products: [] },
       pet_food_suggestions: [],
       pet_type: '',
@@ -42,6 +45,7 @@ class PetDetailsEditScreen extends Component {
 
     this.get_pet_food_list();
     this.get_pet();
+    this.get_pet_diet();
 
     this.setState({ timer_interval: t });
   }
@@ -426,7 +430,43 @@ class PetDetailsEditScreen extends Component {
                }}/>
         <Button title={ 'Save' }
                 style={{ marginTop: 20 }}
-                onPress={ () => {  }} />
+                loading={this.state.loading_button}
+                onPress={ async () => {
+                  let pet_id       = this.state.pet_id;
+                  let diet_details = {
+                    patient_id: pet_id,
+                    food_name: this.state.pet_food,
+                    food_type: this.state.pet_food_type,
+                    food_quantity_cups: this.state.pet_food_cups,
+                    food_times_a_day: this.state.pet_food_times
+                  }
+
+                  this.setState({ loading_button: true });
+
+                  if (this.state.add_new) {
+                    let diet_create_res = await PetsController.createPetDiet(diet_details);
+                    let is_success      = diet_create_res && diet_create_res.success ? true : false;
+                    if (is_success) {
+                      let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                      success_action();
+                      this.props.navigation.pop();
+                    } else {
+
+                    }
+                  } else {
+                    let diet_save_res = await PetsController.updatePetDiet(diet_details);
+                    let is_success    = diet_save_res && diet_save_res.success ? true : false;
+                    if (is_success) {
+                      let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                      success_action();
+                      this.props.navigation.pop();
+                    } else {
+
+                    }
+                  }
+
+                  this.setState({ loading_button: false });
+                }} />
       </View>
     </View>
   }
@@ -484,6 +524,27 @@ class PetDetailsEditScreen extends Component {
       let type = pet && pet.type ? pet.type : '';
       this.setState({ pet: pet, original_pet: pet, pet_type: type });
     }
+    this.setState({ loading_screen: false });
+  }
+
+  get_pet_diet = async () => {
+    if (this.state.display_section !== 'diet') { return }
+    this.setState({ loading_screen: true });
+    let pet_id   = this.state.pet_id;
+    let diet_res = await PetsController.getPetDiet({ patient_id: pet_id });
+
+    if (diet_res && diet_res.success) {
+      let pet_diet = diet_res && diet_res.data && diet_res.data.pet_diet ? diet_res.data.pet_diet : {};
+      this.setState({
+        pet_food_notes: '',
+        pet_food: pet_diet.food_name,
+        pet_food_times: pet_diet.food_times_a_day,
+        pet_food_cups: pet_diet.food_quantity_cups,
+        pet_food_type: pet_diet.food_type,
+        food_selected: true
+      });
+    }
+
     this.setState({ loading_screen: false });
   }
 

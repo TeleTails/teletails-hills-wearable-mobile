@@ -64,4 +64,14 @@ export default class PetsController {
       return response;
     });
 
+    static createPetDiet = PetsController.exceptionWrapper(async (data) => {
+      let response = await UtilitiesController.post('/v5/api/pets/new/pet_diet', data, true);
+      return response;
+    });
+
+    static updatePetDiet = PetsController.exceptionWrapper(async (data) => {
+      let response = await UtilitiesController.post('/v5/api/pets/update/pet_diet', data, true);
+      return response;
+    });
+
 }

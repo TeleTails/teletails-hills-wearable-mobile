@@ -18,6 +18,9 @@ class PetDetailsScreen extends Component {
       pet_id: pet_id,
       display_section: 'pet_details', // 'pet_details' 'pet_edit_inputs'
       pet_details: {},
+      pet_diet: {},
+      add_new_diet: false,
+      add_new_health: false,
       loading_save_pet: false,
       error_message: ''
     }
@@ -215,21 +218,22 @@ class PetDetailsScreen extends Component {
   }
 
   render_pet_diet = () => {
-    let has_diet = false;
+    let add_new_diet = this.state.add_new_diet;
+
     return <View style={{ padding: 20, paddingTop: 10 }}>
       <View style={styles.section_title_container}>
         <Text style={styles.section_title}>Diet</Text>
-        { has_diet ? <TouchableOpacity style={styles.edit_button}
+        { !add_new_diet ? <TouchableOpacity style={styles.edit_button}
                                        onPress={ () => {
-                                         this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'diet', success_action: () => {  } });
+                                         this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'diet', success_action: () => { this.get_pet_diet(this.state.pet_id) } });
                                        }}>
                        <Text style={styles.edit_button_title}>Edit</Text>
                      </TouchableOpacity> : null }
       </View>
       <View style={styles.section_container}>
-        { !has_diet ? <TouchableOpacity style={styles.add_button}
+        { add_new_diet ? <TouchableOpacity style={styles.add_button}
                                         onPress={ () => {
-                                          this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'diet', success_action: () => {  } });
+                                          this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, add_new: true, type: 'diet', success_action: () => { this.get_pet_diet(this.state.pet_id) } });
                                         }}>
                         <Icon name='plus-circle' color='white' size={18} />
                         <Text style={styles.add_button_title}>ADD DIET</Text>
@@ -306,13 +310,19 @@ class PetDetailsScreen extends Component {
   }
 
   get_pet_diet = (pet_id) => {
-    PetsController.getPetHealth({ patient_id: pet_id }).then((response) => {
-
+    PetsController.getPetDiet({ patient_id: pet_id }).then((response) => {
+      let is_success = response && response.success;
+      if (is_success) {
+        let pet_diet = {};
+        this.setState({ pet_diet: pet_diet });
+      } else {
+        this.setState({ add_new_diet: true });
+      }
     })
   }
 
   get_pet_health = (pet_id) =>{
-    PetsController.getPetDiet({ patient_id: pet_id }).then((response) => {
+    PetsController.getPetHealth({ patient_id: pet_id }).then((response) => {
 
     })
   }
