@@ -121,7 +121,7 @@ class PetDetailsScreen extends Component {
       name,
       age_num_years,
       age_num_months,
-      spayed, 
+      spayed,
       neutered,
       pet_id
     }
@@ -131,7 +131,7 @@ class PetDetailsScreen extends Component {
         <Text style={styles.section_title}>Bio</Text>
         <TouchableOpacity style={styles.edit_button}
                           onPress={ () => {
-                            this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'bio', success_action: () => {  } });
+                            this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'bio', success_action: () => { this.get_pet_bio(this.state.pet_id)  } });
                           }}>
           <Text style={styles.edit_button_title}>Edit</Text>
         </TouchableOpacity>
@@ -294,6 +294,15 @@ class PetDetailsScreen extends Component {
       { this.render_pet_health_issues() }
       { this.render_pet_medications()   }
     </Screen>
+  }
+
+  get_pet_bio = async (pet_id) => {
+    let pet_res = await PetsController.getPet(pet_id);
+
+    if (pet_res && pet_res.success) {
+      let pet = pet_res && pet_res.data && pet_res.data.pet ? pet_res.data.pet : {};
+      this.setState({ ...pet, pet_id: pet_id });
+    }
   }
 
   get_pet_diet = (pet_id) => {

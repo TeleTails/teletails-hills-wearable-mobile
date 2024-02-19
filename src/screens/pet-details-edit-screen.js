@@ -22,9 +22,8 @@ class PetDetailsEditScreen extends Component {
       original_pet: {},
       pet_breed_selected: false,
       started_animation: false,
-      age_num_years: 0,
-      age_num_months: 0,
       loading_screen: false,
+      loading_button: false,
       pet_food_list: { cat_food_products: [], dog_food_products: [] },
       pet_food_suggestions: [],
       pet_type: '',
@@ -34,6 +33,7 @@ class PetDetailsEditScreen extends Component {
       pet_food_cups: 0,
       pet_food_times: 0,
       pet_food_notes: '',
+      health_issues: []
     }
   }
 
@@ -79,6 +79,8 @@ class PetDetailsEditScreen extends Component {
     let is_female = pet.gender === 'FEMALE';
     let is_dog    = pet.type && pet.type.toLowerCase() === 'dog';
     let is_cat    = pet.type && pet.type.toLowerCase() === 'cat';
+    let age_years = pet.age_num_years  ? pet.age_num_years  : 0;
+    let age_month = pet.age_num_months ? pet.age_num_months : 0;
     let s_n_title = 'Spayed/Neutered?';
         s_n_title = is_male   ? 'Neutered?' : s_n_title;
         s_n_title = is_female ? 'Spayed?'   : s_n_title;
@@ -134,11 +136,11 @@ class PetDetailsEditScreen extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
           <View style={{ alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', width: 130, justifyContent: 'space-between' }}>
-              <TouchableOpacity onPress={ () => { this.setState({ age_num_years: this.state.age_num_years === 0 ? 0 : this.state.age_num_years - 1 }) }}>
+              <TouchableOpacity onPress={ () => { this.update_state_pet('age_num_years', age_years === 0 ? 0 : age_years - 1) }}>
                 <Icon name='minus-circle' color={ Colors.PRIMARY } size={28} />
               </TouchableOpacity>
-              <Text style={{ fontSize: 24 }}>{ this.state.age_num_years }</Text>
-              <TouchableOpacity onPress={ () => { this.setState({ age_num_years: this.state.age_num_years + 1 }) }}>
+              <Text style={{ fontSize: 24 }}>{ age_years }</Text>
+              <TouchableOpacity onPress={ () => { this.update_state_pet('age_num_years', age_years + 1) }}>
                 <Icon name='plus-circle'  color={ Colors.PRIMARY } size={30} />
               </TouchableOpacity>
             </View>
@@ -147,11 +149,11 @@ class PetDetailsEditScreen extends Component {
           <View style={{ width: 30 }} />
           <View style={{ alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', width: 130, justifyContent: 'space-between' }}>
-              <TouchableOpacity onPress={ () => { this.setState({ age_num_months: this.state.age_num_months === 0 ? 0 : this.state.age_num_months - 1 }) }}>
+              <TouchableOpacity onPress={ () => { this.update_state_pet('age_num_months', age_month === 0 ? 0 : age_month - 1) }}>
                 <Icon name='minus-circle' color={ Colors.PRIMARY } size={28} />
               </TouchableOpacity>
-              <Text style={{ fontSize: 24 }}>{ this.state.age_num_months }</Text>
-              <TouchableOpacity onPress={ () => { this.setState({ age_num_months: this.state.age_num_months + 1 }) }}>
+              <Text style={{ fontSize: 24 }}>{ age_month }</Text>
+              <TouchableOpacity onPress={ () => { this.update_state_pet('age_num_months', age_month < 11 ? age_month + 1 : age_month) }}>
                 <Icon name='plus-circle'  color={ Colors.PRIMARY } size={30} />
               </TouchableOpacity>
             </View>
@@ -173,7 +175,37 @@ class PetDetailsEditScreen extends Component {
         </View>
       </View>
 
-      <Button title={ 'Save' } onPress={ () => {  }} />
+      <Button title={ 'Save' }
+              loading={this.state.loading_button}
+              onPress={ async () => {
+                let pet_id       = this.state.pet_id;
+                let pet          = this.state.pet;
+                let patient_info = {
+                  patient_id: pet_id,
+                  name: pet.name,
+                  type: pet.type,
+                  gender: pet.gender,
+                  breed: pet.breed,
+                  age_num_years: pet.age_num_years,
+                  age_num_months: pet.age_num_months,
+                  spayed: pet.spayed,
+                  neutered: pet.neutered
+                }
+
+                this.setState({ loading_button: true });
+                let pet_save_response = await PetsController.updatePet(patient_info);
+
+                if(pet_save_response.success) {
+                  let success_action = this.props && this.props.route && this.props.route.params && this.props.route.params.success_action ? this.props.route.params.success_action   : () => {  };
+                  success_action();
+                  this.props.navigation.pop();
+                  this.setState({ loading_button: false });
+                } else {
+                  let error_msg = pet_save_response && pet_save_response.error ? pet_save_response.error : '';
+                  this.setState({ loading_save_pet: false, error_message: error_msg, loading_button: false });
+                }
+
+              }} />
 
     </View>
   }
@@ -214,8 +246,35 @@ class PetDetailsEditScreen extends Component {
   render_add_edit_health_issues = (display) => {
     if (!display) { return null }
 
-    return <View>
+    let selected_health_issues = this.state.health_issues;
 
+    let health_issue_rows = health_issues.map((health_issue) => {
+      let display_check = selected_health_issues.includes(health_issue);
+      return <View>
+        <TouchableOpacity style={{ paddingTop: 15, paddingBottom: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                          onPress={ () => {
+                            let selected_issues = [ ...selected_health_issues ];
+                            if (selected_issues.indexOf(health_issue) !== -1) {
+                              selected_issues.splice(selected_issues.indexOf(health_issue), 1);
+                            } else {
+                              selected_issues.push(health_issue);
+                            }
+                            this.setState({ health_issues: selected_issues });
+                          }}>
+          <Text style={{ fontWeight: 'medium', fontSize: 16 }}>{ health_issue }</Text>
+          { display_check ? <Icon name='check-circle' size={18} color={Colors.PRIMARY} /> : null }
+        </TouchableOpacity>
+        <Line />
+      </View>
+    })
+
+    return <View>
+      <Text style={styles.section_title}>{ 'Any Health Issues?' }</Text>
+      <Line style={{ marginTop: 20 }}/>
+      { health_issue_rows }
+      <Button title={ 'Next' }
+              style={{ marginTop: 20 }}
+              onPress={ () => { this.setState({ display_section: 'medications' }) }} />
     </View>
   }
 
@@ -623,6 +682,25 @@ const styles = StyleSheet.create({
   }
 });
 
+let health_issues = [
+  "Allergies",
+  "Eye issues",
+  "Dental Disease",
+  "Airway issues",
+  "Heart disease",
+  "Gastrointestinal/Digestive issues",
+  "Urinary issues",
+  "Kidney Disease",
+  "Liver Disease",
+  "Diabetes",
+  "Cushing’s Disease",
+  "Addison’s Disease",
+  "Thyroid Disease",
+  "Skin Disease",
+  "Joint disease",
+  "Neck and back issues",
+  "Neurological issues"
+]
 
 let dog_breeds = [
 // 'Select Breed',
