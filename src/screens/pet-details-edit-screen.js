@@ -265,20 +265,35 @@ class PetDetailsEditScreen extends Component {
                             }
                             this.setState({ health_issues: selected_issues });
                           }}>
-          <Text style={{ fontWeight: 'medium', fontSize: 16 }}>{ health_issue }</Text>
+          <Text style={{ fontWeight: 'medium', fontSize: 16, color: '#474747' }}>{ health_issue }</Text>
           { display_check ? <Icon name='check-circle' size={18} color={Colors.PRIMARY} /> : null }
         </TouchableOpacity>
         <Line />
       </View>
     })
 
-    return <View>
-      <Text style={styles.section_title}>{ 'Any Health Issues?' }</Text>
+    return <View style={{ padding: 20 }}>
+      <Text style={styles.section_title}>{ 'Select all that apply' }</Text>
       <Line style={{ marginTop: 20 }}/>
       { health_issue_rows }
-      <Button title={ 'Next' }
+      <Button title={ 'Save' }
               style={{ marginTop: 20 }}
-              onPress={ () => { this.setState({ display_section: 'medications' }) }} />
+              loading={this.state.loading_button}
+              onPress={ async () => {
+                let pet_id            = this.state.pet_id;
+                let sel_health_issues = this.state.health_issues;
+                let request_data  = {
+                  patient_id: pet_id,
+                }
+
+                this.setState({ loading_button: true });
+
+                let health_save_res = await PetsController.createUpdateHealthEntry(request_data);
+
+                console.log(health_save_res)
+
+                this.setState({ loading_button: false });
+              }} />
     </View>
   }
 
@@ -603,6 +618,11 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingLeft: 0,
     width: 120
+  },
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
   },
   breed_container: {
     borderWidth: 1,

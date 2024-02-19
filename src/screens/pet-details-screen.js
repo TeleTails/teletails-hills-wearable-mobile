@@ -38,60 +38,13 @@ class PetDetailsScreen extends Component {
     }
   }
 
-  save_pet = async () => {
-    let pet_id     = this.state.pet_id
-    let patient_weight = this.state.weight && parseInt(this.state.weight) ? parseInt(this.state.weight) : 0;
-
-    let patient_info = {
-      patient_id: pet_id,
-      name: this.state.name,
-      breed: this.state.breed,
-      type: this.state.type,
-      age_num_years: this.state.age_num_years,
-      age_num_months: this.state.age_num_months,
-      gender: this.state.gender,
-      spayed: this.state.spayed,
-      neutered: this.state.neutered,
-      weight: patient_weight
-    }
-
-    if (patient_info.breed) {
-      patient_info.breed = patient_info.breed === 'other' && this.state.pet_other_breed  ? this.state.pet_other_breed : patient_info.breed;
-      patient_info.breed = patient_info.breed === 'other' && !this.state.pet_other_breed ? 'Other' : patient_info.breed;
-      patient_info.breed = patient_info.breed !== 'other' ? StringUtils.keyToDisplayString(patient_info.breed) : patient_info.breed;
-    }
-
-    this.setState({ loading_save_pet: true });
-
-    let pet_save_response = await PetsController.updatePet(patient_info)
-
-    if(pet_save_response.success) {
-      let pet   = pet_save_response && pet_save_response.data && pet_save_response.data.pet ? pet_save_response.data.pet : {};
-      let breed = pet && pet.breed ? StringUtils.displayStringToKey(pet.breed) : '';
-
-      // let tags_response = await UserController.refreshUserTags({});
-
-      this.setState({
-        ...pet,
-        breed: breed,
-        pet_id: pet_id,
-        display_section: 'pet_details',
-        loading_save_pet: false,
-        error_message: ''
-      })
-    } else {
-      let error_msg = pet_save_response && pet_save_response.error ? pet_save_response.error : '';
-      this.setState({ loading_save_pet: false, error_message: error_msg });
-    }
-  }
-
   render_pet_details_label_value = (label, value) => {
     let check_icon = label === 'Spayed' || label === 'Neutered' ? true : false;
     return <View style={styles.pet_details_row}>
       <View style={styles.label_container}>
         <Text style={styles.label_text}>{ label }</Text>
       </View>
-      <View>
+      <View style={{ flex: 1 }}>
         { check_icon ? <Icon name='check-circle' size={18} color={Colors.GREEN} />
                      : <Text style={styles.value_text}>{ value }</Text> }
       </View>
@@ -107,27 +60,15 @@ class PetDetailsScreen extends Component {
     let breed  = this.state.breed  ? StringUtils.sentenceCase(this.state.breed.toLowerCase())  : '';
     let type   = this.state.type   ? StringUtils.sentenceCase(this.state.type.toLowerCase())   : '';
     let gender = this.state.gender ? StringUtils.sentenceCase(this.state.gender.toLowerCase()) : '';
-    let weight = this.state.weight || 0;
-        weight = weight.toString() + ' lbs';
     let pet_id = this.state.pet_id;
 
     let is_male   = this.state.gender === 'MALE';
     let is_female = this.state.gender === 'FEMALE';
 
-    let { age_num_months, age_num_years, spayed, neutered } = this.state;
-
-    let pet = {
-      gender,
-      weight,
-      breed,
-      type,
-      name,
-      age_num_years,
-      age_num_months,
-      spayed,
-      neutered,
-      pet_id
-    }
+    let age_months = this.state.age_num_months;
+    let age_years  = this.state.age_num_years;
+    let age_str    = age_years + ' yr ' + age_months + ' mo';
+        age_str    = age_months === 0 ? age_years + ' years' : age_str;
 
     return <View style={{ padding: 20 }}>
       <View style={styles.section_title_container}>
@@ -143,9 +84,8 @@ class PetDetailsScreen extends Component {
         { this.render_pet_details_label_value('Name',     name)     }
         { this.render_pet_details_label_value('Breed',    breed)    }
         { this.render_pet_details_label_value('Type',     type)     }
-        { this.render_pet_details_label_value('Birthday', this.state.birthday) }
+        { this.render_pet_details_label_value('Age',      age_str)  }
         { this.render_pet_details_label_value('Gender',   gender)   }
-        { this.render_pet_details_label_value('Weight',   weight)   }
 
         { is_female && this.state.spayed   ? this.render_pet_details_label_value('Spayed', 'True')   : null }
         { is_male   && this.state.neutered ? this.render_pet_details_label_value('Neutered', 'True') : null }
@@ -165,60 +105,15 @@ class PetDetailsScreen extends Component {
     </View>
   }
 
-  render_breed_input = () => {
-    let dog_breed_rows = dog_breeds.map((breed) => {
-      let breed_label = breed;
-      let value       = StringUtils.displayStringToKey(breed);
-      return <Picker.Item key={breed_label} label={breed_label} value={value} />
-    })
-
-    let cat_breed_rows = cat_breeds.map((breed) => {
-      let breed_label = breed;
-      let value       = StringUtils.displayStringToKey(breed);
-      return <Picker.Item key={breed_label} label={breed_label} value={value} />
-    })
-
-    if (this.state.type && (this.state.type.toLowerCase() === 'dog' || this.state.type.toLowerCase() === 'cat')) {
-      let is_dog = this.state.type.toLowerCase() === 'dog';
-      let is_cat = this.state.type.toLowerCase() === 'cat';
-
-      return <View style={{ paddingTop: 8, marginBottom: 15 }}>
-          <View style={{ marginLeft: 10, height: 18, backgroundColor: 'white', position: 'absolute', zIndex: 3, elevation: 0, paddingRight: 8, paddingLeft: 8 }}>
-              <Text style={{ color: Colors.TEXT_GREY }}>{ 'Pet Breed' }</Text>
-          </View>
-          <View style={styles.breed_container}>
-          <Picker
-            style={{ borderRadius: 10, backgroundColor: 'white' }}
-            selectedValue={this.state.breed}
-            onValueChange={ (selected_breed) => {
-              this.setState({ breed: selected_breed })
-            }}>
-              { is_dog ? dog_breed_rows : null }
-              { is_cat ? cat_breed_rows : null }
-          </Picker>
-        </View>
-
-        { this.state.breed === 'other' ? <View style={{ paddingTop: 15 }}>
-          <Input label='Other Breed Name'
-                 value={this.state.pet_other_breed}
-                 style={{  }}
-                 onChangeText={ (text) => {
-                   this.setState({ ...this.state, pet_other_breed: text });
-                 }}/>
-        </View> : null }
-      </View>
-    }
-
-    return <Input label='Pet Breed'
-                  value={this.state.breed}
-                  style={{ marginBottom: 12 }}
-                  onChangeText={ (text) => {
-                    this.setState({ ...this.state, breed: text });
-                  }}/>
-  }
-
   render_pet_diet = () => {
     let add_new_diet = this.state.add_new_diet;
+    let pet_diet     = this.state.pet_diet;
+
+    let food_name          = pet_diet.food_name;
+    let food_type          = pet_diet.food_type ? StringUtils.sentenceCase(pet_diet.food_type.toLowerCase()) : '';
+    let food_quantity_cups = pet_diet.food_quantity_cups + ' cups';
+    let food_times_a_day   = pet_diet.food_times_a_day + ' times a day';
+    let food_notes         = '';
 
     return <View style={{ padding: 20, paddingTop: 10 }}>
       <View style={styles.section_title_container}>
@@ -231,6 +126,15 @@ class PetDetailsScreen extends Component {
                      </TouchableOpacity> : null }
       </View>
       <View style={styles.section_container}>
+        { !add_new_diet ? <View>
+                            { this.render_pet_details_label_value('Food',   food_name)    }
+                            <View style={{ height: 15 }} />
+                            { this.render_pet_details_label_value('Type',   food_type)     }
+                            { this.render_pet_details_label_value('Amount', food_quantity_cups)  }
+                            { this.render_pet_details_label_value('Times',  food_times_a_day)   }
+                          </View>
+                        : null }
+
         { add_new_diet ? <TouchableOpacity style={styles.add_button}
                                         onPress={ () => {
                                           this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, add_new: true, type: 'diet', success_action: () => { this.get_pet_diet(this.state.pet_id) } });
@@ -313,7 +217,7 @@ class PetDetailsScreen extends Component {
     PetsController.getPetDiet({ patient_id: pet_id }).then((response) => {
       let is_success = response && response.success;
       if (is_success) {
-        let pet_diet = {};
+        let pet_diet = response && response.data && response.data.pet_diet;
         this.setState({ pet_diet: pet_diet });
       } else {
         this.setState({ add_new_diet: true });
@@ -323,7 +227,8 @@ class PetDetailsScreen extends Component {
 
   get_pet_health = (pet_id) =>{
     PetsController.getPetHealth({ patient_id: pet_id }).then((response) => {
-
+      console.log(" === GET HEALTH ====");
+      console.log(response)
     })
   }
 
@@ -376,10 +281,11 @@ const styles = StyleSheet.create({
   },
   pet_details_row: {
     flexDirection: 'row',
-    paddingLeft: 10
+    paddingLeft: 10,
+    flex: 1
   },
   label_container: {
-    width: 120,
+    width: 90,
     marginBottom: 15,
   },
   label_text: {
@@ -408,7 +314,8 @@ const styles = StyleSheet.create({
   },
   value_text: {
     fontSize: 15,
-    color: '#040415'
+    color: '#040415',
+    flex: 1
   }
 });
 

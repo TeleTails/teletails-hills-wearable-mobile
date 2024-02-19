@@ -54,6 +54,11 @@ export default class PetsController {
       return response;
     });
 
+    static createUpdateHealthEntry = PetsController.exceptionWrapper(async (data) => {
+      let response = await UtilitiesController.post('/v5/api/care/create_update/pet_health', data, true);
+      return response;
+    });
+
     static getPetHealth = PetsController.exceptionWrapper(async (data) => {
       let response = await UtilitiesController.post('/v5/api/pets/get/pet_health', data, true);
       return response;
