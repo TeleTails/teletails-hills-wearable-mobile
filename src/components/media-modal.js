@@ -36,14 +36,15 @@ class MediaModal extends Component {
             <TouchableWithoutFeedback onPress={ () => {  }}>
               <View style={styles.content_container}>
                 <TouchableOpacity style={styles.close_button_container} onPress={ () => { this.props.close_action() }}>
-                  <Icon name='times-circle' />
+                  <Icon name='close' color={Colors.PRIMARY} />
                 </TouchableOpacity>
 
-                { this.state.photo_uri ? <TouchableOpacity onPress={ () => { this.setState({ uploaded_url: null, photo_uri: '', video_uri: '' }) }}>
-                                           <Image style={styles.preview_style} source={{ uri: this.state.photo_uri }} />
+                { this.state.photo_uri ? <TouchableOpacity style={{ height: 250, width: '100%', marginTop: 10 }} onPress={ () => { this.setState({ uploaded_url: null, photo_uri: '', video_uri: '' }) }}>
+                                           <Image style={styles.preview_style} resizeMode='contain' source={{ uri: this.state.photo_uri }} />
                                          </TouchableOpacity>
                                        : null }
-                { this.state.video_uri ? <Video style={styles.preview_style}
+                { this.state.video_uri ? <View style={{ height: 250, width: '100%', marginTop: 10 }}>
+                                          <Video style={styles.preview_style}
                                                 source={{
                                                   uri: this.state.video_uri,
                                                 }}
@@ -51,22 +52,28 @@ class MediaModal extends Component {
                                                 resizeMode="contain"
                                                 isLooping
                                               />
+                                         </View>
                                        : <View></View> }
 
                 { hide_select_button ? null
-                                     : <View style={{ height: 230 }}>
-                                        <TouchableOpacity style={styles.upload_button_container}
-                                                         onPress={ () => { this.launch_media_selector() }}>
-                                          { this.state.loading_preview ? <Text>Loading...</Text>
-                                                                       : <Icon name='home' size={30}   /> }
-                                          <Text style={styles.upload_button_text}>Photo Library</Text>
+                                     : <View style={{ height: 260, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+
+                                        <TouchableOpacity style={styles.upload_button_container} onPress={ () => { this.launch_media_selector() }}>
+                                          <View style={styles.icon_container}>
+                                            <Icon name='photo-gallery' size={26} color={Colors.PRIMARY} />
+                                          </View>
+                                          <Text style={styles.button_title}>Photo</Text>
+                                          <Text style={styles.button_title}>Library</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={styles.camera_button_container}
-                                                         onPress={ () => { this.launch_camera() }}>
-                                          { this.state.loading_preview ? <Text>Loading...</Text>
-                                                                       : <Icon name='home' size={22}   /> }
-                                          <Text style={styles.upload_button_text}>Camera</Text>
+
+                                        <TouchableOpacity style={styles.upload_button_container} onPress={ () => { this.launch_camera() }}>
+                                           <View style={styles.icon_container}>
+                                             <Icon name='camera' size={26} color={Colors.PRIMARY} />
+                                           </View>
+                                           <Text style={styles.button_title}>Take</Text>
+                                           <Text style={styles.button_title}>Photo</Text>
                                         </TouchableOpacity>
+
                                        </View>
                                       }
 
@@ -94,7 +101,7 @@ class MediaModal extends Component {
                                     } else {
                                       this.props.media_action({ type: media_type, url: media_uri });
                                     }
-                                } 
+                                }
                                 this.setState({
                                   photo_uri: '',
                                   video_uri: '',
@@ -191,12 +198,16 @@ class MediaModal extends Component {
 }
 
 const styles = StyleSheet.create({
+  button_title: {
+    fontWeight: 'medium',
+    fontSize: 15
+  },
   close_button_container: {
     alignItems: 'flex-end'
   },
   content_container: {
     backgroundColor: 'white',
-    height: 380,
+    height: 390,
     width: '90%',
     maxWidth: 360,
     borderWidth: 1,
@@ -205,6 +216,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     padding: 20
   },
+  icon_container: {
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    backgroundColor: '#DBE6F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10
+  },
   outer_container: {
     backgroundColor: 'rgba(0,0,0, 0.2)',
     flex: 1,
@@ -212,14 +232,13 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   preview_style: {
-    height: 200,
-    width: 300,
+    height: '100%',
+    width: '100%',
     borderRadius: 20,
-    marginTop: 30,
     alignSelf: 'center'
   },
   primary_button_container: {
-    marginTop: 30
+    marginTop: 10
   },
   camera_button_container: {
     backgroundColor: '#f5f5f5',
@@ -235,15 +254,16 @@ const styles = StyleSheet.create({
   },
   upload_button_container: {
     backgroundColor: '#f5f5f5',
-    height: 80,
-    width: 200,
-    borderRadius: 15,
-    justifyContent: 'flex-start',
+    width: 160,
+    height: '100%',
+    flexDirection: 'column',
     alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 30,
-    flexDirection: 'row',
-    paddingLeft: 20
+    justifyContent: 'center',
+    borderRadius: 14,
+    height: 130,
+    width: 103,
+    marginRight: 5,
+    marginLeft: 5
   },
   upload_button_text: {
     fontWeight: '500',

@@ -36,7 +36,7 @@ class HealthGiPicsScreen extends Component {
         <Image style={styles.preview_image} resizeMode='cover' source={{ uri: image_url }} />
         <TouchableOpacity style={styles.preview_image_trash}
                           onPress={ () => { this.remove_image_preview(index) }}>
-          <Icon name='trash' size={18} />
+          <Icon name='trash' size={18} color={Colors.RED} />
         </TouchableOpacity>
       </View>
     } else {
@@ -119,7 +119,7 @@ class HealthGiPicsScreen extends Component {
   }
 
   render() {
-    
+
     return <Screen scroll={true} title='GI Pics' navigation={this.props.navigation}>
       <Text style={styles.section_title}>New Entry</Text>
       { this.render_add_image_buttons() }

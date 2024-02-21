@@ -20,8 +20,8 @@ class HomeTab extends Component {
   }
 
   componentDidMount = async () => {
-    let is_signed_in  = await getItem('token') ? true : false;
-    let pet_food_list = await getItem('pet_food_list');
+    let is_signed_in      = await getItem('token') ? true : false;
+    let pet_food_list     = await getItem('pet_food_list');
 
     if(typeof pet_food_list === 'string') {
       pet_food_list = JSON.parse(pet_food_list);
@@ -30,6 +30,8 @@ class HomeTab extends Component {
     let partner_id    = config.partner_id;
     let sections      = [];
     let hero_articles = [];
+
+    await setItem('partner_id', partner_id);
 
     if (is_signed_in) {
       let articles_res = await UserController.getUserArticles();

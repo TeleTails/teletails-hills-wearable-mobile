@@ -34,6 +34,9 @@ class Icon extends Component {
       case 'arrow-circle-right':
         component = <Image style={ style_obj } source={ require('../../assets/icons/arrow-circle-right.png') } />
         break;
+      case 'camera':
+        component = <Image style={ style_obj } source={ require('../../assets/icons/camera.png') } />
+        break;
       case 'check':
         component = <Image style={ style_obj } source={ require('../../assets/icons/check.png') } />
         break;
@@ -84,6 +87,9 @@ class Icon extends Component {
         break;
       case 'paperclip':
         component = <Image style={ style_obj } source={ require('../../assets/icons/paperclip.png') } />
+        break;
+      case 'photo-gallery':
+        component = <Image style={ style_obj } source={ require('../../assets/icons/photo-gallery.png') } />
         break;
       case 'plus-circle':
         component = <Image style={ style_obj } source={ require('../../assets/icons/plus-circle.png') } />
