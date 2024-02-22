@@ -20,7 +20,10 @@ class PetDetailsEditScreen extends Component {
       display_section: type, // new, bio, diet, health_issues, medications
       pet_id: pet_id,
       add_new: add_new,
-      pet: {},
+      pet: {
+        spayed: true,
+        neutered: true
+      },
       original_pet: {},
       pet_breed_selected: false,
       started_animation: false,
