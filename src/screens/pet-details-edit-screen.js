@@ -572,7 +572,8 @@ class PetDetailsEditScreen extends Component {
                     food_name: this.state.pet_food,
                     food_type: this.state.pet_food_type,
                     food_quantity_cups: this.state.pet_food_cups,
-                    food_times_a_day: this.state.pet_food_times
+                    food_times_a_day: this.state.pet_food_times,
+                    food_notes: this.state.pet_food_notes
                   }
 
                   this.setState({ loading_button: true });
@@ -698,6 +699,7 @@ class PetDetailsEditScreen extends Component {
         pet_food_times: pet_diet.food_times_a_day,
         pet_food_cups: pet_diet.food_quantity_cups,
         pet_food_type: pet_diet.food_type,
+        pet_food_notes: pet_diet.food_notes,
         food_selected: true
       });
     }
