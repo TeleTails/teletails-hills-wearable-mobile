@@ -6,7 +6,6 @@ import { Screen, Button, Input, Line, Icon, Text, Colors, MediaModal } from '../
 import { MessageList, ConsultationFeedbackForm } from '../containers';
 import { StringUtils } from '../utils';
 import { AuthController, ConsultationController, UtilitiesController, MediaController } from '../controllers';
-import { config } from '../../config';
 import { setItem, getItem } from '../../storage';
 
 class ConsultationChatScreen extends Component {

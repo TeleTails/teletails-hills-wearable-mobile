@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { config }           from '../../config';
+import { PARTNER_ID } from '@env'
 import { SignIn }           from '../containers';
 import { StringUtils }      from '../utils';
 import { AuthController, UserController, ConsultationController } from '../controllers';
@@ -27,7 +27,7 @@ class HomeTab extends Component {
       pet_food_list = JSON.parse(pet_food_list);
     }
 
-    let partner_id    = config.partner_id;
+    let partner_id    = PARTNER_ID;
     let sections      = [];
     let hero_articles = [];
 

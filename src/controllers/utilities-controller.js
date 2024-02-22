@@ -1,4 +1,4 @@
-import { config } from '../../config';
+import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
 import { getItem, setItem } from '../../storage';
 import io from 'socket.io-client';
 
@@ -73,11 +73,11 @@ export default class UtilitiesController {
 
   static getUrl(url, useChat = false, useNotif = false) {
     if(useChat) {
-      return `${config.CHAT_URL}${url}`
+      return `${CHAT_URL}${url}`
     } else if(useNotif) {
-      return `${config.NOTIF_URL}${url}`
+      return `${NOTIF_URL}${url}`
     } else {
-      return `${config.API_URL}${url}`
+      return `${API_URL}${url}`
     }
   }
 

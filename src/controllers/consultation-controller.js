@@ -1,5 +1,5 @@
 import { AuthController, UtilitiesController } from '../controllers';
-import { config }           from '../../config';
+import { PARTNER_ID, PRACTICE_ID } from '@env'
 import { setItem, getItem } from '../../storage';
 
 export default class ConsultationController {
@@ -48,8 +48,8 @@ export default class ConsultationController {
   });
 
   static getIntakeQuestions = ConsultationController.exceptionWrapper(async (params) => {
-    let practice_id = config.practice_id;
-    let partner_id  = config.partner_id;
+    let practice_id = PRACTICE_ID;
+    let partner_id  = PARTNER_ID;
     let response    = await UtilitiesController.post(`/v5/api/care/get/intake_questions`, { practice_id, partner_id }, true);
     let questions   = response && response.data && response.data.questions ? response.data.questions : [];
     return questions

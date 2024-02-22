@@ -1,6 +1,6 @@
 import LottieView    from 'lottie-react-native';
 import { Component } from 'react';
-import { config }    from '../../config';
+import { SELECTED_PARTNER } from '@env'
 import { View, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { Text, Colors, Button, Checkbox, Input, Line, Icon } from '../components';
 import { StringUtils, EventsUtils } from '../utils';
@@ -16,7 +16,7 @@ class SignIn extends Component {
       loading_sending_email: false,
       loading_verifying_code: false,
       validation_code: '',
-      host_name: config.SELECTED_PARTNER,
+      host_name: SELECTED_PARTNER,
       is_new_sign_up: false,
       first_name: '',
       last_name: '',

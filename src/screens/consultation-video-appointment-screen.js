@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { config }    from '../../config';
+import {  NOTIF_URL, VIDEO_BASE_URL } from '@env'
 import { setItem, getItem } from '../../storage';
 import { StringUtils, DateUtils } from '../utils';
 import { ConsultationFeedbackForm } from '../containers';
@@ -43,7 +43,7 @@ class ConsultationVideoAppointmentScreen extends Component {
       if (care_consultation) {
         let access_code = care_consultation && care_consultation.video_session_codes && care_consultation.video_session_codes.universal_access_code ? care_consultation.video_session_codes.universal_access_code.toUpperCase() : '';
         let session_num = care_consultation && care_consultation.video_session       && care_consultation.video_session.session_number  ? care_consultation.video_session.session_number : '';
-            video_url   = config.VIDEO_BASE_URL + '/' + session_num + '/' + access_code;
+            video_url   = VIDEO_BASE_URL + '/' + session_num + '/' + access_code;
       }
 
       this.setState({ care_consultation: care_consult_details, appointment: appointment, client: client, patient: patient, loading_consultation: false, display_feedback: display_feedback, is_canceled: is_canceled, is_resolved: is_resolved, video_url: video_url })
@@ -51,7 +51,7 @@ class ConsultationVideoAppointmentScreen extends Component {
   }
 
   consultation_socket_connect(consultation_id) {
-    return io(config.NOTIF_URL, {
+    return io(NOTIF_URL, {
         query: 'notification=' + consultation_id
     });
   }

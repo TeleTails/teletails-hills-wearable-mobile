@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import { Screen, Line, Text, Icon, Cards, IntakeFormQuestion, Button, Colors } from '../components';
 import { PetsController, ConsultationController } from '../controllers';
 import { VideoCallSchedule, MessageList } from '../containers';
-import { config }            from '../../config';
+import { PARTNER_ID, PRACTICE_ID } from '@env'
 import { setItem, getItem }  from '../../storage';
 import { StringUtils }       from '../utils';
 
@@ -186,8 +186,8 @@ class ConsultationStartScreen extends Component {
       return null;
     }
 
-    let practice_id = config.practice_id;
-    let partner_id  = config.partner_id;
+    let practice_id = PRACTICE_ID
+    let partner_id  = PARTNER_ID;
     let patient_id  = this.state.selected_pet && this.state.selected_pet._id ? this.state.selected_pet._id : '';
 
     return <View style={styles.section_container}>
@@ -292,8 +292,8 @@ class ConsultationStartScreen extends Component {
 
   pull_online_chat_providers = async () => {
     let providers_available = false;
-    let partner_id          = config.partner_id;
-    let practice_id         = config.practice_id;
+    let partner_id          = PARTNER_ID;
+    let practice_id         = PRACTICE_ID
     let available_response  = await ConsultationController.getOnlineChatProviders({ practice_id, partner_id });
         providers_available = available_response && available_response.available_provider_count && available_response.available_provider_count > 0 ? true : false;
 
@@ -316,7 +316,7 @@ class ConsultationStartScreen extends Component {
   }
 
   create_chat_consultation = async () => {
-    let partner_id = config.partner_id;
+    let partner_id = PARTNER_ID;
     let patient_id = this.state.selected_pet && this.state.selected_pet._id ? this.state.selected_pet._id : '';
     let is_async   = this.state.available_live_providers === false;
         is_async   = this.state.is_rechat ? true  : is_async;
