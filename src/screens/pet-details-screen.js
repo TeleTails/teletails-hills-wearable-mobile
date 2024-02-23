@@ -117,7 +117,7 @@ class PetDetailsScreen extends Component {
     let food_type          = pet_diet.food_type ? StringUtils.sentenceCase(pet_diet.food_type.toLowerCase()) : '';
     let food_quantity_cups = pet_diet.food_quantity_cups + ' cups';
     let food_times_a_day   = pet_diet.food_times_a_day + ' times a day';
-    let food_notes         = '';
+    let food_notes         = pet_diet.food_notes;
 
     return <View style={{ padding: 20, paddingTop: 10 }}>
       <View style={styles.section_title_container}>
@@ -132,10 +132,10 @@ class PetDetailsScreen extends Component {
       <View style={styles.section_container}>
         { !add_new_diet ? <View>
                             { this.render_pet_details_label_value('Food',   food_name)    }
-                            <View style={{ height: 15 }} />
                             { this.render_pet_details_label_value('Type',   food_type)     }
                             { this.render_pet_details_label_value('Amount', food_quantity_cups)  }
                             { this.render_pet_details_label_value('Times',  food_times_a_day)   }
+                            { food_notes ? this.render_pet_details_label_value('Notes',  food_notes) : null }
                           </View>
                         : null }
 
@@ -321,11 +321,11 @@ const styles = StyleSheet.create({
   pet_details_row: {
     flexDirection: 'row',
     paddingLeft: 10,
-    flex: 1
+    flex: 1,
+    marginBottom: 15
   },
   label_container: {
-    width: 90,
-    marginBottom: 15,
+    width: 90
   },
   label_text: {
     fontSize: 15,
