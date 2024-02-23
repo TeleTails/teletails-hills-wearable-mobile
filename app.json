@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teletails.pethub",
+      "buildNumber": "2",
     },
     "android": {
       "adaptiveIcon": {
