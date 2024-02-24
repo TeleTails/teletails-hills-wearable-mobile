@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { config    } from '../../config';
+import { PARTNER_ID } from '@env'
 import { DateUtils, StringUtils } from '../utils';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Screen, Line, Text, Icon, Colors   } from '../components';
@@ -16,7 +16,7 @@ class CompletedConsultationsScreen extends Component {
   }
 
   componentDidMount = async () => {
-    let partner_id = config.partner_id;
+    let partner_id = PARTNER_ID;
     let completed_consultations_res = await ConsultationController.getCompletedConsultations(partner_id);
     let completed_consultations     = completed_consultations_res && completed_consultations_res.data && completed_consultations_res.data.care_consultations ? completed_consultations_res.data.care_consultations : [];
     this.setState({ consultations: completed_consultations });

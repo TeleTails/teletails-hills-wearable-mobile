@@ -1,5 +1,5 @@
 import { AuthController, UtilitiesController } from '../controllers';
-import { config }              from '../../config';
+import { PARTNER_NAME } from '@env'
 import { setItem, getItem }    from '../../storage';
 
 export default class UserController {
@@ -39,13 +39,13 @@ export default class UserController {
   });
 
   static getUserArticles = UserController.exceptionWrapper(async (data) => {
-    let partner_name = config.partner_name;
+    let partner_name = PARTNER_NAME;
     let response   = await UtilitiesController.get(`/v4/api/user/get_partner_articles/${partner_name}`, data, true);
     return response;
   });
 
   static getNewUserArticles = UserController.exceptionWrapper(async (data) => {
-    let partner_name = config.partner_name;
+    let partner_name = PARTNER_NAME;
     let response   = await UtilitiesController.get(`/v4/get_new_user_partner_articles/${partner_name}`, data, true);
     return response;
   });

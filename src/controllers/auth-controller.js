@@ -1,5 +1,5 @@
 import { UtilitiesController } from '../controllers';
-import { config }              from '../../config';
+import { SELECTED_PARTNER } from '@env'
 import { setItem, getItem }    from '../../storage';
 
 export default class AuthController {
@@ -46,7 +46,7 @@ export default class AuthController {
     });
 
     static getPartnerDetails = AuthController.exceptionWrapper(async () => {
-        let response     = await UtilitiesController.get(`/v4/api/partner_details/${config.SELECTED_PARTNER}`, {}, true);
+        let response     = await UtilitiesController.get(`/v4/api/partner_details/${SELECTED_PARTNER}`, {}, true);
         let partner_id   = response && response.data && response.data.partner_details && response.data.partner_details._id  ? response.data.partner_details._id  : '';
         let partner_code = response && response.data && response.data.partner_details && response.data.partner_details.code ? response.data.partner_details.code : '';
 

@@ -1,5 +1,4 @@
 import { AuthController, UtilitiesController } from '../controllers';
-import { config }           from '../../config';
 import { setItem, getItem } from '../../storage';
 
 export default class PetsController {

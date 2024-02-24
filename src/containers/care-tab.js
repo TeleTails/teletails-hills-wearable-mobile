@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { config }    from '../../config';
+import { PARTNER_ID } from '@env'
 import { setItem, getItem } from '../../storage';
 import { DateUtils, StringUtils } from '../utils';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
@@ -21,7 +21,7 @@ class CareTab extends Component {
 
   componentDidMount = async () => {
     let is_signed_in  = await getItem('token') ? true : false;
-    let partner_id    = config.partner_id;
+    let partner_id    = PARTNER_ID;
 
     if (is_signed_in) {
       let chats_res   = await ConsultationController.getClientChatConsultations(partner_id);

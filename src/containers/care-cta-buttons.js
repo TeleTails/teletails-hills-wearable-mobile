@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import { config }           from '../../config';
 import { SignIn }           from '../containers';
 import { AuthController }   from '../controllers';
 import { setItem, getItem } from '../../storage';

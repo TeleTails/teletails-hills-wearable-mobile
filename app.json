@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "teleatils-pethub-mobile",
+    "name": "PetFit",
     "slug": "pethub",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teletails.pethub",
+      "buildNumber": "2",
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +25,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.teletails.pethub",
-      "android.googleServicesFile": "./google-services.json",
+      "android.googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
