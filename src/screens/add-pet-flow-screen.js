@@ -12,7 +12,7 @@ class AddPetFlowScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      display_section: '', // 'sign_in', 'pet_name', 'pet_type', 'pet_breed', 'pet_age', 'spayed_neutered', 'greeting_one', 'diet', 'health_issues', 'medications', 'preventatives', 'conclusion', 'calculating', 'final'
+      display_section: '', // 'pet_name', 'pet_type', 'pet_breed', 'pet_age', 'spayed_neutered', 'greeting_one', 'diet', 'health_issues', 'medications', 'preventatives', 'conclusion', 'calculating', 'final'
       pet_name: '',
       pet_type: '',
       pet_gender: '',
@@ -39,7 +39,7 @@ class AddPetFlowScreen extends Component {
 
   componentDidMount = async () => {
     let t               = setInterval(this._onEverySecondProvider, 200);
-    let display_section = 'sign_in';
+    let display_section = 'pet_name';
     let token           = await getItem('token');
     let user_id         = await getItem('user_id');
     let pet_food_list   = await getItem('pet_food_list');
@@ -47,9 +47,6 @@ class AddPetFlowScreen extends Component {
     if(typeof pet_food_list === 'string') {
       pet_food_list = JSON.parse(pet_food_list);
     }
-
-    display_section = token && user_id ? 'pet_name' : 'sign_in';
-    // display_section = 'diet';
 
     this.setState({ display_section: display_section, timer_interval: t, pet_food_list: pet_food_list });
   }
@@ -76,8 +73,7 @@ class AddPetFlowScreen extends Component {
   render_progress_bar = () => {
     let section    = this.state.display_section;
     let percentage = '10%';
-        percentage = section === 'sign_in'         ? '10%' : percentage;
-        percentage = section === 'pet_name'        ? '20%' : percentage;
+        percentage = section === 'pet_name'        ? '15%' : percentage;
         percentage = section === 'pet_type'        ? '30%' : percentage;
         percentage = section === 'pet_breed'       ? '40%' : percentage;
         percentage = section === 'pet_age'         ? '50%' : percentage;
@@ -92,12 +88,6 @@ class AddPetFlowScreen extends Component {
       <View style={styles.progress_bar}>
         <View style={{ height: '100%', width: percentage, backgroundColor: Colors.PRIMARY, borderRadius: 20 }}></View>
       </View>
-    </View>
-  }
-
-  render_sign_in = () => {
-    return <View>
-
     </View>
   }
 
@@ -542,15 +532,12 @@ class AddPetFlowScreen extends Component {
       { med_name_rows }
       { display_next ? <Button title={ 'Next' }
                                style={{ marginTop: 20 }}
-                               onPress={ () => { this.setState({ display_section: 'conclusion' }) }} /> : null }
+                               onPress={ () => { this.process_add_pet() }} /> : null }
     </View>
   }
 
   render_medications = () => {
     if (this.state.display_section !== 'medications') { return null }
-
-    let display_next = false;
-    let display_meds = false;
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>{ 'Medications?' }</Text>
@@ -564,7 +551,7 @@ class AddPetFlowScreen extends Component {
         </TouchableOpacity>
         <View style={{ width: 5 }} />
         <TouchableOpacity style={ [ styles.diet_selection_button, { flex: 1 } ] }
-                          onPress={ () => { this.setState({ display_section: 'conclusion', has_medications: false }) }}>
+                          onPress={ () => { this.process_add_pet() }}>
           <View style={{  }}>
             <Text style={{ fontWeight: 'semibold', fontSize: 15, color: '#4c4c4c' }}>No</Text>
           </View>
@@ -573,9 +560,6 @@ class AddPetFlowScreen extends Component {
 
       { this.render_medication_list() }
 
-      { display_next ? <Button title={ 'Next' }
-                               style={{ marginTop: 20 }}
-                               onPress={ () => { this.setState({  }) }} /> : null }
     </View>
   }
 
@@ -593,7 +577,6 @@ class AddPetFlowScreen extends Component {
   render() {
     return <Screen title='Add Pet' scroll={true} navigation={this.props.navigation} left_action={this.back_button_action}>
       { this.render_progress_bar()    }
-      { this.render_sign_in()         }
       { this.render_pet_name()        }
       { this.render_pet_type()        }
       { this.render_pet_breed()       }
@@ -618,13 +601,63 @@ class AddPetFlowScreen extends Component {
         new_display_section = current_display_section === 'diet'            ? 'greeting_one'      : new_display_section;
         new_display_section = current_display_section === 'health_issues'   ? 'diet'              : new_display_section;
         new_display_section = current_display_section === 'medications'     ? 'health_issues'     : new_display_section;
-        new_display_section = current_display_section === 'conclusion'      ? 'medications'       : new_display_section;
 
-    if (current_display_section === 'pet_name' || current_display_section === 'sign_in') {
+    if (current_display_section === 'pet_name' || current_display_section === 'conclusion') {
       this.props.navigation.pop();
     } else {
       this.setState({ display_section: new_display_section, started_animation: false })
     }
+  }
+
+  process_add_pet = async () => {
+
+    let pet_id        = '';
+    let health_issues = this.state.health_issues || [];
+    let medications   = this.state.medications   || [];
+    let skip_health   = health_issues.length === 0 && medications.length === 0;
+
+    let pet_request_data = {
+      name: this.state.pet_name,
+      type: this.state.pet_type,
+      gender: this.state.pet_gender,
+      breed: this.state.pet_breed,
+      age_num_years: this.state.pet_age_years,
+      age_num_months: this.state.pet_age_months,
+      spayed: this.state.pet_is_spayed === true ? true : false,
+      neutered: this.state.pet_is_neutered === true ? true : false
+    }
+
+    let pet_add_response = await PetsController.addPet(pet_request_data);
+
+    if (pet_add_response.success) {
+      let pet = pet_add_response.data && pet_add_response.data.pet ? pet_add_response.data.pet : {};
+      pet_id  = pet._id || '';
+    } else {
+      console.log("Pet Create error");
+    }
+
+    if (pet_id) {
+      let pet_diet_request_data = {
+        patient_id: pet_id,
+        food_name: this.state.pet_food,
+        food_type: this.state.pet_food_type,
+        food_quantity_cups: this.state.pet_food_cups,
+        food_times_a_day: this.state.pet_food_times,
+        food_notes: this.state.pet_food_notes
+      }
+      let diet_create_res = await PetsController.createPetDiet(pet_diet_request_data);
+    }
+
+    if (pet_id && !skip_health) {
+      let pet_health_request_data = {
+        patient_id: pet_id,
+        health_issues: this.state.health_issues,
+        medications: this.state.medications
+      }
+      let health_save_res = await PetsController.createUpdateHealthEntry(pet_health_request_data);
+    }
+
+   this.setState({ display_section: 'conclusion' })
   }
 
   diet_search_action = (search_text) => {
