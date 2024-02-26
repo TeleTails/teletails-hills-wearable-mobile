@@ -129,7 +129,7 @@ class HealthBodyConditionScreen extends Component {
       let side_image_url = entry_data && entry_data.side_image_url ? entry_data.side_image_url : '';
       let top_image_url  = entry_data && entry_data.top_image_url  ? entry_data.top_image_url  : '';
       let is_expanded = this.state.expanded_entry_id === entry._id;
-      return <View style={{ paddingRight: 20, paddingLeft: 20 }}>
+      return <View style={{ paddingRight: 20, paddingLeft: 20 }} key={entry._id}>
         <TouchableOpacity onPress={ () => { this.setState({ expanded_entry_id: is_expanded ? '' : entry._id })}}>
           <Text style={{ fontSize: 16, fontWeight: 'medium' }}>{ date }</Text>
         </TouchableOpacity>

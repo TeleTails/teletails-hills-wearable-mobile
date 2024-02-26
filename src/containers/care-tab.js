@@ -49,7 +49,7 @@ class CareTab extends Component {
       let thread_id = thread._id;
       let subject   = thread.subject || 'Provider Message';
       let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
-      return <View>
+      return <View key={thread_id}>
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
           <View>
@@ -90,7 +90,7 @@ class CareTab extends Component {
 
       let care_consultation_id = care_consultation._id;
 
-      return <View>
+      return <View key={care_consultation_id}>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('ConsultationChat', { care_consultation_id: care_consultation_id }) }}>
           <View>
             <Text style={styles.selection_row_title}>{ name }</Text>
@@ -136,7 +136,7 @@ class CareTab extends Component {
 
       let care_consultation_id = care_consultation._id;
 
-      return <View>
+      return <View key={care_consultation_id}>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('ConsultationVideoAppointment', { care_consultation_id: care_consultation_id }) }}>
           <View>
             <Text style={styles.selection_row_title}>{ name }</Text>

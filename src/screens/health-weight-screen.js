@@ -48,7 +48,7 @@ class HealthWeightScreen extends Component {
       let weight     = entry_data.weight || 0;
       let date       = entry_data.date ? DateUtils.getLongMonth(entry_data.date) + ' ' + DateUtils.getDateNumber(entry_data.date) : '';
 
-      return <View style={{ flexDirection: 'column' }}>
+      return <View style={{ flexDirection: 'column' }} key={idx}>
         <View style={{ flexDirection: 'column' }}>
           <Text style={{ fontSize: 20 }}>{ weight } lbs</Text>
           <Text style={{ fontSize: 15, color: 'grey' }}>{ date   }</Text>

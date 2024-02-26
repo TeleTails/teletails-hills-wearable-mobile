@@ -98,7 +98,7 @@ class HealthGiPicsScreen extends Component {
       let image_url_2 = entry_data && entry_data.image_url_2 ? entry_data.image_url_2 : '';
       let image_url_3 = entry_data && entry_data.image_url_3 ? entry_data.image_url_3 : '';
       let is_expanded = this.state.expanded_entry_id === entry._id;
-      return <View style={{ paddingRight: 20, paddingLeft: 20 }}>
+      return <View style={{ paddingRight: 20, paddingLeft: 20 }} key={entry._id}>
         <TouchableOpacity onPress={ () => { this.setState({ expanded_entry_id: is_expanded ? '' : entry._id })}}>
           <Text style={{ fontSize: 16, fontWeight: 'medium' }}>{ date }</Text>
         </TouchableOpacity>

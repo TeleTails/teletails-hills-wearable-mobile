@@ -45,7 +45,7 @@ class HealthTab extends Component {
       let pet_id      = pet._id;
       let is_selected = selected_pet_id === pet_id;
       let pet_name    = StringUtils.displayName(pet);
-      return <View>
+      return <View key={pet_id}>
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15 }}
                                  onPress={ () => { this.setState({ display_pet_selection: false, selected_pet: pet }) }}>
           <Text style={{ fontSize: 15 }}>{ pet_name }</Text>

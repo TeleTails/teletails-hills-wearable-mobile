@@ -160,7 +160,7 @@ class PetDetailsScreen extends Component {
 
     let health_issue_rows = health_issues.map((health_issue, index) => {
       let bottom_margin = index === health_issues.length - 1 ? 0 : 10;
-      return <Text style={[styles.value_text, { marginBottom: 15 }]}>{ health_issue }</Text>
+      return <Text style={[styles.value_text, { marginBottom: 15 }]} key={index}>{ health_issue }</Text>
     })
 
     return <View style={{ padding: 20, paddingTop: 10 }}>

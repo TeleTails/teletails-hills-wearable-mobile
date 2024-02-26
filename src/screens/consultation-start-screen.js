@@ -66,7 +66,7 @@ class ConsultationStartScreen extends Component {
 
     let pet_rows = pets.map((pet) => {
       let pet_name = StringUtils.displayName(pet);
-      return <View>
+      return <View key={pet._id}>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.pet_selection_action(pet) }}>
           <Text style={styles.selection_row_title}>{ pet_name }</Text>
         </TouchableOpacity>

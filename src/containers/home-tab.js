@@ -66,7 +66,7 @@ class HomeTab extends Component {
       let thread_id = thread._id;
       let subject   = thread.subject || 'Provider Message';
       let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
-      return <View>
+      return <View key={thread_id}>
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
           <View>

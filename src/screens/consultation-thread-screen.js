@@ -44,7 +44,7 @@ class ConsultationThreadScreen extends Component {
     let is_pdf       = message.type === 'PDF';
     let bg_color     = message.from === this.state.user_id ? '#f5f5f5' : 'white';
     let sender_img   = message.sender && message.sender.photo_url && message.from !== this.state.user_id ? message.sender.photo_url : '';
-    return <View style={{ backgroundColor: bg_color }}>
+    return <View style={{ backgroundColor: bg_color }} key={idx}>
       <View style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
           { sender_img ? <Image style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} source={{ uri: sender_img }} /> : null }
