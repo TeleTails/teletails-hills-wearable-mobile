@@ -164,15 +164,20 @@ class ConsultationChatScreen extends Component {
     if (provider_id && is_resolved && is_linked) {
       return <View style={{ paddingRight: 20, paddingLeft: 20, marginBottom: 15 }}>
         <Line hide={true} />
-        <TouchableOpacity style={{ paddingBottom: 20, paddingTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: 12, paddingLeft: 20, paddingRight: 20, borderWidth: 1 }}
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F2F3F6', borderRadius: 12, padding: 15 }}
                           onPress={ () => {
                             this.props.navigation.push('ConsultationStartThread', { is_rechat: true, provider_id: provider_id })
                           }}>
-          <View>
-            <Text style={{ fontWeight: '500', fontSize: 15 }}>Start Another Chat</Text>
-            <Text style={{ color: 'grey' }}>{ provider_name }</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={styles.icon_container}>
+              <Icon name='envelope-rounded' size={24} color={ Colors.PRIMARY } />
+            </View>
+            <View>
+              <Text style={{ color: '#4c4c4c', fontSize: 15, marginBottom: 3, fontWeight: 'medium' }}>Send Direct Message</Text>
+              <Text style={{ fontSize: 15, color: 'grey' }}>{ provider_name }</Text>
+            </View>
           </View>
-          <Icon name='chevron-circle-right' size={20} />
+          <Icon name='chevron-circle-right' size={20} color={Colors.PRIMARY} />
         </TouchableOpacity>
         <Line hide={true}  />
       </View>
@@ -214,9 +219,11 @@ class ConsultationChatScreen extends Component {
   render_input_section = () => {
 
     if (this.state.is_resolved) {
-      return <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-        <Icon name='check-circle' color={Colors.GREEN} />
-        <Text style={{ marginLeft: 8, fontSize: 15, fontWeight: '500', color: '#575762' }}>Completed</Text>
+      return <View style={{ alignItems: 'center', padding: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#cefaab', padding: 10, borderRadius: 8, paddingRight: 15, paddingLeft: 15 }}>
+          <Icon name='check' size={15} color={ '#48984f' } />
+          <Text style={{ marginLeft: 8, fontSize: 15, fontWeight: 'medium', color: '#48984f' }}>Completed</Text>
+        </View>
       </View>
     }
 
@@ -300,7 +307,7 @@ class ConsultationChatScreen extends Component {
     }
 
     // right_action={ () => { this.display_options_modal() }} right_icon='ellipsis' right_btn_color={'black'}
-    
+
     return (
       <Screen navigation={this.props.navigation} title='Chat Consultation' back_to_home={this.state.back_to_home}>
         <KeyboardAvoidingView
@@ -521,13 +528,20 @@ const styles = StyleSheet.create({
   message_list_container: {
     flex: 1,
     backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#e7e7e7',
   },
   close_button_container: {
     alignItems: 'flex-end'
+  },
+  icon_container: {
+    height: 45,
+    width: 45,
+    marginRight: 12,
+    borderRadius: 25,
+    backgroundColor: '#DBE6F2',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content_container: {
     backgroundColor: 'white',

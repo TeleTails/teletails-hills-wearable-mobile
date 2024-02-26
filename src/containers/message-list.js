@@ -207,9 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   message_scroll_list: {
-     backgroundColor: 'white',
-     borderBottomRightRadius: 20,
-     borderBottomLeftRadius: 20,
+     backgroundColor: 'white'
   },
   image_message_content_container: {
     width: 250,
