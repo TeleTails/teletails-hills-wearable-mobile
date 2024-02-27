@@ -3,8 +3,8 @@ import { PARTNER_ID } from '@env'
 import { setItem, getItem } from '../../storage';
 import { DateUtils, StringUtils } from '../utils';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Line, Icon } from '../components';
-import { ConsultationController } from '../controllers';
+import { Text, Line, Icon, Colors } from '../components';
+import { ConsultationController }   from '../controllers';
 import { CareCtaButtons } from '../containers';
 
 class CareTab extends Component {
@@ -21,6 +21,7 @@ class CareTab extends Component {
 
   componentDidMount = async () => {
     let is_signed_in  = await getItem('token') ? true : false;
+    let user_id       = await getItem('user_id');
     let partner_id    = PARTNER_ID;
 
     if (is_signed_in) {
@@ -34,7 +35,7 @@ class CareTab extends Component {
 
       this.get_active_threads();
 
-      this.setState({ chat_consultations: chats, video_consultations: videos, cta_orientation: orientation });
+      this.setState({ chat_consultations: chats, video_consultations: videos, cta_orientation: orientation, user_id: user_id });
     }
   }
 
@@ -48,16 +49,19 @@ class CareTab extends Component {
     let thread_rows = active_threads.map((thread, ind) => {
       let thread_id = thread._id;
       let subject   = thread.subject || 'Provider Message';
-      let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
+      let preview   = this.get_thread_preview_text(thread.last_message);
+      let show_dot  = this.get_show_dot(thread.last_message);
+
       return <View key={thread_id}>
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
           <View style={{ flex: 1, paddingRight: 10 }}>
             <Text style={styles.selection_row_title}  numberOfLines={2} ellipsizeMode='tail'>{ subject }</Text>
             <View style={{ height: 5 }} />
-            <Text style={styles.selection_row_subtitle}>{ pet_name }</Text>
+            <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }} numberOfLines={2} ellipsizeMode='tail'>{ preview }</Text>
           </View>
-          <Icon name='chevron-right' size={13} color='grey' />
+          { show_dot === true ? <View style={{ height: 10, width: 10, backgroundColor: Colors.RED, borderRadius: 5 }} />
+                              : <Icon name='chevron-right' size={13} color={ 'grey' } /> }
         </TouchableOpacity>
         <Line hide={ active_threads.length - 1 === ind } />
       </View>
@@ -90,6 +94,7 @@ class CareTab extends Component {
           date_str = !care_consultation.updated_at ? '' : date_str;
 
       let care_consultation_id = care_consultation._id;
+      let show_dot             = this.get_show_dot(care_consultation.last_message);
 
       return <View key={care_consultation_id}>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('ConsultationChat', { care_consultation_id: care_consultation_id }) }}>
@@ -99,7 +104,8 @@ class CareTab extends Component {
             <Text style={styles.selection_row_subtitle}>{ category }</Text>
             <Text style={styles.selection_row_subtitle}>{ date_str }</Text>
           </View>
-          <Icon name='chevron-right' size={13} color='grey' />
+          { show_dot === true ? <View style={{ height: 10, width: 10, backgroundColor: Colors.RED, borderRadius: 5 }} />
+                              : <Icon name='chevron-right' size={13} color={ 'grey' } /> }
         </TouchableOpacity>
         <Line hide={ idx === filtered_chats.length - 1 } />
       </View>
@@ -201,6 +207,25 @@ class CareTab extends Component {
       let active_threads = response.success && response.data && response.data.care_consultations ? response.data.care_consultations : [];
       this.setState({ active_threads: active_threads });
     }).catch((err) => {  });
+  }
+
+  get_thread_preview_text = (message) => {
+    let preview_text = 'Message From Provider';
+    if (message) {
+      let text_msg = message.type === 'TEXT'  && message.content && message.content.text ? message.content.text : 'Message From Provider';
+      preview_text = message.type === 'TEXT'  ? text_msg         : preview_text;
+      preview_text = message.type === 'IMAGE' ? 'Attached Image' : preview_text;
+      preview_text = message.type === 'VIDEO' ? 'Attached Video' : preview_text;
+      preview_text = message.type === 'PDF'   ? 'Attached PDF'   : preview_text;
+    }
+    return preview_text;
+  }
+
+  get_show_dot = (message) => {
+    let user_id   = this.state.user_id;
+    let sender_id = message && message.from ? message.from : '';
+    let show_dot  = user_id && sender_id && user_id !== sender_id ? true : false;
+    return show_dot;
   }
 
 }

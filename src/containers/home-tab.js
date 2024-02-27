@@ -22,6 +22,7 @@ class HomeTab extends Component {
   componentDidMount = async () => {
     let is_signed_in      = await getItem('token') ? true : false;
     let pet_food_list     = await getItem('pet_food_list');
+    let user_id           = await getItem('user_id');
 
     if(typeof pet_food_list === 'string') {
       pet_food_list = JSON.parse(pet_food_list);
@@ -52,7 +53,7 @@ class HomeTab extends Component {
       sections             = new_articles_res && new_articles_res.sections      ? new_articles_res.sections      : [];
     }
 
-    this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list });
+    this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list, user_id: user_id });
   }
 
   render_active_threads = () => {
@@ -65,15 +66,18 @@ class HomeTab extends Component {
     let thread_rows = active_threads.map((thread, ind) => {
       let thread_id = thread._id;
       let subject   = thread.subject || 'Provider Message';
-      let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
+      let preview   = this.get_thread_preview_text(thread.last_message);
+      let show_dot  = this.get_show_dot(thread.last_message);
+
       return <View key={thread_id}>
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
           <View style={{ flex: 1, paddingRight: 10 }}>
             <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#040415', flex: 1 }} numberOfLines={2} ellipsizeMode='tail'>{ subject }</Text>
-            <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ pet_name }</Text>
+            <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }} numberOfLines={2} ellipsizeMode='tail'>{ preview }</Text>
           </View>
-          <Icon name='chevron-right' size={13} color='grey' />
+          { show_dot === true ? <View style={{ height: 10, width: 10, backgroundColor: Colors.RED, borderRadius: 5 }} />
+                              : <Icon name='chevron-right' size={13} color={ 'grey' } /> }
         </TouchableOpacity>
         <Line hide={ active_threads.length - 1 === ind } />
       </View>
@@ -206,6 +210,25 @@ class HomeTab extends Component {
       let active_threads = response.success && response.data && response.data.care_consultations ? response.data.care_consultations : [];
       this.setState({ active_threads: active_threads });
     }).catch((err) => {  });
+  }
+
+  get_thread_preview_text = (message) => {
+    let preview_text = 'Message From Provider';
+    if (message) {
+      let text_msg = message.type === 'TEXT'  && message.content && message.content.text ? message.content.text : 'Message From Provider';
+      preview_text = message.type === 'TEXT'  ? text_msg         : preview_text;
+      preview_text = message.type === 'IMAGE' ? 'Attached Image' : preview_text;
+      preview_text = message.type === 'VIDEO' ? 'Attached Video' : preview_text;
+      preview_text = message.type === 'PDF'   ? 'Attached PDF'   : preview_text;
+    }
+    return preview_text;
+  }
+
+  get_show_dot = (message, is_last) => {
+    let user_id   = this.state.user_id;
+    let sender_id = message && message.from ? message.from : '';
+    let show_dot  = user_id && sender_id && user_id !== sender_id;
+    return show_dot;
   }
 
 }
