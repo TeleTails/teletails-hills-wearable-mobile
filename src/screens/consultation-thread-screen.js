@@ -42,12 +42,12 @@ class ConsultationThreadScreen extends Component {
     let is_image     = message.type === 'IMAGE';
     let is_video     = message.type === 'VIDEO';
     let is_pdf       = message.type === 'PDF';
-    let bg_color     = message.from === this.state.user_id ? '#f5f5f5' : 'white';
     let sender_img   = message.sender && message.sender.photo_url && message.from !== this.state.user_id ? message.sender.photo_url : '';
-    return <View style={{ backgroundColor: bg_color }} key={idx}>
-      <View style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20 }}>
+    return <View style={{ backgroundColor: 'white' }} key={idx}>
+      <View style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 25, paddingBottom: 25 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-          { sender_img ? <Image style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} source={{ uri: sender_img }} /> : null }
+          { sender_img ? <Image style={{ height: 40, width: 40, borderRadius: 20, marginRight: 10 }} source={{ uri: sender_img }} />
+                       : <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#DBE6F2', marginRight: 10, alignItems: 'center', justifyContent: 'center' }}><Icon name='user' color={Colors.PRIMARY} size={18} /></View> }
           <View style={{ justifyContent: 'center' }}>
             <Text style={{ fontSize: 15, marginBottom: 2, fontWeight: 'medium'  }}>{ sender_name }</Text>
             <Text style={{ fontSize: 14, color: 'grey' }}>{ sent_date }</Text>
@@ -71,8 +71,7 @@ class ConsultationThreadScreen extends Component {
                         onPress={ () => {
                           this.setState({ display_pdf: true, pdf_url: media_url })
                         }}>
-                        <Icon name='file-pdf' solid={true} size={50} color={'#ff6262'} />
-                        <Text style={{ fontWeight: '500', marginTop: 5 }}>PDF</Text>
+                        <Image style={{ height: 50, width: 50 }} source={ require('../../assets/images/pdf.png') } />
                       </TouchableOpacity> : null }
       </View>
       <Line hide={idx === 0} />
@@ -96,7 +95,7 @@ class ConsultationThreadScreen extends Component {
   }
 
   render_input_section = () => {
-    return <View style={{ height: 150, padding: 15, paddingTop: 5, paddingBottom: 5, flexDirection: 'row' }}>
+    return <View style={{ height: 150, padding: 15, paddingTop: 5, paddingBottom: 5, flexDirection: 'row', backgroundColor: Colors.BACKGROUND_GREY }}>
       <TextInput
         style={styles.message_text_input}
         value={this.state.message_text}
@@ -125,7 +124,8 @@ class ConsultationThreadScreen extends Component {
 
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
-    return <Screen title='Direct Message' navigation={this.props.navigation} back_to_home={this.state.back_to_home}>
+    return <>
+    <Screen title='Direct Message' navigation={this.props.navigation} back_to_home={this.state.back_to_home}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
@@ -138,8 +138,11 @@ class ConsultationThreadScreen extends Component {
           { this.render_pdf_modal()        }
           { this.render_attachment_modal() }
         </SafeAreaView>
+
       </KeyboardAvoidingView>
     </Screen>
+    <SafeAreaView style={{ backgroundColor: '#F2F3F6', flex: 0 }} />
+    </>
   }
 
   render_pdf_modal = () => {
@@ -256,9 +259,10 @@ const styles = StyleSheet.create({
     marginTop: 15
   },
   image_message: {
-    height: 300,
-    width: '100%',
-    borderRadius: 10
+    height: 200,
+    width: '80%',
+    borderRadius: 10,
+    alignSelf: 'center'
   },
   video_message_content_container: {
     width: '100%',
@@ -278,11 +282,10 @@ const styles = StyleSheet.create({
   pdf_message_content_container: {
     width: 100,
     height: 120,
-    backgroundColor: 'white',
+    backgroundColor: '#ffcccc',
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e7e7e7',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    alignSelf: 'center'
   }
 });

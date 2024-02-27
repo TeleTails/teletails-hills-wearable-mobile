@@ -67,10 +67,10 @@ class HomeTab extends Component {
       let subject   = thread.subject || 'Provider Message';
       let pet_name  = thread.patient ? StringUtils.displayName(thread.patient) : '';
       return <View key={thread_id}>
-        <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+        <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
-          <View>
-            <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#040415' }}>{ subject }</Text>
+          <View style={{ flex: 1, paddingRight: 10 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#040415', flex: 1 }} numberOfLines={2} ellipsizeMode='tail'>{ subject }</Text>
             <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ pet_name }</Text>
           </View>
           <Icon name='chevron-right' size={13} color='grey' />

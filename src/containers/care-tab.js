@@ -52,8 +52,9 @@ class CareTab extends Component {
       return <View key={thread_id}>
         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                           onPress={ () => { this.props.navigation.push('ConsultationThread', { thread_id: thread_id }) }}>
-          <View>
-            <Text style={styles.selection_row_title}>{ subject }</Text>
+          <View style={{ flex: 1, paddingRight: 10 }}>
+            <Text style={styles.selection_row_title}  numberOfLines={2} ellipsizeMode='tail'>{ subject }</Text>
+            <View style={{ height: 5 }} />
             <Text style={styles.selection_row_subtitle}>{ pet_name }</Text>
           </View>
           <Icon name='chevron-right' size={13} color='grey' />
@@ -245,7 +246,8 @@ const styles = StyleSheet.create({
   selection_row_title: {
     fontSize: 15,
     fontWeight: 'medium',
-    color: '#040415'
+    color: '#040415',
+    flex: 1
   },
   selection_row_subtitle: {
     fontSize: 14,
