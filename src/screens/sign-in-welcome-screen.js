@@ -2,6 +2,7 @@ import LottieView from 'lottie-react-native';
 import { Component } from "react";
 import { StyleSheet, View, Image, TouchableOpacity, Linking, Platform } from 'react-native';
 import { Button, Text, Checkbox, Screen, Colors } from '../components';
+import { UserController } from '../controllers';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
@@ -26,6 +27,12 @@ class SignInWelcomeScreen extends Component {
     let display_notification_prompt  = existingStatus && existingStatus === 'undetermined' ? true  : false;
         display_notification_prompt  = existingStatus && existingStatus === 'denied'       ? false : display_notification_prompt;
         display_notification_prompt  = existingStatus && existingStatus === 'granted'      ? false : display_notification_prompt;
+
+    let push_token_res = await Notifications.getExpoPushTokenAsync({ projectId: Constants.expoConfig.extra.eas.projectId });
+    let push_token     = push_token_res.data;
+    if (push_token) {
+      this.update_user_token(push_token);
+    }
 
     this.setState({ display_notification_prompt: display_notification_prompt });
   }
@@ -90,8 +97,6 @@ class SignInWelcomeScreen extends Component {
       return;
     }
 
-    let token;
-
     if (Platform.OS === 'android') {
       Notifications.setNotificationChannelAsync('default', {
         name: 'default',
@@ -112,9 +117,11 @@ class SignInWelcomeScreen extends Component {
         alert('Failed to get push token for push notification!');
         return;
       }
-      token = await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig.extra.eas.projectId,
-      });
+      let push_token_res = await Notifications.getExpoPushTokenAsync({ projectId: Constants.expoConfig.extra.eas.projectId });
+      let push_token     = push_token_res.data;
+      if (push_token) {
+        this.update_user_token(push_token);
+      }
     } else {
       alert('Must use physical device for Push Notifications');
     }
@@ -135,6 +142,16 @@ class SignInWelcomeScreen extends Component {
       this.props.navigation.push('Home')
     }
   }
+
+  update_user_token = async (push_token) => {
+    let request_data = {
+      push_enabled: true,
+      expo_token: push_token
+    }
+
+    let udpate_notif_pref_res = await UserController.updateUserNotificationPreferences(request_data);
+  }
+
 }
 
 export default SignInWelcomeScreen;

@@ -49,4 +49,10 @@ export default class UserController {
     let response   = await UtilitiesController.get(`/v4/get_new_user_partner_articles/${partner_name}`, data, true);
     return response;
   });
+
+  static updateUserNotificationPreferences = UserController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/users/create_update/notification_preferences`, data, true);
+    return response;
+  });
+
 }
