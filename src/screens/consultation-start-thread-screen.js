@@ -43,7 +43,7 @@ class ConsultationStartThreadScreen extends Component {
 
     return <View style={styles.progress_bar_container}>
       <View style={styles.progress_bar}>
-        <View style={{ height: '100%', width: percentage, backgroundColor: 'blue', borderRadius: 20 }}></View>
+        <View style={{ height: '100%', width: percentage, backgroundColor: Colors.PRIMARY, borderRadius: 20 }}></View>
       </View>
     </View>
   }
@@ -74,11 +74,10 @@ class ConsultationStartThreadScreen extends Component {
       }
 
       return <View key={pet_id}>
-        <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+        <TouchableOpacity style={{ paddingTop: 20, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                           onPress={ () => { this.setState({ selected_pet_id: pet_id, selected_pet: pet, current_section: 'subject' }) }}>
          <View>
-           <Text style={{ fontSize: 16, fontWeight: '500', color: '#040415' }}>{ name }</Text>
-           <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ descrpt + age }</Text>
+           <Text style={styles.selection_row_title}>{ name }</Text>
          </View>
         </TouchableOpacity>
         <Line hide={is_last} />
@@ -212,8 +211,9 @@ export default ConsultationStartThreadScreen;
 
 const styles = StyleSheet.create({
   section_title: {
-    fontSize: 22,
-    fontWeight: 'semibold'
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
   },
   selection_row_container: {
     flex: 1,
@@ -225,8 +225,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   selection_row_title: {
-    fontSize: 16,
-    fontWeight: '500'
+    fontSize: 15,
+    fontWeight: 'medium'
   },
   message_text_input: {
     backgroundColor: 'white',

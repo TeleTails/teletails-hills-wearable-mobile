@@ -44,7 +44,11 @@ class SignUpLandingScreen extends Component {
 
     if (this.state.navigate_to_home && this.state.elapsed_seconds > 2) {
       this.props.navigation.push('Home');
-      this.setState({ navigate_to_home: false, display_animation: false });
+      this.setState({ navigate_to_home: false });
+    }
+
+    if (this.state.elapsed_seconds > 10) {
+      this.setState({ display_animation: false });
     }
 
     this.setState({ elapsed_seconds: this.state.elapsed_seconds + 0.5 });

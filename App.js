@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React, { Component, useState, useEffect, useRef } from "react";
-import { AppState, View } from 'react-native';
+import { AppState, View, Platform } from 'react-native';
 import { NavigationContainer  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Device  from 'expo-device';
@@ -127,7 +127,7 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => { console.log(token) } );
+    // registerForPushNotificationsAsync().then(token => { console.log(token) } );
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       console.log('Received Notification')
