@@ -57,7 +57,7 @@ class CareCtaButtons extends Component {
         <Text style={styles.button_title}>Live</Text>
         <Text style={styles.button_title}>Chat</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button_container} onPress={ () => {  }}>
+      <TouchableOpacity style={styles.button_container} onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
         <View style={styles.icon_container}>
           <Icon name='envelope-rounded' color={ Colors.PRIMARY } />
         </View>

@@ -32,18 +32,31 @@ class HomeCtaButtons extends Component {
       </TouchableOpacity>
       <TouchableOpacity style={styles.button_container}
                         onPress={ () => {
-                          // this.props.navigation.push('VetLocator')
-                          this.setState({ display_coming_soon_modal: true });
+
                         }}>
         <View style={styles.icon_container}>
-          <Image style={{ height: 26, width: 26 }} source={ require('../../assets/images/connect-a-device.png') } />
+          <Image style={{ height: 26, width: 26, tintColor: Colors.PRIMARY }} source={ require('../../assets/images/register-a-kit.png') } />
         </View>
-        <Text style={styles.button_title}>Connect a</Text>
-        <Text style={styles.button_title}>Device</Text>
+        <Text style={styles.button_title}>Register a</Text>
+        <Text style={styles.button_title}>Kit</Text>
       </TouchableOpacity>
       { this.render_options_modal() }
     </View>
   }
+
+/*
+  <TouchableOpacity style={styles.button_container}
+                    onPress={ () => {
+                      // this.props.navigation.push('VetLocator')
+                      this.setState({ display_coming_soon_modal: true });
+                    }}>
+    <View style={styles.icon_container}>
+      <Image style={{ height: 26, width: 26 }} source={ require('../../assets/images/connect-a-device.png') } />
+    </View>
+    <Text style={styles.button_title}>Connect a</Text>
+    <Text style={styles.button_title}>Device</Text>
+  </TouchableOpacity>
+*/
 
   render_options_modal = () => {
     return <Modal

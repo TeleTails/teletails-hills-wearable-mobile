@@ -130,7 +130,7 @@ class Screen extends Component {
             behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
             keyboardVerticalOffset={ Platform.OS === 'ios' || Platform.OS === 'android' ? 0 : 0 }>
 
-            <ScrollView style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
               <View style={{ flex: 1, alignItems: 'center' }}>
                   <View style={{ maxWidth: 450, width: '100%', flex: 1 }}>
                     { this.props.children }

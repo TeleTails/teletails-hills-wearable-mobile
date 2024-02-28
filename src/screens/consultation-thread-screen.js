@@ -153,7 +153,7 @@ class ConsultationThreadScreen extends Component {
       onRequestClose={() => {
         this.setState({ display_pdf: false, pdf_url: '' })
       }}>
-        <Screen navigation={this.props.navigation} title={'PDF'} right_action={ () => { this.setState({ display_pdf: false, pdf_url: '' }) }} modal={true}>
+        <Screen navigation={this.props.navigation} title={'ATTACHMENT'} right_action={ () => { this.setState({ display_pdf: false, pdf_url: '' }) }} modal={true}>
           <WebView
             style={styles.pdf_view_container}
             source={{ uri: this.state.pdf_url }}
