@@ -38,7 +38,23 @@ let getItem = async (key) => {
   }
 }
 
+let deleteItem = async (key) => {
+  try  {
+    let storage     = await AsyncStorage.getItem('storage');
+    let storage_obj = JSON.parse(storage);
+
+    if (storage && storage_obj && storage_obj[key] !== null) {
+      await AsyncStorage.removeItem(key)
+    }
+
+    return null;
+  } catch (err) {
+    return null;
+  }
+}
+
 export {
   setItem,
-  getItem
+  getItem,
+  deleteItem
 }

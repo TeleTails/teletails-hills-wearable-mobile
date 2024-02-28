@@ -9,7 +9,7 @@ import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { AuthController, PetsController } from './src/controllers';
-import { setItem, getItem } from './storage';
+import { setItem, getItem, deleteItem } from './storage';
 
 import {
   HomeScreen,
@@ -92,32 +92,46 @@ export default function App() {
   let [user, setUser] = useState(null);
 
   AppState.addEventListener('change', async (nextAppState)=> {
+    console.log('app state change')
     if(nextAppState == 'active') {
 
-      let new_user = await AuthController.getUser(true);
-      setUser(new_user);
+      let grabbing_pet_food = await getItem('grabbing_pet_food');
 
-      let latest_pet_food_update_date = await PetsController.getLatestPetFoodUpdateDate();
+      console.log('checking grabbing_pet_food', grabbing_pet_food)
+      console.log('checking grabbing_pet_food2', !grabbing_pet_food)
 
-      let latest_pet_food_update_date_on_app = await getItem('latest_pet_food_update');
-      let pet_food_list = await getItem('pet_food_list');
+      if(!grabbing_pet_food) {
+        console.log('process for grabbing start');
+        await setItem('grabbing_pet_food', "true");
 
-      let get_pet_food = !latest_pet_food_update_date_on_app || !pet_food_list;
+        let new_user = await AuthController.getUser(true);
+        setUser(new_user);
 
-      if(latest_pet_food_update_date_on_app) {
-        latest_pet_food_update_date_on_app = new Date(latest_pet_food_update_date_on_app);
-        latest_pet_food_update_date = new Date(latest_pet_food_update_date);
+        let latest_pet_food_update_date = await PetsController.getLatestPetFoodUpdateDate();
 
-        get_pet_food = latest_pet_food_update_date_on_app < latest_pet_food_update_date;
-      }
+        let latest_pet_food_update_date_on_app = await getItem('latest_pet_food_update');
+        let pet_food_list = await getItem('pet_food_list');
 
-      if(get_pet_food) {
-        console.log('getting food')
-        let pet_food_list = await PetsController.getPetFood();
-        await setItem('latest_pet_food_update', latest_pet_food_update_date);
-        await setItem('pet_food_list', JSON.stringify(pet_food_list));
-      } else {
-        console.log('not grabbing pet food');
+        let get_pet_food = !latest_pet_food_update_date_on_app || !pet_food_list;
+
+        if(latest_pet_food_update_date_on_app) {
+          latest_pet_food_update_date_on_app = new Date(latest_pet_food_update_date_on_app);
+          latest_pet_food_update_date = new Date(latest_pet_food_update_date);
+
+          get_pet_food = latest_pet_food_update_date_on_app < latest_pet_food_update_date;
+        }
+
+        if(get_pet_food) {
+          console.log('getting food')
+          let pet_food_list = await PetsController.getPetFood();
+          await setItem('latest_pet_food_update', latest_pet_food_update_date);
+          await setItem('pet_food_list', JSON.stringify(pet_food_list));
+        } else {
+          console.log('not grabbing pet food');
+        }
+
+        await deleteItem('grabbing_pet_food');
+        console.log('process for grabbing end');
       }
     }
   });
