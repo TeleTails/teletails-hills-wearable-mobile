@@ -79,6 +79,9 @@ class Icon extends Component {
       case 'shopping-bag':
         component = <Image style={ style_obj } source={ require('../../assets/icons/shopping-bag.png') } />
         break;
+      case 'link':
+        component = <Image style={ style_obj } source={ require('../../assets/icons/link.png') } />
+        break;
       case 'live-chat':
         component = <Image style={ style_obj } source={ require('../../assets/icons/live-chat.png') } />
         break;

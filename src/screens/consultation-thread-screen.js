@@ -3,7 +3,7 @@ import analytics  from '@react-native-firebase/analytics';
 import { Component } from "react";
 import { Video     } from 'expo-av';
 import { DateUtils, StringUtils } from '../utils';
-import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Image, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView, FlatList, Modal } from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Image, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView, FlatList, Modal, Linking } from 'react-native';
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors, MediaModal } from '../components';
 import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';
@@ -42,6 +42,7 @@ class ConsultationThreadScreen extends Component {
     let is_image     = message.type === 'IMAGE';
     let is_video     = message.type === 'VIDEO';
     let is_pdf       = message.type === 'PDF';
+    let is_url       = message.type === 'URL';
     let sender_img   = message.sender && message.sender.photo_url && message.from !== this.state.user_id ? message.sender.photo_url : '';
     return <View style={{ backgroundColor: 'white' }} key={idx}>
       <View style={{ paddingLeft: 15, paddingRight: 15, paddingTop: 25, paddingBottom: 25 }}>
@@ -59,6 +60,14 @@ class ConsultationThreadScreen extends Component {
                           this.setState({ display_pdf: true, pdf_url: media_url })
                         }}>
                         <Image style={styles.image_message} source={{ uri: media_url }} />
+                     </TouchableOpacity> : null }
+        { is_url   ? <TouchableOpacity style={styles.url_message}
+                        onPress={ () => { Linking.openURL(media_url) }}>
+                        <View style={{ marginRight: 15 }}><Icon name='link' color={Colors.PRIMARY} size={23} /></View>
+                        <View>
+                          <Text style={{ fontWeight: 'medium', marginBottom: 2, color: '#474747' }}>{ message_text }</Text>
+                          <Text style={{ color: Colors.PRIMARY }}>{ media_url }</Text>
+                        </View>
                      </TouchableOpacity> : null }
         { is_video ? <View style={styles.video_message_content_container}>
                         <Video style={styles.video_message}
@@ -287,5 +296,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center'
+  },
+  url_message: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#DBE6F2',
+    borderRadius: 12,
+    marginTop: 5
   }
 });
