@@ -3,7 +3,7 @@ import { SignIn }           from '../containers';
 import { AuthController }   from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text, Button, Icon, Colors } from '../components';
-import { View, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Modal } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Modal, Linking } from 'react-native';
 
 class HomeCtaButtons extends Component {
 
@@ -32,7 +32,7 @@ class HomeCtaButtons extends Component {
       </TouchableOpacity>
       <TouchableOpacity style={styles.button_container}
                         onPress={ () => {
-
+                          Linking.openURL('https://urlgeni.us/registerkit')
                         }}>
         <View style={styles.icon_container}>
           <Image style={{ height: 26, width: 26, tintColor: Colors.PRIMARY }} source={ require('../../assets/images/register-a-kit.png') } />

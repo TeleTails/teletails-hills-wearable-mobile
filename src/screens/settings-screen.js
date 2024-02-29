@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Linking } from 'react-native';
 import { Screen, Line, Text, Icon } from '../components';
 import { setItem, getItem } from '../../storage';
 
@@ -23,7 +23,7 @@ class SettingsScreen extends Component {
           <Icon name='arrow-right' size={13} />
         </TouchableOpacity>
         <Line style={styles.settings_line} />
-        <TouchableOpacity style={styles.settings_row}>
+        <TouchableOpacity style={styles.settings_row} onPress={ () => { Linking.openURL('https://www.teletails.com/contact-us-ppc') }}>
           <Text style={styles.settings_row_title}>Support</Text>
           <Icon name='arrow-right' size={13} />
         </TouchableOpacity>
