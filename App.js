@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React, { Component, useState, useEffect, useRef } from "react";
-import { AppState, View, Platform } from 'react-native';
+import { AppState, View, Platform, LogBox } from 'react-native';
 import { NavigationContainer  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Device  from 'expo-device';
@@ -73,6 +73,11 @@ async function registerForPushNotificationsAsync() {
 const Stack = createStackNavigator();
 
 export default function App() {
+
+  // Ignore specific warnings
+  LogBox.ignoreLogs([
+    'Require cycle:',
+  ]);
 
   const notificationListener = useRef();
   const responseListener = useRef();
