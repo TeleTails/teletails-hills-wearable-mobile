@@ -5,6 +5,7 @@ import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Platform } from 
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs } from '../components';
 import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';
+import { PetsController }   from '../controllers';
 
 class HomeScreen extends Component {
 
@@ -13,6 +14,10 @@ class HomeScreen extends Component {
     this.state = {
       selected_tab: 'home'
     }
+  }
+
+  componentDidMount = () => {
+    this.pull_pet_food_list();
   }
 
   render_tab_component = () => {
@@ -73,6 +78,33 @@ class HomeScreen extends Component {
     this.setState({ selected_tab: 'shop' })
   }
 
+  pull_pet_food_list = async () => {
+    let current_food_list     = await getItem('pet_food_list');
+
+    let last_updated_date_db  = await PetsController.getLatestPetFoodUpdateDate();
+    let last_updated_date_app = await getItem('latest_pet_food_update');
+
+    let is_currently_empty    = !current_food_list;
+    let food_list_outdated    = true;
+
+    if (last_updated_date_app && last_updated_date_db) {
+      let last_updated_date_app_obj = new Date(last_updated_date_app);
+      let last_updated_date_db_obj  = new Date(last_updated_date_db);
+      food_list_outdated            = last_updated_date_db_obj.toString() === last_updated_date_app_obj.toString() ? false : true;
+    }
+
+    let fetch_new_pet_food = food_list_outdated || is_currently_empty;
+
+    if (fetch_new_pet_food) {
+      PetsController.getPetFood().then(async (response) => {
+        if (response && response.cat_food_products) {
+          await setItem('latest_pet_food_update', last_updated_date_db);
+          await setItem('pet_food_list', JSON.stringify(response));
+        }
+      });
+    }
+
+  }
 
 }
 

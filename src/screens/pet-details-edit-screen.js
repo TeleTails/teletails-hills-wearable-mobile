@@ -721,7 +721,7 @@ class PetDetailsEditScreen extends Component {
   }
 
   diet_search_action = (search_text) => {
-    let pet_food_list = this.state.pet_food_list;
+    let pet_food_list = this.state.pet_food_list || { cat_food_products: [], dog_food_products: [] };
 
           search_text  = search_text.toLowerCase();
     let search_tokens  = search_text.split(' ');

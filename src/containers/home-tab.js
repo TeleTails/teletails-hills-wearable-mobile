@@ -1,7 +1,7 @@
-import { Component } from 'react';
+import { Component }  from 'react';
 import { PARTNER_ID } from '@env'
-import { SignIn }           from '../containers';
-import { StringUtils }      from '../utils';
+import { SignIn }     from '../containers';
+import { StringUtils, DateUtils } from '../utils';
 import { AuthController, UserController, ConsultationController } from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text, Input, Icon, Line, Colors } from '../components';
@@ -15,7 +15,8 @@ class HomeTab extends Component {
     this.state = {
       sections: [],
       hero_articles: [],
-      active_threads: []
+      active_threads: [],
+      chat_consultations: []
     }
   }
 
@@ -31,6 +32,7 @@ class HomeTab extends Component {
     let partner_id    = PARTNER_ID;
     let sections      = [];
     let hero_articles = [];
+    let chats         = [];
 
     await setItem('partner_id', partner_id);
 
@@ -40,7 +42,7 @@ class HomeTab extends Component {
       sections         = articles_res && articles_res.sections      ? articles_res.sections      : [];
 
       let chats_res    = await ConsultationController.getClientChatConsultations(partner_id);
-      let chats        = chats_res && chats_res.data && chats_res.data.care_consultations ? chats_res.data.care_consultations : [];
+          chats        = chats_res && chats_res.data && chats_res.data.care_consultations ? chats_res.data.care_consultations : [];
 
       let video_res    = await ConsultationController.getUpcomingVideoConsultations(partner_id);
       let videos       = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
@@ -53,7 +55,7 @@ class HomeTab extends Component {
       sections             = new_articles_res && new_articles_res.sections      ? new_articles_res.sections      : [];
     }
 
-    this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list, user_id: user_id });
+    this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list, user_id: user_id, chat_consultations: chats });
   }
 
   render_active_threads = () => {
@@ -83,7 +85,7 @@ class HomeTab extends Component {
       </View>
     })
 
-    return <View style={{ paddingLeft: 20, paddingRight: 20 }}>
+    return <View style={{ paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
       <Text style={styles.section_title}>Your Provider Messages</Text>
       <View style={{ backgroundColor: 'white', borderRadius: 12, paddingRight: 20, paddingLeft: 20, marginTop: 15 }}>
         { thread_rows }
@@ -154,6 +156,56 @@ class HomeTab extends Component {
     </View>
   }
 
+  render_active_chats = () => {
+    let chat_consultations = this.state.chat_consultations;
+
+    if (!chat_consultations || chat_consultations.length === 0) {
+      return null;
+    }
+
+    let filtered_chats     = chat_consultations.filter((care_consultation) => { return care_consultation.status === 'ACTIVE' || care_consultation.status === 'IN_PROGRESS' });
+
+    let chat_rows = filtered_chats.map((care_consultation, idx) => {
+      let patient  = care_consultation && care_consultation.patient  ? care_consultation.patient  : {};
+      let name     = StringUtils.displayName(patient);
+      let category = care_consultation && care_consultation.category ? care_consultation.category : {};
+          category = StringUtils.keyToDisplayString(category);
+
+      let date_obj = care_consultation.created_at ? new Date(care_consultation.created_at) : care_consultation.created_at;
+      let date_num = DateUtils.getDateNumber(date_obj);
+      let add_zero = date_num.toString().length === 1;
+      let date_str = DateUtils.getLongMonth(date_obj) + ' ' + DateUtils.getDateNumber(date_obj);
+          date_str = add_zero ? DateUtils.getLongMonth(date_obj) + ' 0' + DateUtils.getDateNumber(date_obj) : date_str;
+          date_str = !care_consultation.updated_at ? '' : date_str;
+
+      let care_consultation_id = care_consultation._id;
+      let show_dot             = this.get_show_dot(care_consultation.last_message);
+
+      return <View key={care_consultation_id}>
+        <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.props.navigation.push('ConsultationChat', { care_consultation_id: care_consultation_id }) }}>
+          <View>
+            <Text style={styles.selection_row_title}>{ name }</Text>
+            <View style={{ height: 3 }} />
+            <Text style={styles.selection_row_subtitle}>{ category }</Text>
+            <Text style={styles.selection_row_subtitle}>{ date_str }</Text>
+          </View>
+          { show_dot === true ? <View style={{ height: 10, width: 10, backgroundColor: Colors.RED, borderRadius: 5 }} />
+                              : <Icon name='chevron-right' size={13} color={ 'grey' } /> }
+        </TouchableOpacity>
+        <Line hide={ idx === filtered_chats.length - 1 } />
+      </View>
+    })
+
+    if (chat_rows.length === 0) { return null }
+
+    return <View style={styles.section_container}>
+      <Text style={styles.section_title}>Active Chats</Text>
+      <View style={styles.list_container}>
+        { chat_rows }
+      </View>
+    </View>
+  }
+
   // <ImageBackground source={ require('../../assets/images/background-paw.png') } resizeMode="cover" style={{ height: 50, width: 50, marginLeft: 40 }}>
   // </ImageBackground>
   // <View style={{ marginTop: 20, marginBottom: 20 }}>
@@ -185,6 +237,11 @@ class HomeTab extends Component {
         </View>
       </ImageBackground>
 
+      { this.render_active_chats()     }
+      { this.render_active_threads()   }
+      { this.render_hero_articles()    }
+      { this.render_article_sections() }
+
       <View style={{ height: 250, paddingRight: 20, paddingLeft: 20, marginBottom: 15 }}>
         <ImageBackground source={ require('../../assets/images/add-pet-cta.png') } resizeMode="contain" style={{ height: '100%' }} imageStyle={{  }}>
           <Text style={{ marginTop: 80, marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>Add your pet for</Text>
@@ -196,10 +253,6 @@ class HomeTab extends Component {
         </ImageBackground>
       </View>
 
-      { this.render_active_threads()   }
-      { this.render_hero_articles()    }
-      { this.render_article_sections() }
-      { /* this.render_search_section() */ }
     </View>
   }
 
@@ -238,6 +291,48 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'medium',
     color: '#0054A4'
+  },
+  section_container: {
+    marginTop: 25,
+    paddingLeft: 20,
+    paddingRight: 20
+  },
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4'
+  },
+  selection_row_container: {
+    flex: 1,
+    padding: 20,
+    paddingLeft: 0,
+    paddingRight: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  selection_row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 30
+  },
+  selection_row_title: {
+    fontSize: 15,
+    fontWeight: 'medium',
+    color: '#040415',
+    flex: 1
+  },
+  selection_row_subtitle: {
+    fontSize: 14,
+    color: '#575762'
+  },
+  list_container: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingRight: 20,
+    paddingLeft: 20,
+    marginTop: 15
   }
 });
 

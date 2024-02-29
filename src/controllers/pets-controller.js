@@ -40,7 +40,7 @@ export default class PetsController {
 
     static getPetFood = PetsController.exceptionWrapper(async () => {
       let response = await UtilitiesController.post('/v5/api/pets/get/pet_food_list', {}, true);
-      return response && response.success ? response.data : [];
+      return response && response.success ? response.data : {};
     });
 
     static getHealthEntries = PetsController.exceptionWrapper(async (data) => {
