@@ -32,6 +32,7 @@ class AddPetFlowScreen extends Component {
       medication_name: '',
       medications: [],
       pounce_animation_started: false,
+      dog_conclusion_animation_started: false,
       pet_food_suggestions: [],
       pet_food_list: { cat_food_products: [], dog_food_products: [] }
     }
@@ -55,6 +56,10 @@ class AddPetFlowScreen extends Component {
     if (!this.state.pounce_animation_started && this.pounce_animation) {
       this.pounce_animation.play();
       this.setState({ pounce_animation_started: true });
+    }
+    if (!this.state.dog_conclusion_animation_started && this.dog_conclusion_animation) {
+      this.dog_conclusion_animation.play();
+      this.setState({ dog_conclusion_animation_started: true });
     }
   }
 
@@ -445,7 +450,7 @@ class AddPetFlowScreen extends Component {
     if (this.state.display_section !== 'diet') { return null }
 
     let pet_name      = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
-    let section_title = pet_name + "'s Diet";
+    let section_title = 'What do you feed ' + pet_name + '?';
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>{ section_title }</Text>
@@ -458,6 +463,7 @@ class AddPetFlowScreen extends Component {
     if (this.state.display_section !== 'health_issues') { return null }
 
     let selected_health_issues = this.state.health_issues;
+    let pet_name               = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
 
     let health_issue_rows = health_issues.map((health_issue) => {
       let display_check = selected_health_issues.includes(health_issue);
@@ -480,7 +486,7 @@ class AddPetFlowScreen extends Component {
     })
 
     return <View style={styles.section_container}>
-      <Text style={styles.section_title}>{ 'Any Health Issues?' }</Text>
+      <Text style={styles.section_title}>{ 'Does ' + pet_name + ' have any health issues?' }</Text>
       <Line style={{ marginTop: 20 }}/>
       { health_issue_rows }
       <Button title={ 'Next' }
@@ -538,9 +544,9 @@ class AddPetFlowScreen extends Component {
 
   render_medications = () => {
     if (this.state.display_section !== 'medications') { return null }
-
+    let pet_name = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
     return <View style={styles.section_container}>
-      <Text style={styles.section_title}>{ 'Medications?' }</Text>
+      <Text style={styles.section_title}>{ 'Is ' + pet_name + ' currently on any medications?' }</Text>
 
       <View style={{ flexDirection: 'row', marginTop: 10 }}>
         <TouchableOpacity style={ [ this.state.has_medications ? styles.selected_diet_selection_button : styles.diet_selection_button, { flex: 1 } ] }
@@ -565,11 +571,20 @@ class AddPetFlowScreen extends Component {
 
   render_conclusion = () => {
     if (this.state.display_section !== 'conclusion') { return null }
-
+    let pet_name = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
     return <View style={styles.section_container}>
-      <Text style={styles.section_title}>{ 'Conclusion' }</Text>
-      <View style={{ marginTop: 240 }}>
-        <Icon name='check-circle' size={50} color={Colors.GREEN} />
+      <View style={{ marginTop: 120, alignItems: 'center' }}>
+        <View style={{ paddingRight: 20 }}>
+          <LottieView loop={true} ref={animation => { this.dog_conclusion_animation = animation }} style={{ width: 140, height: 140, marginBottom: -20  }} source={require('../../assets/animations/dog-pouncing.json')} />
+        </View>
+        <Text style={{ fontSize: 18, fontWeight: 'semibold', marginBottom: 10 }}>{ 'We’re excited to meet ' + pet_name }</Text>
+        <Text style={{ fontSize: 18, textAlign: 'center', color: 'grey', marginBottom: 5 }}>Our care team is here 24/7.</Text>
+        <Text style={{ fontSize: 18, textAlign: 'center', color: 'grey' }}>Try a chat or scheduling a video session!</Text>
+        <Button title={ 'Back To Home' }
+                style={{ marginTop: 20 }}
+                onPress={ () => {
+                  this.props.navigation.pop();
+                }} />
       </View>
     </View>
   }

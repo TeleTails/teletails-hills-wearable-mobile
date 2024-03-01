@@ -87,19 +87,22 @@ class HealthTab extends Component {
     let single_pet = pets && pets.length === 1;
     let switch_ttl = this.state.display_pet_selection ? 'Done' : 'Switch Pet';
 
+    pet_name   = 'Health'
+    switch_ttl = '';
+
     return <View>
     <View>
       <View style={{ backgroundColor: Colors.PRIMARY, padding: 20, paddingBottom: 0, borderTopRightRadius: 15, borderTopLeftRadius: 15 }}>
-        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 20, alignItems: 'center' }}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 20, alignItems: 'center' }}
                           onPress={ () => { this.setState({ display_pet_selection: !this.state.display_pet_selection }) }}>
           <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>{ pet_name }</Text>
           <Text style={{ fontSize: 16, color: 'white' }}>{ single_pet ? '' : switch_ttl }</Text>
-        </TouchableOpacity>
+        </View>
         { this.render_pet_selection_list()    }
       </View>
-      { this.render_add_button_padding() }
+      { /* this.render_add_button_padding() */ }
     </View>
-    { this.render_add_button_components() }
+    { /* this.render_add_button_components() */ }
     </View>
   }
 
@@ -151,12 +154,23 @@ class HealthTab extends Component {
     </View>
   }
 
+  render_coming_soon = () => {
+    return <View style={{ alignItems: 'center' }}>
+      <View style={{ backgroundColor: '#DBE6F2', height: 120, width: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', marginTop: 110 }}>
+        <Icon name='health-tracking' color={ Colors.PRIMARY } size={60} />
+      </View>
+      <Text style={{ marginTop: 15, fontSize: 18, fontWeight: 'medium', color: '#474747' }}>Coming Soon</Text>
+      <Text style={{ marginTop: 5,  fontSize: 16, color: 'grey' }}>Personalized pet health tracking</Text>
+    </View>
+  }
+
   render() {
 
     return <View style={{  }}>
       <View>
-        { this.render_pet_section()        }
-        { this.render_entry_buttons()      }
+        { this.render_pet_section()         }
+        { /* this.render_entry_buttons() */ }
+        { this.render_coming_soon()         }
       </View>
     </View>
   }

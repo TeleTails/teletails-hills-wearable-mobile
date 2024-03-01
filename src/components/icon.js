@@ -73,6 +73,9 @@ class Icon extends Component {
       case 'health':
         component = <Image style={ style_obj } source={ require('../../assets/icons/health.png') } />
         break;
+      case 'health-tracking':
+        component = <Image style={ style_obj } source={ require('../../assets/icons/health-tracking.png') } />
+        break;
       case 'consultation':
         component = <Image style={ style_obj } source={ require('../../assets/icons/consultation.png') } />
         break;
