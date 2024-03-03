@@ -241,6 +241,8 @@ class ConsultationThreadScreen extends Component {
       this.pull_messages(thread_id);
       this.setState({ message_text: '', loading_send_message: false })
     }
+
+    this.setState({ loading_send_message: false });
   }
 
   pull_messages = async (thread_id) => {
