@@ -26,13 +26,14 @@ class MessageList extends Component {
     }
   }
 
-  render_text_message = (message) => {
+  render_text_message = (message, index) => {
     let message_obj     = this.get_cleaned_msg_obj(message);
+    let reduce_btm_mrgn = this.get_should_reduce_margin(message, index);
     let container_style = message_obj.position === 'left' ? styles.message_content_container_left : [styles.message_content_container_right, { backgroundColor: Colors.PRIMARY }];
     let text_style      = message_obj.position === 'left' ? styles.text_message_left : styles.text_message_right;
     let text_color      = message_obj.position === 'left' ? '#575762' : 'white';
 
-    return <View style={styles.message_row_container}>
+    return <View style={[ styles.message_row_container, { marginBottom: reduce_btm_mrgn ? 1 : 15 } ]}>
       <View style={{ flex: message_obj.position === 'left'  ? 0 : 1 }}>
         { message_obj.position === 'left' ?  null : <Text style={{ ...styles.date_text_style, fontSize: 12, marginLeft: 5, color: '#a6a6a6' }}>{ message_obj.date }</Text> }
       </View>
@@ -120,10 +121,10 @@ class MessageList extends Component {
     </View>
   }
 
-  get_message_row_item = (message) => {
+  get_message_row_item = (message, index) => {
     let message_type = message.type;
     let message_row  = null;
-        message_row  = message_type === 'TEXT'   ? this.render_text_message(message)   : message_row;
+        message_row  = message_type === 'TEXT'   ? this.render_text_message(message, index) : message_row;
         message_row  = message_type === 'IMAGE'  ? this.render_image_message(message)  : message_row;
         message_row  = message_type === 'VIDEO'  ? this.render_video_message(message)  : message_row;
         message_row  = message_type === 'PDF'    ? this.render_pdf_message(message)    : message_row;
@@ -144,8 +145,8 @@ class MessageList extends Component {
              style={styles.message_scroll_list}
              keyExtractor={ (message) => { message._id }}
              inverted={true}
-             renderItem ={ ({ item }) => {
-               return this.get_message_row_item(item);
+             renderItem ={ ({ item, index }) => {
+               return this.get_message_row_item(item, index);
              }}
            />
   }
@@ -165,6 +166,20 @@ class MessageList extends Component {
           />
         </Screen>
     </Modal>
+  }
+
+  get_should_reduce_margin = (message, index) => {
+    if (index === 0) {
+      return false;
+    }
+
+    let all_messages  = this.props.messages || [];
+    let prev_message  = all_messages && all_messages[index - 1] && all_messages[index - 1].type && all_messages[index - 1].type === 'TEXT' ? all_messages[index - 1] : {};
+    let curr_from     = message && message.from ? message.from : '';
+    let prev_from     = prev_message && prev_message.from ? prev_message.from : '';
+    let reduce_margin = curr_from && prev_from && curr_from === prev_from ? true : false;
+
+    return reduce_margin;
   }
 
   get_cleaned_msg_obj = (message) => {
@@ -225,40 +240,40 @@ const styles = StyleSheet.create({
     backgroundColor: 'pink',
   },
   message_row_container: {
-    marginBottom: 6,
+    marginBottom: 15,
     flexDirection: 'row',
     paddingRight: 8,
     paddingLeft: 8
   },
   text_message_left: {
     color: '#575762',
-    fontSize: 16,
+    fontSize: 15,
   },
   text_message_right: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 15,
   },
   message_content_container_left: {
     maxWidth: '80%',
     backgroundColor: '#F7F8FA',
-    padding: 15,
-    paddingTop: 12,
-    paddingBottom: 12,
-    borderRadius: 10,
+    padding: 17,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 12,
   },
   message_content_container_right: {
     maxWidth: '80%',
     backgroundColor: '#21B1FB',
-    padding: 15,
-    paddingTop: 12,
-    paddingBottom: 12,
-    borderRadius: 10,
+    padding: 17,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 12,
   },
   pdf_message_content_container: {
     width: 100,
     height: 120,
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e7e7e7',
     justifyContent: 'center',
@@ -270,14 +285,14 @@ const styles = StyleSheet.create({
   video_message_content_container: {
     width: 300,
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e7e7e7'
   },
   video_message: {
     height: 200,
     width: '100%',
-    borderRadius: 10
+    borderRadius: 12
   }
 });
 

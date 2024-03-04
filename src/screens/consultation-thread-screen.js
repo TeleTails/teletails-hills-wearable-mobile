@@ -134,7 +134,7 @@ class ConsultationThreadScreen extends Component {
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
     return <>
-    <Screen title='Direct Message' navigation={this.props.navigation} back_to_home={this.state.back_to_home}>
+    <Screen title='Provider Message' navigation={this.props.navigation} back_to_home={this.state.back_to_home}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }

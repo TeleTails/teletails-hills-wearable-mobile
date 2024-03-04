@@ -60,7 +60,7 @@ class CompletedConsultationsScreen extends Component {
 
       let type_lbl = is_chat   ? 'Chat'    : '';
           type_lbl = is_video  ? 'Video'   : type_lbl;
-          type_lbl = is_thread ? 'Direct Message' : type_lbl;
+          type_lbl = is_thread ? 'Provider Message' : type_lbl;
 
       return  <View key={index} >
         <TouchableOpacity style={styles.row} onPress={ () => { this.open_selected_chat(consultation._id, is_chat, is_video) } }>
