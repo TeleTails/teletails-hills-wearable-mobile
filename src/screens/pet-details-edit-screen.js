@@ -17,7 +17,7 @@ class PetDetailsEditScreen extends Component {
     let add_new = this.props && this.props.route && this.props.route.params && this.props.route.params.add_new ? this.props.route.params.add_new : false;
 
     this.state = {
-      display_section: type, // new, bio, diet, health_issues, medications
+      display_section: type, //type, // new, bio, diet, health_issues, medications
       pet_id: pet_id,
       add_new: add_new,
       pet: {
@@ -437,7 +437,8 @@ class PetDetailsEditScreen extends Component {
   render_food_name_suggestions = () => {
     let food_names  = this.state.pet_food_suggestions || [];
     let typed_food  = this.state.pet_food || '';
-    let suggestions = food_names.filter((suggestion) => { return suggestion.toLowerCase().includes(typed_food.toLowerCase()) })
+    let suggestions = food_names;
+    //food_names.filter((suggestion) => { return suggestion.toLowerCase().includes(typed_food.toLowerCase()) })
 
     let food_suggestion_rows = suggestions.map((food_name) => {
       return <View>
@@ -462,6 +463,14 @@ class PetDetailsEditScreen extends Component {
     </View>
   }
 
+  search_pet_food = (text) => {
+    console.log('text', text)
+    if(text.length > 2) {
+      let pet_food_suggestions = this.diet_search_action(text);
+      this.setState({ ...this.state, pet_food: text, pet_food_suggestions: pet_food_suggestions });
+    }
+  }
+
   render_food_name_input = () => {
     if (this.state.food_selected) {
       return null;
@@ -472,10 +481,7 @@ class PetDetailsEditScreen extends Component {
       <Input label='Pet Food'
              value={this.state.pet_food}
              style={{ }}
-             onChangeText={ (text) => {
-               let pet_food_suggestions = this.diet_search_action(text);
-               this.setState({ ...this.state, pet_food: text, pet_food_suggestions: pet_food_suggestions });
-             }}/>
+             onChangeText={this.search_pet_food}/>
       <Line style={{ marginTop: 20 }}/>
       { this.render_food_name_suggestions() }
     </View>
@@ -727,27 +733,38 @@ class PetDetailsEditScreen extends Component {
     let search_tokens  = search_text.split(' ');
     let search_results = [];
 
-    let search_results_cat = pet_food_list.cat_food_products.filter(obj => {
+   /*  let search_results_cat = pet_food_list.cat_food_products.filter(obj => {
         return search_tokens.every(term => obj.toLowerCase().includes(term));
-    });
+    }); */
 
-    let search_results_dog = pet_food_list.dog_food_products.filter(obj => {
+
+    /* let search_results_dog = pet_food_list.dog_food_products.filter(obj => {
       return search_tokens.every(term => obj.toLowerCase().includes(term));
-    });
+    }); */
+
+    let resultsFound = 0;
 
     if (this.state.pet_type && this.state.pet_type.toLowerCase() === 'dog') {
-      search_results = [ ...search_results_dog ];
+      list_to_search = pet_food_list.dog_food_products;
     }
 
     if (this.state.pet_type && this.state.pet_type.toLowerCase() === 'cat') {
-      search_results = [ ...search_results_cat ];
+      list_to_search = pet_food_list.dog_food_products;
     }
 
     if (!this.state.pet_type) {
-      search_results = [ ...search_results_dog, ...search_results_cat ];
+      search_results = pet_food_list.dog_food_products.concat(pet_food_list.dog_food_products);
     }
 
-    search_results.sort((a,b) => { return a < b ? -1 : 1 });
+    for (let obj of list_to_search) {
+      if (search_tokens.every(term => obj.toLowerCase().includes(term))) {
+          search_results.push(obj);
+          resultsFound++;
+          if (resultsFound === 20) break; // Stop searching once 20 results are found
+      }
+    }
+
+    //search_results.sort((a,b) => { return a < b ? -1 : 1 });
 
     return search_results;
   }

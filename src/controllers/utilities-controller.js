@@ -88,6 +88,7 @@ export default class UtilitiesController {
   static async getToken() {
     let stored_token = getItem('token');
     let token        = stored_token || '';
+    //token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjNkMDUyYzkzZGI0MDExYjk2NTU3YzBlIiwicm9sZSI6IkNMSUVOVCIsImhvc3RfbmFtZSI6ImhpbGxzIiwiaWF0IjoxNzA5MjQ1OTg0LCJleHAiOjE3ODcwMDU5OTF9.0xJHAZYWr6t-gMMq4yvipmsJikG1sJ_aRNaa81cKWLc'
     return token;
   }
 
