@@ -5,7 +5,7 @@ import { StringUtils, DateUtils } from '../utils';
 import { ConsultationFeedbackForm } from '../containers';
 import { StyleSheet, View, TextInput, ScrollView, Platform, Linking } from 'react-native';
 import { Button, Input, Screen, Line, Text, Colors } from '../components';
-import { AuthController, ConsultationController, UtilitiesController } from '../controllers';
+import { AuthController, ConsultationController, UtilitiesController, PetsController } from '../controllers';
 import io from 'socket.io-client';
 
 class ConsultationVideoAppointmentScreen extends Component {
@@ -21,13 +21,54 @@ class ConsultationVideoAppointmentScreen extends Component {
       care_consultation: null,
       display_feedback: false,
       back_to_home: back_to_home,
+      pet_age_string: '',
+      appointment_time: '',
+      enable_join_button: false
     }
 
     this.consultation_socket = null;
   }
 
+  get_patient_age = async (patient_id) => {
+    let pet_res = await PetsController.getPet(patient_id);
+    let pet     = pet_res && pet_res.success && pet_res.data && pet_res.data.pet ? pet_res.data.pet : {};
+    let age_str = '';
+    let years   = pet && pet.age_num_years  ? pet.age_num_years  : '';
+    let months  = pet && pet.age_num_months ? pet.age_num_months : '';
+
+    if (years) {
+      let year_s = years < 2 ? 'year' : 'years';
+      age_str    = years + ' ' + year_s;
+    }
+
+    if (months) {
+      let month_s = months < 2 ? 'month' : 'months';
+      age_str = age_str + ' ' + months + ' ' + month_s;
+    }
+
+    this.setState({ pet_age_string: age_str });
+  }
+
+  _onEverySecondTimer = () => {
+
+    let appointment = this.state.appointment ? this.state.appointment : {};
+    let apt_time    = appointment && appointment.time ? appointment.time : '';
+    let is_canceled = this.state.is_canceled;
+    let is_resolved = this.state.is_resolved;
+
+    if (apt_time && !is_canceled && !is_resolved) {
+      let current_date  = new Date();
+      let apt_date_obj  = new Date(apt_time);
+      let min_diff      = (apt_date_obj.getTime() - current_date.getTime()) / 60000;
+      let enable_button = min_diff < 5 ? true : false;
+      this.setState({ enable_join_button: enable_button })
+    }
+
+  }
+
   pull_consulation_data = (care_consultation_id) => {
-    this.setState({ loading_consultation: true}, async () => {
+    var t = setInterval(this._onEverySecondTimer, 1000);
+    this.setState({ loading_consultation: true, timer_interval: t }, async () => {
 
       let care_consultation_res = await ConsultationController.getCareConsultationDetails(care_consultation_id);
       let care_consultation     = care_consultation_res && care_consultation_res.data && care_consultation_res.data.care_consultation ? care_consultation_res.data.care_consultation : {};
@@ -46,6 +87,11 @@ class ConsultationVideoAppointmentScreen extends Component {
             video_url   = VIDEO_BASE_URL + '/' + session_num + '/' + access_code;
       }
 
+      if (patient) {
+        let patient_id = patient._id;
+        this.get_patient_age(patient_id);
+      }
+
       this.setState({ care_consultation: care_consult_details, appointment: appointment, client: client, patient: patient, loading_consultation: false, display_feedback: display_feedback, is_canceled: is_canceled, is_resolved: is_resolved, video_url: video_url })
     });
   }
@@ -54,6 +100,10 @@ class ConsultationVideoAppointmentScreen extends Component {
     return io(NOTIF_URL, {
         query: 'notification=' + consultation_id
     });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.timer_interval);
   }
 
   async componentDidMount() {
@@ -107,10 +157,11 @@ class ConsultationVideoAppointmentScreen extends Component {
     }
 
     if (apt_time) {
-      let current_date = new Date();
-      let apt_date_obj = new Date(apt_time);
-      let min_diff     = (apt_date_obj.getTime() - current_date.getTime()) / 60000;
-      enable_join_btn  = min_diff < 5 ? true : false;
+      // let current_date = new Date();
+      // let apt_date_obj = new Date(apt_time);
+      // let min_diff     = (apt_date_obj.getTime() - current_date.getTime()) / 60000;
+      // enable_join_btn  = min_diff < 5 ? true : false;
+      enable_join_btn  = this.state.enable_join_button;
     }
 
     enable_join_btn  = is_canceled || is_resolved ? false : enable_join_btn;
@@ -120,11 +171,10 @@ class ConsultationVideoAppointmentScreen extends Component {
     let client_phone = client && client.phone_number ? StringUtils.displayCodePhoneNumber(client.phone_number) : '';
 
     let patient_type   = patient && patient.type   ? patient.type   : '';
-    let patient_age    = patient && patient.age    ? Math.round(patient.age * 10) / 10 : '';
+    let patient_age    = this.state.pet_age_string;
     let patient_breed  = patient && patient.breed  ? patient.breed  : '';
     let patient_name   = patient  ? StringUtils.displayName(patient) : '';
     let patient_gender = patient  ? StringUtils.displayGender(patient.gender) : '';
-
 
     let video_session_url = this.state.video_url;
 
@@ -151,7 +201,7 @@ class ConsultationVideoAppointmentScreen extends Component {
 
       <Line style={{ marginTop: 15, marginBottom: 15 }} />
 
-      <Text style={styles.section_title}>Patient Details</Text>
+      <Text style={styles.section_title}>Pet Details</Text>
 
       <View style={styles.patient_details_row}>
         <View style={styles.patient_row_label_container}><Text style={styles.patient_row_label}>Name</Text></View>
@@ -285,7 +335,7 @@ class ConsultationVideoAppointmentScreen extends Component {
     if (this.state.display_feedback === true) {
       return this.render_feedback_section();
     }
-    
+
     return (
       <Screen navigation={this.props.navigation} title='Consultation Details' scroll={true} back_to_home={this.state.back_to_home}>
         <View style={{ padding: 20 }}>
@@ -303,7 +353,8 @@ class ConsultationVideoAppointmentScreen extends Component {
 
 const styles = StyleSheet.create({
   patient_details_row: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginBottom: 5
   },
   patient_row_label_container: {
     width: 80
@@ -312,26 +363,26 @@ const styles = StyleSheet.create({
 
   },
   patient_row_label: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#575762'
   },
   patient_row_value: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#575762'
   },
   section_title: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#040415',
-    marginBottom: 5
+    fontSize: 18,
+    fontWeight: 'medium',
+    color: '#0054A4',
+    marginBottom: 10
   },
   intake_question: {
-    fontSize: 16,
-    color: '#575762'
+    fontSize: 15,
+    color: '#575762',
+    marginBottom: 5
   },
   info_text: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#575762'
   }
 });

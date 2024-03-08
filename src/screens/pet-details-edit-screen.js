@@ -644,6 +644,10 @@ class PetDetailsEditScreen extends Component {
   }
 
   update_state_pet = (key, value) => {
+    if (key === 'type' && value) {
+      this.setState({ pet_type: value });
+    }
+
     let updated_pet  = Object.assign({}, this.state.pet);
     updated_pet[key] = value;
     this.setState({ pet: updated_pet });

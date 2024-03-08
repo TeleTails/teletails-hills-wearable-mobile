@@ -20,14 +20,15 @@ class HomeTab extends Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.focusListener) {
+      this.focusListener();
+    }
+  }
+
   componentDidMount = async () => {
     let is_signed_in      = await getItem('token') ? true : false;
-    let pet_food_list     = await getItem('pet_food_list');
     let user_id           = await getItem('user_id');
-
-    if(typeof pet_food_list === 'string') {
-      pet_food_list = JSON.parse(pet_food_list);
-    }
 
     let partner_id    = PARTNER_ID;
     let sections      = [];
@@ -36,26 +37,27 @@ class HomeTab extends Component {
 
     await setItem('partner_id', partner_id);
 
+    this.get_active_chats();
+    this.get_active_threads();
+    this.get_video_appointments();
+
     if (is_signed_in) {
       let articles_res = await UserController.getUserArticles();
       hero_articles    = articles_res && articles_res.hero_articles ? articles_res.hero_articles : [];
       sections         = articles_res && articles_res.sections      ? articles_res.sections      : [];
-
-      let chats_res    = await ConsultationController.getClientChatConsultations(partner_id);
-          chats        = chats_res && chats_res.data && chats_res.data.care_consultations ? chats_res.data.care_consultations : [];
-
-      let video_res    = await ConsultationController.getUpcomingVideoConsultations(partner_id);
-      let videos       = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
-
-      this.get_active_threads();
-
     } else {
       let new_articles_res = await UserController.getNewUserArticles();
       hero_articles        = new_articles_res && new_articles_res.hero_articles ? new_articles_res.hero_articles : [];
       sections             = new_articles_res && new_articles_res.sections      ? new_articles_res.sections      : [];
     }
 
-    this.setState({ sections: sections, hero_articles: hero_articles, pet_food_list, user_id: user_id, chat_consultations: chats });
+    this.focusListener = this.props.navigation.addListener('focus', () => {
+      this.get_active_chats();
+      this.get_active_threads();
+      this.get_video_appointments();
+    });
+
+    this.setState({ sections: sections, hero_articles: hero_articles, user_id: user_id });
   }
 
   render_active_threads = () => {
@@ -101,42 +103,6 @@ class HomeTab extends Component {
                            pressed_action={ (article) => {
                               this.props.navigation.push('ArticleDisplay', { url: article.url });
                            }}/>
-    </View>
-  }
-
-  render_search_section = () => {
-    let { search_results } = this.state;
-
-    const search_text = (search_value) => {
-      let { pet_food_list } = this.state;
-
-      search_value = search_value.toLowerCase();
-      let search_tokens = search_value.split(' ');
-
-      let search_results_cat = pet_food_list.cat_food_products.filter(obj => {
-          return search_tokens.every(term => obj.toLowerCase().includes(term));
-      });
-
-      let search_results_dog = pet_food_list.dog_food_products.filter(obj => {
-        return search_tokens.every(term => obj.toLowerCase().includes(term));
-      });
-
-      let search_results = search_results_cat.concat(search_results_dog);
-
-      search_results.sort((a,b)=>{return a < b ? -1 : 1})
-
-      this.setState({search_results})
-    }
-
-    return <View>
-      <Input type={'text'} onChangeText={search_text} />
-      {search_results && search_results.length ?
-      <View>
-        <Text>Results</Text>
-        <View style={{flexDirection: 'column'}}>
-          {search_results.map(result=><Text style={{padding: 10}}>{result}</Text>)}
-        </View>
-      </View> : null}
     </View>
   }
 
@@ -206,17 +172,6 @@ class HomeTab extends Component {
     </View>
   }
 
-  // <ImageBackground source={ require('../../assets/images/background-paw.png') } resizeMode="cover" style={{ height: 50, width: 50, marginLeft: 40 }}>
-  // </ImageBackground>
-  // <View style={{ marginTop: 20, marginBottom: 20 }}>
-  //   <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationStartThread') }}>
-  //     <Icon name='setting' size={30} />
-  //   </TouchableOpacity>
-  //   <TouchableOpacity onPress={ () => { this.props.navigation.push('ConsultationThread') }}>
-  //     <Icon name='envelope' size={30} />
-  //   </TouchableOpacity>
-  // </View>
-
   render() {
     return <View>
 
@@ -263,6 +218,20 @@ class HomeTab extends Component {
       let active_threads = response.success && response.data && response.data.care_consultations ? response.data.care_consultations : [];
       this.setState({ active_threads: active_threads });
     }).catch((err) => {  });
+  }
+
+  get_active_chats = async () => {
+    let partner_id = PARTNER_ID;
+    let chats_res  = await ConsultationController.getClientChatConsultations(partner_id);
+        chats      = chats_res && chats_res.data && chats_res.data.care_consultations ? chats_res.data.care_consultations : [];
+    this.setState({ chat_consultations: chats });
+  }
+
+  get_video_appointments = async () => {
+    let partner_id = PARTNER_ID;
+    let video_res  = await ConsultationController.getUpcomingVideoConsultations(partner_id);
+    let videos     = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
+    this.setState({ video_consultations: videos });
   }
 
   get_thread_preview_text = (message) => {

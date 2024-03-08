@@ -19,24 +19,29 @@ class CareTab extends Component {
     }
   }
 
-  componentDidMount = async () => {
-    let is_signed_in  = await getItem('token') ? true : false;
-    let user_id       = await getItem('user_id');
-    let partner_id    = PARTNER_ID;
-
-    if (is_signed_in) {
-      let chats_res   = await ConsultationController.getClientChatConsultations(partner_id);
-      let chats       = chats_res && chats_res.data && chats_res.data.care_consultations ? chats_res.data.care_consultations : [];
-
-      let video_res   = await ConsultationController.getUpcomingVideoConsultations(partner_id);
-      let videos      = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
-
-      let orientation = chats.length === 0 && videos.length === 0 ? 'vertical' : 'horizontal';
-
-      this.get_active_threads();
-
-      this.setState({ chat_consultations: chats, video_consultations: videos, cta_orientation: orientation, user_id: user_id });
+  componentWillUnmount() {
+    if (this.focusListener) {
+      this.focusListener();
     }
+  }
+
+  componentDidMount = async () => {
+    let is_signed_in = await getItem('token') ? true : false;
+    let user_id      = await getItem('user_id');
+    let partner_id   = PARTNER_ID;
+
+    this.get_active_chats();
+    this.get_active_threads();
+    this.get_video_appointments();
+
+    this.focusListener = this.props.navigation.addListener('focus', () => {
+      console.log('Care Tab Focus');
+      this.get_active_chats();
+      this.get_active_threads();
+      this.get_video_appointments();
+    });
+
+    this.setState({ cta_orientation: 'horizontal', user_id: user_id });
   }
 
   render_active_threads = () => {
@@ -226,6 +231,20 @@ class CareTab extends Component {
     let sender_id = message && message.from ? message.from : '';
     let show_dot  = user_id && sender_id && user_id !== sender_id ? true : false;
     return show_dot;
+  }
+
+  get_active_chats = async () => {
+    let partner_id = PARTNER_ID;
+    let chats_res  = await ConsultationController.getClientChatConsultations(partner_id);
+    let chats      = chats_res && chats_res.data && chats_res.data.care_consultations ? chats_res.data.care_consultations : [];
+    this.setState({ chat_consultations: chats });
+  }
+
+  get_video_appointments = async () => {
+    let partner_id = PARTNER_ID;
+    let video_res  = await ConsultationController.getUpcomingVideoConsultations(partner_id);
+    let videos     = video_res && video_res.data && video_res.data.care_consultations ? video_res.data.care_consultations : [];
+    this.setState({ video_consultations: videos });
   }
 
 }

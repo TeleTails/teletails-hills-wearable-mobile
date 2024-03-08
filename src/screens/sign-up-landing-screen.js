@@ -73,7 +73,7 @@ class SignUpLandingScreen extends Component {
       return null;
     }
 
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
       <Image style={{ width: '90%' }} resizeMode='contain' source={ require('../../assets/images/landing-screen-preview.png') } />
     </View>
   }
@@ -83,7 +83,7 @@ class SignUpLandingScreen extends Component {
       return null;
     }
 
-    return <View style={{ backgroundColor: '#0255A5', height: 150, justifyContent: 'center', alignItems: 'center' }}>
+    return <View style={{ backgroundColor: '#0255A5', height: 110, justifyContent: 'center', alignItems: 'center' }}>
       <TouchableOpacity style={{ borderWidth: 2, borderColor: 'white', borderRadius: 5, padding: 15, width: '80%', alignItems: 'center' }}
                         onPress={ () => {
                           this.continue_action();

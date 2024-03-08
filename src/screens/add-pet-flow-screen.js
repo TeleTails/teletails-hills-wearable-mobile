@@ -33,6 +33,8 @@ class AddPetFlowScreen extends Component {
       medications: [],
       pounce_animation_started: false,
       dog_conclusion_animation_started: false,
+      cat_midway_animation_started: false,
+      cat_conclusion_animation_started: false,
       pet_food_suggestions: [],
       pet_food_list: { cat_food_products: [], dog_food_products: [] }
     }
@@ -60,6 +62,14 @@ class AddPetFlowScreen extends Component {
     if (!this.state.dog_conclusion_animation_started && this.dog_conclusion_animation) {
       this.dog_conclusion_animation.play();
       this.setState({ dog_conclusion_animation_started: true });
+    }
+    if (!this.state.cat_midway_animation_started && this.cat_midway_animation) {
+      this.cat_midway_animation.play();
+      this.setState({ cat_midway_animation_started: true });
+    }
+    if (!this.state.cat_conclusion_animation_started && this.cat_conclusion_animation) {
+      this.cat_conclusion_animation.play();
+      this.setState({ cat_conclusion_animation_started: true });
     }
   }
 
@@ -295,10 +305,13 @@ class AddPetFlowScreen extends Component {
     let window        =  Dimensions.get('window');
     let window_height = window && window.height ? window.height - 200 : 800;
     let pet_name      = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
+    let is_dog        = this.state.pet_type.toLowerCase() === 'dog';
+    let is_cat        = this.state.pet_type.toLowerCase() === 'cat';
 
     return <View style={[ styles.section_container, { height: window_height } ]}>
       <View style={{ flex: 1, justifyContent: 'center' }}>
-        <LottieView loop={true} ref={animation => { this.pounce_animation = animation }} style={{ width: 200, height: 200, alignSelf: 'center' }} source={require('../../assets/animations/dog-bows.json')} />
+        { is_dog ? <LottieView loop={true} ref={animation => { this.pounce_animation = animation }} style={{ width: 200, height: 200, alignSelf: 'center' }} source={require('../../assets/animations/dog-bows.json')} /> : null }
+        { is_cat ? <LottieView loop={true} ref={animation => { this.cat_midway_animation = animation }} style={{ width: 200, height: 200, alignSelf: 'center' }} source={require('../../assets/animations/cat-tail-wag.json')} /> : null }
       </View>
       <View style={{ height: 130, alignItems: 'center' }}>
         <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: 'semibold' }}>{ "We can't wait to meet " + pet_name }</Text>
@@ -572,10 +585,13 @@ class AddPetFlowScreen extends Component {
   render_conclusion = () => {
     if (this.state.display_section !== 'conclusion') { return null }
     let pet_name = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
+    let is_dog   = this.state.pet_type.toLowerCase() === 'dog';
+    let is_cat   = this.state.pet_type.toLowerCase() === 'cat';
     return <View style={styles.section_container}>
       <View style={{ marginTop: 120, alignItems: 'center' }}>
         <View style={{ paddingRight: 20 }}>
-          <LottieView loop={true} ref={animation => { this.dog_conclusion_animation = animation }} style={{ width: 140, height: 140, marginBottom: -20  }} source={require('../../assets/animations/dog-pouncing.json')} />
+          { is_dog ? <LottieView loop={true} ref={animation => { this.dog_conclusion_animation = animation }} style={{ width: 140, height: 140, marginBottom: -20  }} source={require('../../assets/animations/dog-pouncing.json')} /> : null }
+          { is_cat ? <LottieView loop={true} ref={animation => { this.cat_conclusion_animation = animation }} style={{ width: 140, height: 140 }} source={require('../../assets/animations/cat-tail-wag.json')} /> : null }
         </View>
         <Text style={{ fontSize: 18, fontWeight: 'semibold', marginBottom: 10 }}>{ 'We’re excited to meet ' + pet_name }</Text>
         <Text style={{ fontSize: 18, textAlign: 'center', color: 'grey', marginBottom: 5 }}>Our care team is here 24/7.</Text>
@@ -625,7 +641,7 @@ class AddPetFlowScreen extends Component {
   }
 
   process_add_pet = async () => {
-
+    
     let pet_id        = '';
     let health_issues = this.state.health_issues || [];
     let medications   = this.state.medications   || [];
