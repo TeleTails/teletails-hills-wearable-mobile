@@ -6,6 +6,7 @@ import ConsultationFeedbackForm from './consultation-feedback-form';
 import HomeTab   from './home-tab';
 import HomeCtaButtons from './home-cta-buttons';
 import HealthTab      from './health-tab';
+import WearableConnect from './wearable-connect-tab';
 import MessageList    from './message-list';
 import ShopTab        from './shop-tab';
 import SignIn         from './sign-in';
@@ -23,5 +24,6 @@ export {
   MessageList,
   ShopTab,
   SignIn,
+  WearableConnect,
   VideoCallSchedule
 }

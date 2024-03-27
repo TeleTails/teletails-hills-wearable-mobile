@@ -1,4 +1,4 @@
-package com.teletails.pethub;
+package com.teletails.petfit;
 
 import android.app.Application;
 import android.content.res.Configuration;

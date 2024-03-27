@@ -1,4 +1,4 @@
-package com.teletails.pethub;
+package com.teletails.petfit;
 
 import android.os.Build;
 import android.os.Bundle;

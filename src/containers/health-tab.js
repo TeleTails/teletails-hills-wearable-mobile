@@ -133,6 +133,17 @@ class HealthTab extends Component {
           <Icon name='chevron-circle-right' size={18} />
         </View>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.entry_button_container}
+                        onPress={ () => { this.props.navigation.push('HealthBFIPics', { pet_id: selected_pet_id }) }}>
+        <Text style={styles.entry_button_title}>BFI Assessment Images</Text>
+        <View style={{ height: 50 }}></View>
+        <View style={styles.entry_button_cta_container}>
+          <Text style={styles.entry_button_cta_title}>Add Images</Text>
+          <Icon name='chevron-circle-right' size={18} />
+        </View>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.entry_button_container}
                         onPress={ () => { this.props.navigation.push('HealthGiPics', { pet_id: selected_pet_id }) }}>
         <Text style={styles.entry_button_title}>GI Images</Text>
@@ -169,8 +180,8 @@ class HealthTab extends Component {
     return <View style={{  }}>
       <View>
         { this.render_pet_section()         }
-        { /* this.render_entry_buttons() */ }
-        { this.render_coming_soon()         }
+        { this.render_entry_buttons() }
+        {/* { this.render_coming_soon()         } */}
       </View>
     </View>
   }

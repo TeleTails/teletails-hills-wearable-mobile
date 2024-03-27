@@ -87,9 +87,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.teletails.pethub'
+    namespace 'com.teletails.petfit'
     defaultConfig {
-        applicationId 'com.teletails.pethub'
+        applicationId 'com.teletails.petfit'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -8,6 +8,7 @@ import ConsultationThreadScreen      from './consultation-thread-screen';
 import ConsultationStartThreadScreen from './consultation-start-thread-screen';
 import ConsultationStartScreen from './consultation-start-screen';
 import HealthWeightScreen from './health-weight-screen';
+import HealthBFIPicsScreen from './health-bfi-pics-screen';
 import HealthGiPicsScreen from './health-gi-pics-screen';
 import HealthBodyConditionScreen from './health-body-condition-screen';
 import HomeScreen       from './home-screen';
@@ -21,6 +22,7 @@ import SignUpLandingScreen from './sign-up-landing-screen';
 import SignInWelcomeScreen from './sign-in-welcome-screen';
 import SignUpSignInScreen from './sign-up-sign-in-screen';
 import SignUpInfoScreen from './sign-up-info-screen';
+import WearableConnectScreen from './wearable-connect-screen';
 
 export {
   AddPetScreen,
@@ -32,6 +34,7 @@ export {
   ConsultationChatScreen,
   ConsultationThreadScreen,
   ConsultationVideoAppointmentScreen,
+  HealthBFIPicsScreen,
   HealthWeightScreen,
   HealthGiPicsScreen,
   HealthBodyConditionScreen,
@@ -45,5 +48,6 @@ export {
   SignUpSignInScreen,
   SignInWelcomeScreen,
   UserProfileScreen,
+  WearableConnectScreen,
   VetLocatorScreen
 }

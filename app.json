@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PetFit",
-    "slug": "pethub",
+    "slug": "petfit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,15 +16,15 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.teletails.pethub",
-      "buildNumber": "2",
+      "bundleIdentifier": "com.teletails.petfit",
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.teletails.pethub",
+      "package": "com.teletails.petfit",
       "android.googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -32,9 +32,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "5eb508bc-e80d-4f16-a429-8f72260ee251"
+        "projectId": "e25bf0fc-053c-43ef-b936-f1fa60007d89"
       }
     },
-    "owner": "teletails"
+    "owner": "aleksczajka2"
   }
 }

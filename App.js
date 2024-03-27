@@ -22,6 +22,7 @@ import {
   ConsultationThreadScreen,
   ConsultationStartThreadScreen,
   ConsultationVideoAppointmentScreen,
+  HealthBFIPicsScreen,
   HealthWeightScreen,
   HealthGiPicsScreen,
   HealthBodyConditionScreen,
@@ -34,6 +35,7 @@ import {
   SignUpLandingScreen,
   SignUpSignInScreen,
   UserProfileScreen,
+  WearableConnectScreen,
   VetLocatorScreen
 } from './src/screens';
 
@@ -146,6 +148,7 @@ export default function App() {
         <Stack.Screen name='ConsultationVideoAppointment' component={ ConsultationVideoAppointmentScreen } />
         <Stack.Screen name='HealthWeight'        component={ HealthWeightScreen } />
         <Stack.Screen name='HealthGiPics'        component={ HealthGiPicsScreen } />
+        <Stack.Screen name='HealthBFIPics'        component={ HealthBFIPicsScreen } />
         <Stack.Screen name='HealthBodyCondition' component={ HealthBodyConditionScreen } />
         <Stack.Screen name='PetDetails' component={ PetDetailsScreen } />
         <Stack.Screen name='PetDetailsEdit' component={ PetDetailsEditScreen } options={{ presentation: 'modal' }} />
@@ -153,6 +156,8 @@ export default function App() {
         <Stack.Screen name="Settings"   component={ SettingsScreen }   />
         <Stack.Screen name='UserProfile'component={ UserProfileScreen }/>
         <Stack.Screen name='VetLocator' component={ VetLocatorScreen } />
+        <Stack.Screen name='WearableConnectScreen' component={ WearableConnectScreen } />
+        
       </Stack.Navigator>
     </NavigationContainer>
   )

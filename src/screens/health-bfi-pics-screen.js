@@ -1,0 +1,291 @@
+import LottieView from 'lottie-react-native';
+import analytics  from '@react-native-firebase/analytics';
+import { Component } from "react";
+import { DateUtils, StringUtils } from '../utils';
+import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Image, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView, FlatList, Modal } from 'react-native';
+import { setItem, getItem } from '../../storage';
+import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors, MediaModal } from '../components';
+import { ConsultationController, PetsController }   from '../controllers';
+import { MediaController }  from '../controllers';
+
+class HealthBFIPicsScreen extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      images: [],
+      health_entries: [],
+      expanded_entry_id: '',
+      opened_modal: false
+    }
+  }
+
+  componentDidMount = async () => {
+    let patient_id = this.props && this.props.route && this.props.route.params && this.props.route.params.pet_id ? this.props.route.params.pet_id : '';
+    let partner_id = await getItem('partner_id');
+    /* let  partner_id="61fd4d95cbb0c41ec9705073" */
+    let user_id    = await getItem('user_id');
+
+    this.pull_past_entries(patient_id)
+
+    this.setState({ partner_id: partner_id, patient_id: patient_id, user_id: user_id });
+  }
+
+  render_image_block = (image_url, index) => {
+    if (image_url) {
+      return <View style={styles.preview_image_container}>
+        <Image style={styles.preview_image} resizeMode='cover' source={{ uri: image_url }} />
+        <TouchableOpacity style={styles.preview_image_trash}
+                          onPress={ () => { this.remove_image_preview(index) }}>
+          <Icon name='trash' size={18} color={Colors.RED} />
+        </TouchableOpacity>
+      </View>
+    } else {
+      return <TouchableOpacity style={styles.add_image_container}
+                               onPress={ ()=> { this.setState({ opened_modal: true }) }}>
+        <Icon name='plus-circle' color='#e7e7e7' />
+        <Text style={styles.add_image_button_title}>Add Image</Text>
+      </TouchableOpacity>
+    }
+  }
+
+  render_add_image_buttons = () => {
+    let images = this.state.images;
+
+    if (images && images.length === 0) {
+      return <View style={styles.add_image_buttons_container}>
+        <TouchableOpacity onPress={ ()=> { this.setState({ opened_modal: true }) }}
+                          style={styles.single_add_image_button}>
+          <Text style={{ fontWeight: 'medium', color: 'grey', fontSize: 17 }}>Add Image</Text>
+        </TouchableOpacity>
+      </View>
+    }
+
+    let image_1_url = images && images[0] ? images[0] : '';
+    let image_2_url = images && images[1] ? images[1] : '';
+    let image_3_url = images && images[2] ? images[2] : '';
+    let image_4_url = images && images[3] ? images[3] : '';
+    let image_5_url = images && images[4] ? images[4] : '';
+
+    return <View style={styles.add_image_buttons_container}>
+      { this.render_image_block(image_1_url, 0) }
+      <View style={{ width: 10 }} />
+      { this.render_image_block(image_2_url, 1) }
+      <View style={{ width: 10 }} />
+      { this.render_image_block(image_3_url, 2) }
+      <View style={{ width: 10 }} />
+      { this.render_image_block(image_4_url, 3) }
+      <View style={{ width: 10 }} />
+      { this.render_image_block(image_5_url, 4) }
+    </View>
+  }
+
+  render_submit_button = () => {
+    let no_images = this.state.images && this.state.images.length === 0;
+
+    if (no_images) {
+      return null;
+    }
+
+    return <View>
+      <Button title='Submit'
+            style={{ borderRadius: 40, width: 200, alignSelf: 'center' }}
+            loading={this.state.loading_uploading_images}
+            onPress={ () => { this.add_health_entry() }}/>
+    </View>
+  }
+
+  render_past_entries = () => {
+    let health_entries = this.state.health_entries;
+    console.log('health_entries', health_entries);
+    let entry_rows = health_entries.map((entry) => {
+      let entry_data  = entry.entry_data || {};
+      let date        = entry_data.date ? DateUtils.getLongMonth(entry_data.date) + ' ' + DateUtils.getDateNumber(entry_data.date) : '';
+      let image_url_1 = entry_data && entry_data.image_url_1 ? entry_data.image_url_1 : '';
+      let image_url_2 = entry_data && entry_data.image_url_2 ? entry_data.image_url_2 : '';
+      let image_url_3 = entry_data && entry_data.image_url_3 ? entry_data.image_url_3 : '';
+      let image_url_4 = entry_data && entry_data.image_url_4 ? entry_data.image_url_4 : '';
+      let image_url_5 = entry_data && entry_data.image_url_5 ? entry_data.image_url_5 : '';
+
+      let is_expanded = this.state.expanded_entry_id === entry._id;
+      return <View style={{ paddingRight: 20, paddingLeft: 20 }} key={entry._id}>
+        <TouchableOpacity onPress={ () => { this.setState({ expanded_entry_id: is_expanded ? '' : entry._id })}}>
+          <Text style={{ fontSize: 16, fontWeight: 'medium' }}>{ date }</Text>
+        </TouchableOpacity>
+        { is_expanded ? <ScrollView horizontal={true} style={{ marginTop: 15 }} contentContainerStyle={{ flexDirection: 'row', width: 440, justifyContent: 'space-evenly'}}>
+          { image_url_1 ? <Image style={{height: 80, width: 80, borderRadius: 10, marginRight: 10 }} resizeMode='cover' source={{ uri: image_url_1 }} /> : null  }
+          { image_url_2 ? <Image style={{height: 80, width: 80, borderRadius: 10, marginRight: 10 }} resizeMode='cover' source={{ uri: image_url_2 }} /> : null  }
+          { image_url_3 ? <Image style={{height: 80, width: 80, borderRadius: 10, marginRight: 10 }} resizeMode='cover' source={{ uri: image_url_3 }} /> : null  }
+
+          { image_url_4 ? <Image style={{height: 80, width: 80, borderRadius: 10, marginRight: 10 }} resizeMode='cover' source={{ uri: image_url_4 }} /> : null  }
+
+          { image_url_5 ? <Image style={{height: 80, width: 80, borderRadius: 10 }} resizeMode='cover' source={{ uri: image_url_5 }} /> : null  }
+        </ScrollView> : null }
+        <Line style={{ marginTop: 15, marginBottom: 15 }} />
+      </View>
+    })
+
+    return <View>
+      <Text style={styles.section_title}>Past Entries</Text>
+      <View style={{ height: 20 }} />
+      { entry_rows }
+    </View>
+  }
+
+  render() {
+
+    return <Screen scroll={true} title='BFI Pics' navigation={this.props.navigation}>
+      <Text style={styles.section_title}>Add Images for: FRONT, BACK, LEFT side, RIGHT side, top of your pet</Text>
+      { this.render_add_image_buttons() }
+      { this.render_submit_button()     }
+      <View style={{ height: 20 }} />
+      { this.render_past_entries() }
+      { this.render_media_modal() }
+    </Screen>
+  }
+
+  render_media_modal = () => {
+    return <MediaModal display={this.state.opened_modal}
+              keep_as_local={true}
+              button_title='Add Image'
+              close_action={ () => {
+                this.setState({ opened_modal: false })
+              }}
+              media_action={ (media_object) => {
+                if (media_object && media_object.type === 'image') {
+                  this.add_image(media_object)
+                }
+              }} />
+  }
+
+  add_image = async (media_object) => {
+    let images  = this.state.images;
+    let url     = media_object.url || '';
+    let new_arr = [ ...images ];
+    if (url) {
+      new_arr.push(url);
+    }
+    this.setState({ images: new_arr, opened_modal: false })
+  }
+
+  add_health_entry = async () => {
+    this.setState({ loading_uploading_images: true }, async ()=>{
+      let partner_id    = this.state.partner_id;
+      let patient_id    = this.state.patient_id;
+      let user_id       = this.state.user_id;
+      let images        = this.state.images;
+
+      let media_uri;
+      for(var i = 0; i < images.length; i++) {
+        media_uri = images[i];
+        let upload_response = await MediaController.uploadMediaFromLibrary(media_uri);
+        let is_success      = upload_response && upload_response.success ? true : false;
+        let uploaded_url    = is_success && upload_response && upload_response.message && upload_response.message.Location ? upload_response.message.Location : '';
+
+        images[i] = uploaded_url;
+      }
+
+      let mapped_images = images.map((image, i) => { return { [`image_url_${i+1}`] : image }});
+          mapped_images = Object.assign({}, ...mapped_images);
+
+      if(images.length) {
+        let request_data = {
+          type: 'BFI_PICS',
+          patient_id: patient_id,
+          client_id:  user_id,
+          partner_id: partner_id,
+          entry_data: {
+            ...mapped_images,
+            date: new Date()
+          }
+        }
+
+        let create_res = await PetsController.createHealthEntry(request_data);
+        let is_success = create_res.success === true ? true : false;
+
+        this.pull_past_entries(patient_id);
+
+        this.setState({ loading_uploading_images: false, images: is_success ? [] : this.state.images });
+      }
+    });
+  }
+
+  remove_image_preview = (index) => {
+    let current_images = [ ...this.state.images ];
+    let new_images     = [];
+    current_images.forEach((img, i) => {
+      if (i !== index) {
+        new_images.push(img);
+      }
+    });
+    this.setState({ images: new_images });
+  }
+
+  pull_past_entries = async (patient_id) => {
+    let partner_id = await getItem('partner_id');
+    /* let  partner_id="61fd4d95cbb0c41ec9705073" */
+    let user_id    = await getItem('user_id');
+
+    let request_data   = { type: 'BFI_PICS', patient_id: patient_id, partner_id: partner_id }
+    let health_entries = await PetsController.getHealthEntries(request_data);
+        health_entries = health_entries && health_entries.health_entries ? health_entries.health_entries : [];
+
+    this.setState({ health_entries: health_entries })
+  }
+
+}
+
+export default HealthBFIPicsScreen;
+
+const styles = StyleSheet.create({
+  add_image_container: {
+    flex: 1,
+    borderWidth: 2,
+    borderRadius: 18,
+    borderColor: '#e7e7e7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 150
+  },
+  add_image_button_title: {
+    textAlign: 'center',
+    fontWeight: 'medium',
+    color: 'grey', marginTop: 5
+  },
+  add_image_buttons_container: {
+    flexDirection: 'row',
+    padding: 20,
+    height: 250
+  },
+  preview_image: {
+    height: 100,
+    width: '100%',
+    borderRadius: 10
+  },
+  preview_image_container: {
+    flex: 1,
+    alignItems: 'center',
+    height: 150
+  },
+  preview_image_trash: {
+    padding: 15,
+    paddingRight: 30,
+    paddingLeft: 30
+  },
+  section_title: {
+    fontSize: 18,
+    fontWeight: 'medium',
+    marginLeft: 20, marginTop: 10
+  },
+  single_add_image_button: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#e7e7e7',
+    padding: 15,
+    width: '100%',
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+});

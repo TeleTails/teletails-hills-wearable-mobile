@@ -32,13 +32,13 @@ class HomeCtaButtons extends Component {
       </TouchableOpacity>
       <TouchableOpacity style={styles.button_container}
                         onPress={ () => {
-                          Linking.openURL('https://urlgeni.us/registerkit')
+                          this.props.navigation.push('WearableConnectScreen')
                         }}>
         <View style={styles.icon_container}>
           <Image style={{ height: 26, width: 26, tintColor: Colors.PRIMARY }} source={ require('../../assets/images/register-a-kit.png') } />
         </View>
-        <Text style={styles.button_title}>Register a</Text>
-        <Text style={styles.button_title}>Kit</Text>
+        <Text style={styles.button_title}>Connect Your</Text>
+        <Text style={styles.button_title}>Wearable</Text>
       </TouchableOpacity>
       { this.render_options_modal() }
     </View>
