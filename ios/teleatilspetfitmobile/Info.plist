@@ -56,12 +56,23 @@
         </dict>
       </dict>
     </dict>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>To connect to your pet's sensor, We need to enable Bluetooth on your device.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>To connect to your pet's sensor, We need to enable Bluetooth on your device.</string>
     <key>NSCameraUsageDescription</key>
     <string>Camera is used to take photos of users' pets.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Microphone is used when taking vidoes of users' pets.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Photo library is used to upload photos of users' pets.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>fetch</string>
+      <string>processing</string>
+      <string>remote-notification</string>
+      <string>central-peripheral</string>
+    </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
