@@ -23,7 +23,6 @@ export default class AuthController {
     }
 
     static setUser = async (user) => {
-      console.log('user', user)
       let user_obj = {
         _id: user._id || '',
         first_name: user.first_name || '',
@@ -31,7 +30,10 @@ export default class AuthController {
         email: user.email || '',
         photo_url: user.photo_url || '',
         phone_number: user.phone_number || '',
-        zipcode: user.zipcode || ''
+        zipcode: user.zipcode || '',
+        address: user.address || {},
+        wearables_data: user.wearables_data || {},
+        wearables_user_id: user.wearables_user_id || ''
       }
 
       await setItem('user', user_obj);

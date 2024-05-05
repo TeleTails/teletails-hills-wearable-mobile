@@ -22,10 +22,11 @@ class SignUpLandingScreen extends Component {
   componentDidMount = async () => {
     let t = setInterval(this._onHalfSecond, 500);
 
-    let token = await getItem('token');
-    let user  = await this.check_token_and_user();
+    let token   = await getItem('token');
+    let user    = await this.check_token_and_user();
+    let to_home = token && user && user._id && user.first_name && user.first_name.toLowerCase() !== 'pet' && user.address && user.address.city;
 
-    if (user && token && user._id) {
+    if (to_home) {
       this.setState({ t: t, navigate_to_home: true });
     } else {
       this.setState({ t: t, display_animation: false });

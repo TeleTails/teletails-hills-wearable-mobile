@@ -5,7 +5,7 @@ import { StyleSheet, View, ScrollView, SafeAreaView, Platform } from 'react-nati
 import { setItem, getItem } from '../../storage';
 import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, Colors } from '../components';
 import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';
-import { AuthController, UserController } from '../controllers';
+import { AuthController, UserController, WearablesController } from '../controllers';
 
 class SignUpInfoScreen extends Component {
 
@@ -15,7 +15,12 @@ class SignUpInfoScreen extends Component {
       selected_tab: 'home',
       first_name: '',
       last_name: '',
-      zipcode: ''
+      street: '',
+      city: '',
+      state: '',
+      country: 'United States',
+      zipcode: '',
+      display_address_inputs: false
     }
   }
 
@@ -46,7 +51,7 @@ class SignUpInfoScreen extends Component {
     let response = await UserController.completeUserSignUp(data);
 
     if(response && response.success) {
-      this.props.navigation.push('SignInWelcomeScreen')
+      this.setState({ display_address_inputs: true });
     } else {
       this.setState({
         error_message: response.error
@@ -54,7 +59,38 @@ class SignUpInfoScreen extends Component {
     }
   }
 
-  render_inputs_section = () => {
+  address_continue_action = async () => {
+    let street  = this.state.street;
+    let city    = this.state.city;
+    let state   = this.state.state;
+    let country = this.state.country;
+
+    if (!street || !city || !state || !country) {
+      this.setState({ error_message: 'Street, City, State, Zipcode and Country are required fields.' })
+      return;
+    } else {
+      this.setState({ loading_address_button: true, error_message: '' });
+    }
+
+    let address          = street + ', ' + city + ', ' + state + ', ' +  country;
+    let address_data     = { address: address }
+    let address_response = await WearablesController.validateAddress(address_data);
+    let is_success       = address_response && address_response.success === true ? true : false
+
+    if (is_success) {
+      this.props.navigation.push('SignInWelcomeScreen');
+      this.setState({ loading_address_button: false });
+    } else {
+      this.setState({ error_message: 'The address is invalid, please verify each input.', loading_address_button: false });
+    }
+
+  }
+
+  render_name_inputs_section = () => {
+    if (this.state.display_address_inputs) {
+      return null;
+    }
+
     let error_message = this.state.error_message;
 
     return <View style={{ backgroundColor: 'white', width: '90%', borderRadius: 12, padding: 20 }}>
@@ -75,9 +111,53 @@ class SignUpInfoScreen extends Component {
              border_color='#e7e7e7'
              placeholder='Zipcode*'
              onChangeText={ (text) => this.setState({ zipcode: text }) }/>
+
       <Button title={'CONTINUE'}
               style={{ marginBottom: 0, marginTop: 10 }}
               onPress={ () => { this.continue_action() }}/>
+      { error_message ? <Text style={{ marginTop: 15, fontSize: 16, color: Colors.RED, textAlign: 'center' }}>{ error_message }</Text> : null }
+    </View>
+  }
+
+  render_address_inputs_section = () => {
+    if (!this.state.display_address_inputs) {
+      return null;
+    }
+
+    let error_message = this.state.error_message;
+
+    return <View style={{ backgroundColor: 'white', width: '90%', borderRadius: 12, padding: 20 }}>
+      <Text style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 5 }}>Address</Text>
+      <Text style={{ fontSize: 15, color: 'grey', marginBottom: 15 }}>Please enter your Address</Text>
+
+      <Input value={ this.state.street }
+             style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+             border_color='#e7e7e7'
+             placeholder='Street*'
+             onChangeText={ (text) => this.setState({ street: text }) }/>
+
+      <Input value={ this.state.city }
+             style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+             border_color='#e7e7e7'
+             placeholder='City*'
+             onChangeText={ (text) => this.setState({ city: text }) }/>
+
+      <Input value={ this.state.state }
+             style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+             border_color='#e7e7e7'
+             placeholder='State*'
+             onChangeText={ (text) => this.setState({ state: text }) }/>
+
+     <Input value={ this.state.country }
+            style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+            border_color='#e7e7e7'
+            placeholder='Country*'
+            onChangeText={ (text) => this.setState({ country: text }) }/>
+
+      <Button title={'CONTINUE'}
+              style={{ marginBottom: 0, marginTop: 10 }}
+              loading={this.state.loading_address_button}
+              onPress={ () => { this.address_continue_action() }}/>
       { error_message ? <Text style={{ marginTop: 15, fontSize: 16, color: Colors.RED, textAlign: 'center' }}>{ error_message }</Text> : null }
     </View>
   }
@@ -86,7 +166,8 @@ class SignUpInfoScreen extends Component {
     return (
       <Screen scroll={true} hide_nav_bar={true} style={{ backgroundColor: '#0255A5' }}>
         <View style={{ alignItems: 'center', paddingTop: 100 }}>
-          { this.render_inputs_section() }
+          { this.render_name_inputs_section() }
+          { this.render_address_inputs_section() }
         </View>
       </Screen>
     );

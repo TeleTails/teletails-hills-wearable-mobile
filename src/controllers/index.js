@@ -4,6 +4,7 @@ import MediaController  from './media-controller';
 import PetsController      from './pets-controller';
 import UserController      from './user-controller';
 import UtilitiesController from './utilities-controller';
+import WearablesController from './wearables-controller';
 
 export {
   AuthController,
@@ -11,5 +12,6 @@ export {
   MediaController,
   PetsController,
   UserController,
-  UtilitiesController
+  UtilitiesController,
+  WearablesController
 }

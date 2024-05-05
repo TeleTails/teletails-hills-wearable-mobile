@@ -13,7 +13,7 @@ export default class UserController {
   };
 
   static completeUserSignUp = UserController.exceptionWrapper(async (data) => {
-    let response = await UtilitiesController.post(`/v5/api/users/update/user`, data, false);
+    let response = await UtilitiesController.post(`/v5/api/users/update/user`, data, true);
 
     if (response.success) {
       await AuthController.getLoggedInUser();

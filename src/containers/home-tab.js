@@ -2,7 +2,7 @@ import { Component }  from 'react';
 import { PARTNER_ID } from '@env'
 import { SignIn }     from '../containers';
 import { StringUtils, DateUtils } from '../utils';
-import { AuthController, UserController, ConsultationController } from '../controllers';
+import { AuthController, UserController, ConsultationController, WearablesController } from '../controllers';
 import { setItem, getItem } from '../../storage';
 import { Text, Input, Icon, Line, Colors } from '../components';
 import { HomeCtaButtons, ArticlesSection, ArticlesHeroSection } from '../containers';
@@ -16,7 +16,8 @@ class HomeTab extends Component {
       sections: [],
       hero_articles: [],
       active_threads: [],
-      chat_consultations: []
+      chat_consultations: [],
+      is_wearables_user: false
     }
   }
 
@@ -40,6 +41,7 @@ class HomeTab extends Component {
     this.get_active_chats();
     this.get_active_threads();
     this.get_video_appointments();
+    this.check_and_regsiter_wearables_user();
 
     if (is_signed_in) {
       let articles_res = await UserController.getUserArticles();
@@ -192,6 +194,66 @@ class HomeTab extends Component {
         </View>
       </ImageBackground>
 
+      { /*
+      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let address_data = { address: '12416 Manchester Way, Woodbridge, VA 22192' }
+                          let address_response = await WearablesController.validateAddress(address_data);
+                          console.log(address_response)
+                        }}>
+        <Text>Address Validation</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let feeding_preferences = await WearablesController.getAllFeedingPreferences();
+                          console.log(feeding_preferences)
+                        }}>
+        <Text>Feeding Preferences</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let species = await WearablesController.getAllSpecies();
+                          console.log(species)
+                        }}>
+        <Text>Species</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let breeds = await WearablesController.getAllDogBreeds();
+                          console.log(breeds)
+                        }}>
+        <Text>Dog Breeds</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let breeds = await WearablesController.getAllCatBreeds();
+                          console.log(breeds)
+                        }}>
+        <Text>Cat Breeds</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let food_brands = await WearablesController.getDogFoodBrands();
+                          console.log(food_brands)
+                        }}>
+        <Text>Dog Food Brands</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let food_brands = await WearablesController.getCatFoodBrands();
+                          console.log(food_brands)
+                        }}>
+        <Text>Cat Food Brands</Text>
+      </TouchableOpacity>
+
+*/ }
+
       { this.render_active_chats()     }
       { this.render_active_threads()   }
       { this.render_hero_articles()    }
@@ -251,6 +313,21 @@ class HomeTab extends Component {
     let sender_id = message && message.from ? message.from : '';
     let show_dot  = user_id && sender_id && user_id !== sender_id;
     return show_dot;
+  }
+
+  check_and_regsiter_wearables_user = async () => {
+    let user              = await AuthController.getUser(true);
+    let wearables_user_id = user && user.wearables_user_id || '';
+
+    if (!wearables_user_id) {
+      let register_response = await WearablesController.registerNewUser();
+      let updated_user      = await AuthController.getUser(true);
+      if (updated_user && updated_user.wearables_user_id) {
+        this.setState({ is_wearables_user: true });
+      }
+    } else {
+      this.setState({ is_wearables_user: true });
+    }
   }
 
 }
