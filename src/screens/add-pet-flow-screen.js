@@ -1,11 +1,11 @@
 import { Component }   from "react";
 import LottieView      from 'lottie-react-native';
-import { StringUtils } from '../utils';
+import { StringUtils, PetUtils } from '../utils';
 import { Picker      } from '@react-native-picker/picker';
 import { StyleSheet, View, TouchableOpacity, Platform, FlatList, Dimensions } from 'react-native';
 import { Screen, Line, Text, Icon, Button, Input, Checkbox, Colors } from '../components';
 import { setItem, getItem } from '../../storage';
-import { PetsController }   from '../controllers';
+import { PetsController, WearablesController } from '../controllers';
 
 class AddPetFlowScreen extends Component {
 
@@ -17,6 +17,7 @@ class AddPetFlowScreen extends Component {
       pet_type: '',
       pet_gender: '',
       pet_breed: '',
+      pet_weight: 0,
       pet_age_years: 0,
       pet_age_months: 0,
       pet_is_spayed: '',
@@ -29,13 +30,20 @@ class AddPetFlowScreen extends Component {
       pet_food_notes: '',
       health_issues: [],
       has_medications: false,
+      pet_breed_input: '',
       medication_name: '',
       medications: [],
       pounce_animation_started: false,
       dog_conclusion_animation_started: false,
       cat_midway_animation_started: false,
       cat_conclusion_animation_started: false,
+      dog_breeds: [],
+      cat_breeds: [],
+      dog_food_brands: [],
+      cat_food_brands: [],
       pet_food_suggestions: [],
+      feeding_preferences: [],
+      selected_feeding_preferences: {},
       pet_food_list: { cat_food_products: [], dog_food_products: [] }
     }
   }
@@ -47,9 +55,15 @@ class AddPetFlowScreen extends Component {
     let user_id         = await getItem('user_id');
     let pet_food_list   = await getItem('pet_food_list');
 
+    // display_section = 'diet';
+
     if(typeof pet_food_list === 'string') {
       pet_food_list = JSON.parse(pet_food_list);
     }
+
+    this.pull_breeds();
+    this.pull_food_brands();
+    this.pull_feeding_preferences();
 
     this.setState({ display_section: display_section, timer_interval: t, pet_food_list: pet_food_list });
   }
@@ -126,24 +140,51 @@ class AddPetFlowScreen extends Component {
     </View>
   }
 
-  render_pet_gender = () => {
-    if (!this.state.pet_type) {
+  render_pet_spayed_neutered = () => {
+    if (!this.state.pet_gender) {
       return null;
     }
 
+    let is_male   = this.state.pet_gender === 'MALE';
+    let is_female = this.state.pet_gender === 'FEMALE';
+    let pet_name  = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
+    let spayed_neutered_title = is_male ? 'Is ' + pet_name +' Neutered?' : 'Is ' + pet_name + ' Spayed?';
+
+    return <View style={{ marginTop: 15 }}>
+      <Text style={[styles.section_title, { alignSelf: 'center' }]}>{ spayed_neutered_title }</Text>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 15 }}>
+        <TouchableOpacity style={ styles.pet_type_button }
+                          onPress={ () => { this.setState({ pet_is_spayed: true, pet_is_neutered: true, display_section: 'pet_breed' }) }}>
+          <View>
+            <Text style={{ fontWeight: 'medium', fontSize: 15, margin: 15 }}>Yes</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={ styles.pet_type_button }
+                          onPress={ () => { this.setState({ pet_is_spayed: false, pet_is_neutered: false, display_section: 'pet_breed' }) }}>
+          <View style={{  }}>
+            <Text style={{ fontWeight: 'medium', fontSize: 15, margin: 15 }}>No</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
+  }
+
+  render_pet_gender = () => {
     return <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-      <TouchableOpacity style={ styles.pet_type_button }
+      <TouchableOpacity style={ this.state.pet_gender === 'MALE' ? styles.selected_pet_type_button : styles.pet_type_button }
                         onPress={ () => {
-                          this.setState({ pet_gender: 'MALE', display_section: 'pet_breed' });
+                          this.setState({ pet_gender: 'MALE' });
                         }}>
         <View>
           <Text style={{ fontWeight: 'medium', fontSize: 15, margin: 20 }}>Male</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={ styles.pet_type_button }
+      <TouchableOpacity style={ this.state.pet_gender === 'FEMALE' ? styles.selected_pet_type_button : styles.pet_type_button }
                         onPress={ () => {
-                          this.setState({ pet_gender: 'FEMALE', display_section: 'pet_breed' });
+                          this.setState({ pet_gender: 'FEMALE' });
                         }}>
         <View style={{  }}>
           <Text style={{ fontWeight: 'medium', fontSize: 15, margin: 20 }}>Female</Text>
@@ -156,7 +197,7 @@ class AddPetFlowScreen extends Component {
     if (this.state.display_section !== 'pet_type') { return null }
 
     return <View style={styles.section_container}>
-      <Text style={styles.section_title}>Select Pet Type</Text>
+      <Text style={[styles.section_title, { alignSelf: 'center' }]}>Select Pet Type</Text>
       <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 15 }}>
         <TouchableOpacity style={ this.state.pet_type === 'Dog' ? styles.selected_pet_type_button : styles.pet_type_button }
                           onPress={ () => {
@@ -182,34 +223,28 @@ class AddPetFlowScreen extends Component {
           </View>
         </TouchableOpacity>
       </View>
+
       { this.render_pet_gender() }
+      { this.render_pet_spayed_neutered() }
+
     </View>
   }
 
   render_breed_suggestions = () => {
-    let breeds = dog_breeds;
-        breeds = this.state.pet_type && this.state.pet_type.toLowerCase() === 'cat' ? cat_breeds : breeds;
+    let breeds = this.state.dog_breeds;
+        breeds = this.state.pet_type && this.state.pet_type.toLowerCase() === 'cat' ? this.state.cat_breeds : breeds;
 
-    let typed_breed = this.state.pet_breed || '';
-    let suggestions = breeds.filter((suggestion) => { return suggestion.toLowerCase().includes(typed_breed.toLowerCase()) })
+    let typed_breed = this.state.pet_breed_input || '';
+    let suggestions = breeds.filter((suggestion) => { return suggestion.breedName.toLowerCase().includes(typed_breed.toLowerCase()) })
 
     let sugg_rows = suggestions.map((breed) => {
       return <View>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.setState({ pet_breed: breed, display_section: 'pet_age' }) }}>
-          <Text style={styles.selection_row_title}>{ breed }</Text>
+          <Text style={styles.selection_row_title}>{ breed.breedName }</Text>
         </TouchableOpacity>
         <Line />
       </View>
     })
-
-    if (sugg_rows.length === 0) {
-      sugg_rows.push(<View>
-        <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.setState({ pet_breed: typed_breed, display_section: 'pet_age' }) }}>
-          <Text style={styles.selection_row_title}>{ typed_breed }</Text>
-        </TouchableOpacity>
-        <Line />
-      </View>)
-    }
 
     return <View>
       { sugg_rows }
@@ -222,10 +257,10 @@ class AddPetFlowScreen extends Component {
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Select Pet Breed</Text>
 
-      <Input value={this.state.pet_breed}
+      <Input value={this.state.pet_breed_input}
              style={{ marginTop: 15 }}
              onChangeText={ (text) => {
-               this.setState({ ...this.state, pet_breed: text });
+               this.setState({ ...this.state, pet_breed_input: text });
              }}/>
 
       <Line style={{ marginTop: 20, marginBottom: 0 }} />
@@ -238,8 +273,26 @@ class AddPetFlowScreen extends Component {
 
     let pet_age_years  = this.state.pet_age_years;
     let pet_age_months = this.state.pet_age_months;
+    let pet_weight     = this.state.pet_weight;
+    let pet_weight_lbs = (Number(pet_weight) * 2.2046).toFixed(1);
+    let labs_str       = pet_weight_lbs + ' lbs';
 
-    return <View style={[ styles.section_container, { marginTop: '35%', alignItems: 'center' } ]}>
+    return <View style={[ styles.section_container, { marginTop: '10%', alignItems: 'center' } ]}>
+      <Text style={styles.section_title}>Enter Pet Weight (in kgs)</Text>
+      <View style={{ height: 30, justifyContent: 'center' }}>
+      { pet_weight ? <Text style={{ fontSize: 16, color: 'grey' }}>{labs_str }</Text> : null }
+      </View>
+      <View style={{ marginBottom: 50, flexDirection: 'column', alignItems: 'center' }}>
+        <View style={{ width: 50 }} />
+        <Input value={this.state.pet_weight}
+               style={{ width: 130, textAlign: 'center', fontSize: 26 }}
+               keyboardType='decimal-pad'
+               placeholder='0.0'
+               onChangeText={ (text) => {
+                 this.setState({ ...this.state, pet_weight: text });
+               }}/>
+        <Text style={{ fontSize: 16, marginTop: 5 }}>kgs</Text>
+      </View>
       <Text style={styles.section_title}>Select Pet Age</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginBottom: 30 }}>
         <TouchableOpacity onPress={ () => { this.setState({ pet_age_years: this.state.pet_age_years > 0 ? this.state.pet_age_years - 1 : 0 }) }}>
@@ -265,7 +318,7 @@ class AddPetFlowScreen extends Component {
           <Icon name='plus-circle'  color={ Colors.PRIMARY } size={30} />
         </TouchableOpacity>
       </View>
-      { this.state.pet_age_years > 0 || this.state.pet_age_months > 0 ? <Button title={ 'Next' } style={{ marginTop: 40 }} onPress={ () => { this.setState({ display_section: 'spayed_neutered' }) }} /> : null }
+      { this.state.pet_weight > 0 && (this.state.pet_age_years > 0 || this.state.pet_age_months > 0) ? <Button title={ 'Next' } style={{ marginTop: 40 }} onPress={ () => { this.setState({ display_section: 'diet' }) }} /> : null }
     </View>
   }
 
@@ -322,14 +375,18 @@ class AddPetFlowScreen extends Component {
   }
 
   render_food_name_suggestions = () => {
-    let food_names  = this.state.pet_food_suggestions;
+    // let food_names  = this.state.pet_food_suggestions;
+    let food_names  = this.state.dog_food_brands;
+        food_names  = this.state.pet_type.toLowerCase() === 'cat' ? this.state.cat_food_brands : food_names;
+
     let typed_food  = this.state.pet_food || '';
-    let suggestions = food_names.filter((suggestion) => { return suggestion.toLowerCase().includes(typed_food.toLowerCase()) })
+    let suggestions = food_names.filter((suggestion) => { return suggestion.companyName.toLowerCase().includes(typed_food.toLowerCase()) })
 
     let food_suggestion_rows = suggestions.map((food_name) => {
       return <View>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.setState({ pet_food: food_name, food_selected: true }) }}>
-          <Text style={styles.selection_row_title}>{ food_name }</Text>
+          <Text style={{ fontSize: 15, marginBottom: 2 }}>{ food_name.brandName   }</Text>
+          { food_name.companyName ? <Text style={[styles.selection_row_title, { color: 'grey' }]}>{ food_name.companyName }</Text> : null }
         </TouchableOpacity>
         <Line />
       </View>
@@ -369,7 +426,9 @@ class AddPetFlowScreen extends Component {
   render_diet_quantity = (display) => {
     if (!display) { return null }
 
-    let food_name  = this.state.pet_food;
+    let food_name    = this.state.pet_food && this.state.pet_food.brandName   ? this.state.pet_food.brandName : '';
+    let company_name = this.state.pet_food && this.state.pet_food.companyName ? this.state.pet_food.companyName : '';
+
     let is_dry     = this.state.pet_food_type === 'dry';
     let is_canned  = this.state.pet_food_type === 'canned';
 
@@ -385,11 +444,32 @@ class AddPetFlowScreen extends Component {
     let three_times = this.state.pet_food_times === 3;
     let four_times  = this.state.pet_food_times === 4;
 
-    let display_next = (is_dry || is_canned) && cups && this.state.pet_food_times && this.state.food_selected;
+    let feeding_preference_rows = this.state.feeding_preferences.map((feeding_pref) => {
+      let preference_option_text = feeding_pref.feedingPreference;
+      let preference_id          = feeding_pref.feedingPreferenceId;
+      let is_selected            = this.state.selected_feeding_preferences[preference_id];
+      return <TouchableOpacity style={{ padding: 18, backgroundColor: is_selected ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12, marginBottom: 5 }}
+                               onPress={ () => {
+                                 let currently_selected = this.state.selected_feeding_preferences;
+                                 let updated_selected   = Object.assign({}, currently_selected);
+                                 if (updated_selected[preference_id]) {
+                                   delete updated_selected[preference_id];
+                                 } else {
+                                   updated_selected[preference_id] = feeding_pref;
+                                 }
+                                 this.setState({ selected_feeding_preferences: updated_selected })
+                               }}>
+                <Text style={{ color: is_selected ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>{ preference_option_text }</Text>
+             </TouchableOpacity>
+    })
+
+    let is_pref_sel  = Object.keys(this.state.selected_feeding_preferences).length > 0;
+    let display_next = (is_dry || is_canned) && cups && is_pref_sel && this.state.food_selected;
 
     return <View>
       <TouchableOpacity onPress={ () => { this.setState({ food_selected: false, pet_food: '' }) }}>
         <Text style={{ fontSize: 16, marginTop: 15 }}>{ food_name }</Text>
+        { company_name ? <Text style={{ fontSize: 16, marginTop: 5, fontWeight: 'medium' }}>{ company_name }</Text> : null }
         <Text style={{ fontSize: 16, color: Colors.PRIMARY, marginTop: 15 }}>Change Food</Text>
       </TouchableOpacity>
       <Line style={{ marginTop: 20, marginBottom: 20 }} />
@@ -433,29 +513,19 @@ class AddPetFlowScreen extends Component {
       </View> : null }
 
       { this.state.pet_food_cups > 0 ? <View>
-        <Text style={styles.food_quantity_titles}>Times A Day</Text>
-        <View style={{ flexDirection: 'row', marginBottom: 30 }}>
-          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: one_time ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 1 }) }}><Text style={{ color: one_time ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>1</Text></TouchableOpacity>
-          <View style={{ width: 5 }} />
-          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: two_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 2 }) }}><Text style={{ color: two_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>2</Text></TouchableOpacity>
-          <View style={{ width: 5 }} />
-          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: three_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 3 }) }}><Text style={{ color: three_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>3</Text></TouchableOpacity>
-          <View style={{ width: 5 }} />
-          <TouchableOpacity style={{ flex: 1, padding: 12, backgroundColor: four_times ? Colors.PRIMARY : '#e7e7e7', alignItems: 'center', justifyContent: 'center', borderRadius: 12 }} onPress={ () => { this.setState({ pet_food_times: 4 }) }}><Text style={{ color: four_times ? 'white' : '#4c4c4c', fontSize: 15, fontWeight: 'semibold' }}>4</Text></TouchableOpacity>
+        <Text style={styles.food_quantity_titles}>Feeding Preferences</Text>
+        <View style={{ marginBottom: 30 }}>
+          { feeding_preference_rows }
         </View>
       </View> : null }
 
-      { display_next ? <View>
-        <Text style={styles.food_quantity_titles}>Notes</Text>
-        <Input value={this.state.pet_food_notes}
-               style={{  }}
-               onChangeText={ (text) => {
-                 this.setState({ ...this.state, pet_food_notes: text });
-               }}/>
+      { display_next ? <View style={{ height: 100 }}>
         <Button title={ 'Next' }
-                style={{ marginTop: 20 }}
-                onPress={ () => { this.setState({ display_section: 'health_issues' }) }} />
-        </View> : null }
+                style={{ marginTop: 0 }}
+                onPress={ () => {
+                  this.process_add_pet();
+                }} />
+        </View> : <View style={{ height: 100 }}></View> }
     </View>
   }
 
@@ -629,7 +699,7 @@ class AddPetFlowScreen extends Component {
         new_display_section = current_display_section === 'pet_age'   ? 'pet_breed' : new_display_section;
         new_display_section = current_display_section === 'spayed_neutered' ? 'pet_age'           : new_display_section;
         new_display_section = current_display_section === 'greeting_one'    ? 'spayed_neutered'   : new_display_section;
-        new_display_section = current_display_section === 'diet'            ? 'greeting_one'      : new_display_section;
+        new_display_section = current_display_section === 'diet'            ? 'pet_age'           : new_display_section;
         new_display_section = current_display_section === 'health_issues'   ? 'diet'              : new_display_section;
         new_display_section = current_display_section === 'medications'     ? 'health_issues'     : new_display_section;
 
@@ -640,12 +710,112 @@ class AddPetFlowScreen extends Component {
     }
   }
 
+  calculate_birthday = () => {
+    let years  = this.state.pet_age_years;
+    let months = this.state.pet_age_months;
+
+    let current_date = new Date();
+    let birth_year   = current_date.getFullYear() - years;
+    let birth_month  = current_date.getMonth() - months;
+
+    while (birth_month < 0) {
+        birth_month += 12;
+        birth_year--;
+    }
+
+    let birthday           = new Date(birth_year, birth_month, 1);
+    let formatted_birthday = birthday.getFullYear() + "-" +
+                            ('0' + (birthday.getMonth() + 1)).slice(-2) + "-" +
+                            ('0' + birthday.getDate()).slice(-2);
+
+    let teletails_birthday = ('0' + (birthday.getMonth() + 1)).slice(-2) + '/1/' + birthday.getFullYear();
+
+    return { wearables_birthday: formatted_birthday, teletails_birthday: teletails_birthday };
+  }
+
   process_add_pet = async () => {
-    
-    let pet_id        = '';
-    let health_issues = this.state.health_issues || [];
-    let medications   = this.state.medications   || [];
-    let skip_health   = health_issues.length === 0 && medications.length === 0;
+
+    let user                   = await getItem('user');
+    let wearables_user_profile = await getItem('wearables_user_profile');
+    let pet_parent_id          = wearables_user_profile && wearables_user_profile.petParentId ? wearables_user_profile.petParentId : '';
+    let wearables_user_id      = wearables_user_profile && wearables_user_profile.userId      ? wearables_user_profile.userId      : '';
+
+    let food_brand_id      = this.state.pet_food.brandId;
+    let food_intake_amount = this.state.pet_food_cups;
+    let cleaned_gender     = StringUtils.sentenceCase(this.state.pet_gender.toLowerCase());
+    let birthday_string    = this.calculate_birthday().wearables_birthday;
+    let breed_id           = this.state.pet_breed.breedId;
+    let is_neutered        = this.state.pet_is_neutered || this.state.pet_is_spayed ? 'true' : 'false';
+
+    let feeding_preferences = Object.keys(this.state.selected_feeding_preferences);
+
+    let pet_parent_info = {
+      PetParentID: pet_parent_id,
+      FirstName: wearables_user_profile.firstName,
+      LastName: wearables_user_profile.lastName,
+      Phone: wearables_user_profile.phoneNumber,
+      Email: wearables_user_profile.email
+    };
+
+    let pet_details = {
+      About: {
+        brandId: food_brand_id,
+        foodIntake: food_intake_amount,
+        feedUnit: 1,
+        PetAddress: wearables_user_profile.address,
+        IsPetWithPetParent: 1,
+        PetID: "",
+        PetName: this.state.pet_name,
+        PetGender: cleaned_gender,
+        IsUnknown: "false",
+        PetBirthday: birthday_string,
+        PetBreedID: breed_id.toString(),
+        IsMixed: "false",
+        PetMixBreed: "",
+        PetWeight: this.state.pet_weight,
+        WeightUnit: "1",
+        PetBFI: "",
+        IsNeutered: is_neutered,
+      },
+      PetParentInfo: pet_parent_info
+    }
+
+    let pet_unique_response = await WearablesController.checkPetUnique({ pet_details: pet_details });
+    let is_pet_unique       = pet_unique_response.success;
+
+    if (!is_pet_unique) {
+      this.setState({ error_add_pet: 'A pet with these details is already linked to your account.' })
+      return;
+    }
+
+    let teletails_pet_details = {
+      name: this.state.pet_name,
+      birthday: this.calculate_birthday().teletails_birthday,
+      breed: this.state.pet_breed.breedName,
+      gender: this.state.pet_gender,
+      spayed: this.state.pet_is_spayed === true ? true : false,
+      neutered: this.state.pet_is_neutered === true ? true : false,
+      type: this.state.pet_type,
+      weight: this.state.pet_weight
+    }
+
+    let feeding_preferences_details = {
+      userId: wearables_user_id,
+      petFeedingPreferences: feeding_preferences
+    }
+
+    let add_pet_response = await WearablesController.addNewPet({ pet_details: pet_details, teletails_pet_details: teletails_pet_details, feeding_preferences: feeding_preferences_details });
+
+   /*
+   {
+     success: true,
+     data: {
+       PetId: 7855,
+       PetParentId: '5763',
+       Key: true,
+       responseCode: 'SUCCESS'
+     }
+    }
 
     let pet_request_data = {
       name: this.state.pet_name,
@@ -658,14 +828,7 @@ class AddPetFlowScreen extends Component {
       neutered: this.state.pet_is_neutered === true ? true : false
     }
 
-    let pet_add_response = await PetsController.addPet(pet_request_data);
-
-    if (pet_add_response.success) {
-      let pet = pet_add_response.data && pet_add_response.data.pet ? pet_add_response.data.pet : {};
-      pet_id  = pet._id || '';
-    } else {
-      console.log("Pet Create error");
-    }
+    let pet_id = '';
 
     if (pet_id) {
       let pet_diet_request_data = {
@@ -678,17 +841,9 @@ class AddPetFlowScreen extends Component {
       }
       let diet_create_res = await PetsController.createPetDiet(pet_diet_request_data);
     }
+   */
 
-    if (pet_id && !skip_health) {
-      let pet_health_request_data = {
-        patient_id: pet_id,
-        health_issues: this.state.health_issues,
-        medications: this.state.medications
-      }
-      let health_save_res = await PetsController.createUpdateHealthEntry(pet_health_request_data);
-    }
-
-   this.setState({ display_section: 'conclusion' })
+   // this.setState({ display_section: 'conclusion' })
   }
 
   diet_search_action = (search_text) => {
@@ -717,6 +872,51 @@ class AddPetFlowScreen extends Component {
     search_results.sort((a,b) => { return a < b ? -1 : 1 });
 
     return search_results;
+  }
+
+  pull_breeds = async () => {
+    let dog_breed_res = await WearablesController.getAllDogBreeds();
+    let cat_breed_res = await WearablesController.getAllCatBreeds();
+
+    let default_dog_breeds = PetUtils.getDogBreeds();
+    let default_cat_breeds = PetUtils.getCatBreeds();
+
+    let dog_breeds = dog_breed_res && dog_breed_res.data && dog_breed_res.data.breeds ? dog_breed_res.data.breeds : default_dog_breeds;
+    let cat_breeds = cat_breed_res && cat_breed_res.data && cat_breed_res.data.breeds ? cat_breed_res.data.breeds : default_cat_breeds;
+
+    this.setState({ dog_breeds: dog_breeds, cat_breeds: cat_breeds });
+  }
+
+  pull_food_brands = async () => {
+    let dog_food_res = await WearablesController.getDogFoodBrands();
+    let cat_food_res = await WearablesController.getCatFoodBrands();
+
+    let default_dog_brands = PetUtils.getDogFoodBrands();
+    let default_cat_brands = PetUtils.getCatFoodBrands();
+
+    let dog_food_brands = dog_food_res && dog_food_res.data && dog_food_res.data.food_brands ? dog_food_res.data.food_brands : default_dog_brands;
+    let cat_food_brands = cat_food_res && cat_food_res.data && cat_food_res.data.food_brands ? cat_food_res.data.food_brands : default_cat_brands;
+
+    dog_food_brands.sort(function(a, b) {
+        var textA = a.companyName.toUpperCase();
+        var textB = b.companyName.toUpperCase();
+        return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+
+    cat_food_brands.sort(function(a, b) {
+        var textA = a.companyName.toUpperCase();
+        var textB = b.companyName.toUpperCase();
+        return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+
+    this.setState({ dog_food_brands: dog_food_brands, cat_food_brands: cat_food_brands });
+  }
+
+  pull_feeding_preferences = async () => {
+    let feed_pref_res               = await WearablesController.getAllFeedingPreferences();
+    let default_feeding_preferences = PetUtils.getAllFeedingPreferences();
+    let feed_pref                   = feed_pref_res && feed_pref_res.data && feed_pref_res.data.feeding_preferences ? feed_pref_res.data.feeding_preferences : default_feeding_preferences;
+    this.setState({ feeding_preferences: feed_pref });
   }
 
 }

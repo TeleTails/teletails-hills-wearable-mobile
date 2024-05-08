@@ -197,6 +197,79 @@ class HomeTab extends Component {
       { /*
       <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
                         onPress={ async () => {
+                          let user_profile_response = await WearablesController.getUserPets({});
+                          console.log(user_profile_response)
+                        }}>
+        <Text>Get User Pets</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let user_profile_response = await WearablesController.getUserProfile({});
+
+                          console.log(user_profile_response)
+                          console.log(user_profile_response.data.wearables_user_profile.address)
+                        }}>
+        <Text>User Profile</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let user                   = await getItem('user');
+                          let wearables_user_profile = await getItem('wearables_user_profile');
+                          let pet_parent_id   = user && user.wearables_data && user.wearables_data.pet_parent_id ? user.wearables_data.pet_parent_id : '';
+                          let pet_address     = wearables_user_profile && wearables_user_profile.address;
+
+                          let pet_parent_info = {
+                            PetParentID: pet_parent_id,
+                            FirstName: wearables_user_profile.firstName,
+                            LastName: wearables_user_profile.lastName,
+                            Phone: wearables_user_profile.phoneNumber,
+                            Email: wearables_user_profile.email
+                          };
+
+                          let pet_details = {
+                            About: {
+                              brandId: 117,
+                              foodIntake: 4,
+                              feedUnit: 1,
+                              PetAddress: wearables_user_profile.address,
+                              IsPetWithPetParent: 1,
+                              PetID: "",
+                              PetName: "Kenny",
+                              PetGender: "Female",
+                              IsUnknown: "false",
+                              PetBirthday: "2022-01-22",
+                              PetBreedID: "4",
+                              IsMixed: "false",
+                              PetMixBreed: "",
+                              PetWeight: "80",
+                              WeightUnit: "1",
+                              PetBFI: "",
+                              IsNeutered: "false",
+                            },
+                            PetParentInfo: pet_parent_info
+                          }
+
+                          let add_pet_response = await WearablesController.addNewPet({ pet_details: pet_details });
+
+                          console.log(add_pet_response)
+                        }}>
+        <Text>Add New Pet</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let food_brands = await WearablesController.getDogFoodBrands();
+                          console.log(food_brands.data)
+                        }}>
+        <Text>Dog Food Brands</Text>
+      </TouchableOpacity>
+
+
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
                           let address_data = { address: '12416 Manchester Way, Woodbridge, VA 22192' }
                           let address_response = await WearablesController.validateAddress(address_data);
                           console.log(address_response)
@@ -254,21 +327,21 @@ class HomeTab extends Component {
 
 */ }
 
-      { this.render_active_chats()     }
-      { this.render_active_threads()   }
-      { this.render_hero_articles()    }
-      { this.render_article_sections() }
-
       <View style={{ height: 250, paddingRight: 20, paddingLeft: 20, marginBottom: 15 }}>
         <ImageBackground source={ require('../../assets/images/add-pet-cta.png') } resizeMode="contain" style={{ height: '100%' }} imageStyle={{  }}>
           <Text style={{ marginTop: 80, marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>Add your pet for</Text>
           <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>personalized</Text>
           <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>care</Text>
           <TouchableOpacity style={{ backgroundColor: '#F2F3F6', width: 102, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: 8, marginLeft: 20, marginTop: 20 }} onPress={ () => { this.props.navigation.push('AddPetFlow') }}>
-            <Text style={{ fontSize: 14, fontWeight: 'medium' }}>Add More</Text>
+            <Text style={{ fontSize: 14, fontWeight: 'medium' }}>Add</Text>
           </TouchableOpacity>
         </ImageBackground>
       </View>
+
+      { this.render_active_chats()     }
+      { this.render_active_threads()   }
+      { this.render_hero_articles()    }
+      { this.render_article_sections() }
 
     </View>
   }
@@ -323,11 +396,27 @@ class HomeTab extends Component {
       let register_response = await WearablesController.registerNewUser();
       let updated_user      = await AuthController.getUser(true);
       if (updated_user && updated_user.wearables_user_id) {
+        this.update_wearables_user_profile();
         this.setState({ is_wearables_user: true });
       }
     } else {
+      this.update_wearables_user_profile();
       this.setState({ is_wearables_user: true });
     }
+  }
+
+  update_wearables_user_profile = async () => {
+    let wearables_user_profile = await getItem('wearables_user_profile');
+
+    if (wearables_user_profile) {
+
+    } else {
+      let user_profile_res = await WearablesController.getUserProfile({});
+      let user_profile     = user_profile_res && user_profile_res.data && user_profile_res.data.wearables_user_profile ? user_profile_res.data.wearables_user_profile : null;
+      await setItem('wearables_user_profile', user_profile);
+    }
+
+
   }
 
 }

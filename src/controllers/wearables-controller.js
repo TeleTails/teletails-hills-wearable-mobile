@@ -47,8 +47,33 @@ export default class WearablesController {
     return response;
   });
 
+  static getBfiImagePositions = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/get_bfi_image_positions`, {}, true);
+    return response;
+  });
+
+  static checkPetUnique = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/check_pet_unique`, data, true);
+    return response;
+  });
+
   static registerNewUser = WearablesController.exceptionWrapper(async (data) => {
     let response = await UtilitiesController.post(`/wearables/api/register_wearables_user`, {}, true);
+    return response;
+  });
+
+  static addNewPet = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/add_new_pet`, data, true);
+    return response;
+  });
+
+  static getUserProfile = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/get_user_profile`, {}, true);
+    return response;
+  });
+
+  static getUserPets = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/get_user_pets`, {}, true);
     return response;
   });
 
