@@ -167,7 +167,7 @@ class SignUpSignInScreen extends Component {
 
     if(response && response.success) {
       let user = await AuthController.getUser(true);
-      if(user && user.first_name) {
+      if(user && user.first_name && (user.first_name.toLowerCase() !== 'pet')) {
         this.props.navigation.push('SignInWelcomeScreen')
       } else {
         this.props.navigation.push('SignUpInfoScreen')

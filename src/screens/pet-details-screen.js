@@ -75,12 +75,12 @@ class PetDetailsScreen extends Component {
     return <View style={{ padding: 20 }}>
       <View style={styles.section_title_container}>
         <Text style={styles.section_title}>Bio</Text>
-        <TouchableOpacity style={styles.edit_button}
+        { /* <TouchableOpacity style={styles.edit_button}
                           onPress={ () => {
                             this.props.navigation.push('PetDetailsEdit', { pet_id: this.state.pet_id, type: 'bio', success_action: () => { this.get_pet_bio(this.state.pet_id)  } });
                           }}>
           <Text style={styles.edit_button_title}>Edit</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */ }
       </View>
       <View style={{ padding: 20, backgroundColor: 'white', borderRadius: 12, paddingRight: 20, paddingLeft: 20, paddingBottom: 10, marginTop: 15 }}>
         { this.render_pet_details_label_value('Name',     name)     }
@@ -232,9 +232,9 @@ class PetDetailsScreen extends Component {
     let pet_name = this.state ? StringUtils.displayName(this.state) : 'Pet Info';
     return <Screen title={ pet_name } scroll={true} navigation={this.props.navigation} style={{ backgroundColor: Colors.BACKGROUND_GREY }}>
       { this.render_pet_details()       }
-      { this.render_pet_diet()          }
-      { this.render_pet_health_issues() }
-      { this.render_pet_medications()   }
+      { /* this.render_pet_diet()          */ }
+      { /* this.render_pet_health_issues() */ }
+      { /* this.render_pet_medications()   */ }
     </Screen>
   }
 
