@@ -1,7 +1,7 @@
 import { Component }   from "react";
 import LottieView      from 'lottie-react-native';
 import { StringUtils } from '../utils';
-import { StyleSheet, View, TouchableOpacity }       from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ImageBackground } from 'react-native';
 import { Screen, Line, Text, Icon, Button, Colors } from '../components';
 import { setItem, getItem } from '../../storage';
 import { PetsController }   from '../controllers';
@@ -68,17 +68,26 @@ class PetsScreen extends Component {
      let no_pets_message = pet_rows && pet_rows.length === 0 ? true : false;
      let is_mobile       = Platform.OS === 'ios' || Platform.OS === 'android' ? true : false;
 
+     no_pets_message = true;
+
      return <View style={{ marginBottom: 10 }}>
-      { no_pets_message ? <View style={{ alignItems: 'center' }}>
-                            <LottieView ref={animation => { this.cat_animation = animation }} style={{ width: 140, height: 140 }} source={require('../../assets/animations/cat-tail-wag.json')} />
-                            <Text style={{ fontSize: 18, fontWeight: '500', textAlign: 'center', color: '#040415', paddingTop: 2 }}>{ 'No pets added' }</Text>
-                            <Text style={{ fontSize: 16, textAlign: 'center', color: '#575762', paddingBottom: 20 }}>{ "Let's add your first pet" }</Text>
+      { no_pets_message ? <View style={{ height: 250, marginBottom: 15 }}>
+                            <ImageBackground source={ require('../../assets/images/add-pet-cta.png') } resizeMode="contain" style={{ height: '100%' }} imageStyle={{  }}>
+                              <Text style={{ marginTop: 80, marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>Add your pet for</Text>
+                              <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>personalized</Text>
+                              <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>care</Text>
+                              <TouchableOpacity style={{ backgroundColor: '#F2F3F6', width: 102, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: 8, marginLeft: 20, marginTop: 20 }} onPress={ () => { this.props.navigation.push('AddPetFlow') }}>
+                                <Text style={{ fontSize: 14, fontWeight: 'medium' }}>Add</Text>
+                              </TouchableOpacity>
+                            </ImageBackground>
                           </View>
                         : pet_rows }
      </View>
   }
 
   render_add_pet_button = () => {
+    return null;
+
     return <View style={{ marginTop: 5 }}>
       <TouchableOpacity onPress={ () => { this.props.navigation.push('PetDetailsEdit', { type: 'bio', add_new: true, success_action: () => { this.pull_pets() }}) }} style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Icon name='plus-circle' color={ Colors.PRIMARY } />

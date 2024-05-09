@@ -55,8 +55,6 @@ class AddPetFlowScreen extends Component {
     let user_id         = await getItem('user_id');
     let pet_food_list   = await getItem('pet_food_list');
 
-    // display_section = 'diet';
-
     if(typeof pet_food_list === 'string') {
       pet_food_list = JSON.parse(pet_food_list);
     }
@@ -124,7 +122,7 @@ class AddPetFlowScreen extends Component {
     if (this.state.display_section !== 'pet_name') { return null }
 
     return <View style={styles.section_container}>
-      <Text style={styles.section_title}>Enter Pet Name</Text>
+      <Text style={styles.section_title}>What's your pet's name?</Text>
       <Input value={this.state.pet_name}
              style={{ marginTop: 15 }}
              onChangeText={ (text) => {
@@ -148,7 +146,7 @@ class AddPetFlowScreen extends Component {
     let is_male   = this.state.pet_gender === 'MALE';
     let is_female = this.state.pet_gender === 'FEMALE';
     let pet_name  = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
-    let spayed_neutered_title = is_male ? 'Is ' + pet_name +' Neutered?' : 'Is ' + pet_name + ' Spayed?';
+    let spayed_neutered_title = is_male ? 'Is ' + pet_name +' neutered?' : 'Is ' + pet_name + ' spayed?';
 
     return <View style={{ marginTop: 15 }}>
       <Text style={[styles.section_title, { alignSelf: 'center' }]}>{ spayed_neutered_title }</Text>
@@ -276,9 +274,10 @@ class AddPetFlowScreen extends Component {
     let pet_weight     = this.state.pet_weight;
     let pet_weight_lbs = (Number(pet_weight) * 2.2046).toFixed(1);
     let labs_str       = pet_weight_lbs + ' lbs';
+    let pet_name       = StringUtils.sentenceCase(this.state.pet_name.toLowerCase());
 
     return <View style={[ styles.section_container, { marginTop: '10%', alignItems: 'center' } ]}>
-      <Text style={styles.section_title}>Enter Pet Weight (in kgs)</Text>
+      <Text style={styles.section_title}>{ 'How much does ' + pet_name + ' weigh? (in kgs)'}</Text>
       <View style={{ height: 30, justifyContent: 'center' }}>
       { pet_weight ? <Text style={{ fontSize: 16, color: 'grey' }}>{labs_str }</Text> : null }
       </View>
@@ -293,7 +292,7 @@ class AddPetFlowScreen extends Component {
                }}/>
         <Text style={{ fontSize: 16, marginTop: 5 }}>kgs</Text>
       </View>
-      <Text style={styles.section_title}>Select Pet Age</Text>
+      <Text style={styles.section_title}>{ 'How old is ' + pet_name + '?' }</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginBottom: 30 }}>
         <TouchableOpacity onPress={ () => { this.setState({ pet_age_years: this.state.pet_age_years > 0 ? this.state.pet_age_years - 1 : 0 }) }}>
           <Icon name='minus-circle' color={ Colors.PRIMARY } size={28} />
@@ -520,6 +519,7 @@ class AddPetFlowScreen extends Component {
       </View> : null }
 
       { display_next ? <View style={{ height: 100 }}>
+        <Text style={{ color: Colors.RED, fontSize: 16, textAlign: 'center' }}>{ this.state.error_add_pet }</Text>
         <Button title={ 'Next' }
                 style={{ marginTop: 0 }}
                 onPress={ () => {
@@ -669,7 +669,7 @@ class AddPetFlowScreen extends Component {
         <Button title={ 'Back To Home' }
                 style={{ marginTop: 20 }}
                 onPress={ () => {
-                  this.props.navigation.pop();
+                  this.props.navigation.navigate('Home');
                 }} />
       </View>
     </View>
@@ -703,8 +703,10 @@ class AddPetFlowScreen extends Component {
         new_display_section = current_display_section === 'health_issues'   ? 'diet'              : new_display_section;
         new_display_section = current_display_section === 'medications'     ? 'health_issues'     : new_display_section;
 
-    if (current_display_section === 'pet_name' || current_display_section === 'conclusion') {
+    if (current_display_section === 'pet_name') {
       this.props.navigation.pop();
+    } else if (current_display_section === 'conclusion') {
+      this.props.navigation.navigate('Home');
     } else {
       this.setState({ display_section: new_display_section, started_animation: false })
     }
@@ -734,6 +736,7 @@ class AddPetFlowScreen extends Component {
   }
 
   process_add_pet = async () => {
+    this.setState({ error_add_pet: '', loading_add_pet: true });
 
     let user                   = await getItem('user');
     let wearables_user_profile = await getItem('wearables_user_profile');
@@ -784,7 +787,7 @@ class AddPetFlowScreen extends Component {
     let is_pet_unique       = pet_unique_response.success;
 
     if (!is_pet_unique) {
-      this.setState({ error_add_pet: 'A pet with these details is already linked to your account.' })
+      this.setState({ error_add_pet: 'A pet with these details is already linked to your account.', loading_add_pet: false });
       return;
     }
 
@@ -805,45 +808,13 @@ class AddPetFlowScreen extends Component {
     }
 
     let add_pet_response = await WearablesController.addNewPet({ pet_details: pet_details, teletails_pet_details: teletails_pet_details, feeding_preferences: feeding_preferences_details });
+    let is_add_success   = add_pet_response && add_pet_response.success && add_pet_response.data.wearables_pet_success;
 
-   /*
-   {
-     success: true,
-     data: {
-       PetId: 7855,
-       PetParentId: '5763',
-       Key: true,
-       responseCode: 'SUCCESS'
-     }
+    if (is_add_success) {
+       this.setState({ error_add_pet: '', display_section: 'conclusion', loading_add_pet: false });
+    } else {
+       this.setState({ error_add_pet: 'Error adding a pet.', loading_add_pet: false })
     }
-
-    let pet_request_data = {
-      name: this.state.pet_name,
-      type: this.state.pet_type,
-      gender: this.state.pet_gender,
-      breed: this.state.pet_breed,
-      age_num_years: this.state.pet_age_years,
-      age_num_months: this.state.pet_age_months,
-      spayed: this.state.pet_is_spayed === true ? true : false,
-      neutered: this.state.pet_is_neutered === true ? true : false
-    }
-
-    let pet_id = '';
-
-    if (pet_id) {
-      let pet_diet_request_data = {
-        patient_id: pet_id,
-        food_name: this.state.pet_food,
-        food_type: this.state.pet_food_type,
-        food_quantity_cups: this.state.pet_food_cups,
-        food_times_a_day: this.state.pet_food_times,
-        food_notes: this.state.pet_food_notes
-      }
-      let diet_create_res = await PetsController.createPetDiet(pet_diet_request_data);
-    }
-   */
-
-   // this.setState({ display_section: 'conclusion' })
   }
 
   diet_search_action = (search_text) => {

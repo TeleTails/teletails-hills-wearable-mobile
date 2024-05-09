@@ -77,7 +77,10 @@ class ConsultationStartScreen extends Component {
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Select a pet</Text>
       { pet_rows }
-      <TouchableOpacity onPress={ () => { this.props.navigation.push('PetDetailsEdit', { type: 'bio', add_new: true, success_action: () => { this.pull_pets() }}) }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+      <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}
+                        onPress={ () => {
+                          this.props.navigation.push('AddPetFlow');
+                        }}>
         <Icon name='plus-circle' color={Colors.PRIMARY} />
         <View style={{ marginLeft: 15 }}>
           <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#535353' }}>{ 'Add A New Pet' }</Text>
