@@ -195,10 +195,41 @@ class HomeTab extends Component {
       </ImageBackground>
 
       { /*
+
       <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
                         onPress={ async () => {
-                          let user_profile_response = await WearablesController.getUserPets({});
-                          console.log(user_profile_response)
+                          let wearables_user_profile = await getItem('wearables_user_profile');
+                          let pet_id = '7855';
+                          let wearables_user_id = wearables_user_profile.userId;
+
+                          let request_data = {
+                            "petWeightId": 0,
+                            "petId": pet_id,
+                            "userId": wearables_user_id,
+                            "weight": 44,
+                            "weightUnit": "kg",
+                            "addDate": "2024-05-09"
+                          }
+                          let add_weight_response = await WearablesController.addPetWeight({ pet_weight_data: request_data });
+
+                        }}>
+        <Text>Get User Pets</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let user_id            = await getItem('user_id');
+                          let request_data       = { user_id: user_id, wearables_pet_id: '7855' };
+                          let user_pets_response = await WearablesController.getWearablesPet(request_data);
+                          let pet = user_pets_response.data.pet;
+                        }}>
+        <Text>Get User Pets</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                        onPress={ async () => {
+                          let user_pets_response = await WearablesController.getUserPets({});
+                          let pets = user_pets_response.data.pets;
                         }}>
         <Text>Get User Pets</Text>
       </TouchableOpacity>

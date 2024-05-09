@@ -77,4 +77,14 @@ export default class WearablesController {
     return response;
   });
 
+  static getWearablesPet = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/get_wearables_pet`, data, true);
+    return response;
+  });
+
+  static addPetWeight = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/add_pet_weight`, data, true);
+    return response;
+  });
+
 }
