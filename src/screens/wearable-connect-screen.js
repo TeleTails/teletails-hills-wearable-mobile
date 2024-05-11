@@ -9,7 +9,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import BleManager from 'react-native-ble-manager';
 import { Picker }      from '@react-native-picker/picker';
 import { stringToBytes, bytesToString } from "convert-string";
-import { PetsController } from "../controllers";
+import { PetsController, WearablesController } from "../controllers";
 import { StringUtils }       from '../utils';
 
 
@@ -46,9 +46,9 @@ class WearableConnectScreen extends Component {
 
   async componentDidMount() {
 
-    let pets_response = await PetsController.getPets();
-    let is_success    = pets_response && pets_response.success;
-    let pets          = is_success && pets_response.data && pets_response.data.pets ? pets_response.data.pets : [];
+    let user_pets_response = await WearablesController.getUserPets({});
+    let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
+
     this.setState({ pets: pets });
 
     console.log('Platform', Platform)
@@ -246,7 +246,7 @@ class WearableConnectScreen extends Component {
       console.log('connecting')
       await this.checkConnectionConnect(peripheral_id);
       console.log('connected')
-  
+
       await this.retrieveServices(peripheral_id);
 
       // write to get num of wifi
@@ -292,7 +292,7 @@ class WearableConnectScreen extends Component {
         this.setState({retrievingWifi: false})
       }
     })
-    
+
   }
 
   async forceSync() {
@@ -317,7 +317,7 @@ class WearableConnectScreen extends Component {
     let ssid = stringToBytes(wifi_name);
 
     console.log('----------- write wifi name ---------')
-    let result = await this.write(peripheral_id, WIFI_SERVICE,WIFI_SSID_CHAR,ssid); 
+    let result = await this.write(peripheral_id, WIFI_SERVICE,WIFI_SSID_CHAR,ssid);
     console.log('result name', result)
 
     console.log('----------- write wifi password ---------')
@@ -386,7 +386,7 @@ class WearableConnectScreen extends Component {
     let pets = this.state.pets || [];
 
     let pet_rows = pets.map((pet) => {
-      let pet_name = StringUtils.displayName(pet);
+      let pet_name = pet.petName;
       return <View key={pet._id}>
         <TouchableOpacity style={styles.selection_row_container} onPress={ () => { this.pet_selection_action(pet) }}>
           <Text style={styles.selection_row_title}>{ pet_name }</Text>
@@ -398,7 +398,10 @@ class WearableConnectScreen extends Component {
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Select a pet</Text>
       { pet_rows }
-      <TouchableOpacity onPress={ () => { this.props.navigation.push('PetDetailsEdit', { type: 'bio', add_new: true, success_action: () => { this.pull_pets() }}) }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+      <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}
+                        onPress={ () => {
+                          this.props.navigation.push('AddPetFlow');
+                        }}>
         <Icon name='plus-circle' color={Colors.PRIMARY} />
         <View style={{ marginLeft: 15 }}>
           <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#535353' }}>{ 'Add A New Pet' }</Text>
@@ -459,10 +462,8 @@ class WearableConnectScreen extends Component {
                 this.setState({ deviceType })
               }}>
                 {device_types.map(type=><Picker.Item key={type.value} label={type.name} value={type.value} />)}
-                
+
             </Picker>
-
-
 
               <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{this.setState({screen: 2, pet_setup: false})}}><Text style={{ color: 'white' }}>Continue</Text></TouchableOpacity>
             </View>
@@ -482,7 +483,7 @@ class WearableConnectScreen extends Component {
 
 
         <View>
-          {screen === 3 ? 
+          {screen === 3 ?
           <View>
             {connection_error ? <View>
               <Text>Connection error: Please shake the device and try connecting again</Text>
