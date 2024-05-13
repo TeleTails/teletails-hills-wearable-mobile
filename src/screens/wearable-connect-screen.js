@@ -24,7 +24,20 @@ class WearableConnectScreen extends Component {
 
     this.state = {
       screen: 0,
-      peripherals: []
+      peripherals: [],
+      device_types: [{ name: 'AGL2', value: 'Sensor###AGL2' }, { name: 'AGL3', value: 'Sensor###AGL3' }, { name: 'HPN1', value: 'Sensor###HPN1' }],
+      error_codes: [
+        "Sync Successful!",
+        "No SSID, Wifi connection was not attempted",
+        "Invalid Wi-Fi Network Name (SSID) or Password. Please check and try again.",
+        "Invalid Wi-Fi Network Name (SSID). Please check and try again",
+        "Invalid Password. Please check and try again. ",
+        "Timed Out Access Point Connection Attempt, failed Wifi access point connection",
+        "Failed Rudp server connection",
+        "Wifi connection aborted due to low bandwidth between Sensor and Rudp server.",
+        "Wifi connection aborted due to Sensor low battery condition detected during Rudp upload.",
+        "Remote server error, please try again."
+      ]
     }
 
     this.peripherals = []
@@ -50,6 +63,8 @@ class WearableConnectScreen extends Component {
 
     let user_pets_response = await WearablesController.getUserPets({});
     let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
+
+    console.log('user_pets_response', user_pets_response.data.pets)
 
     this.setState({ pets: pets });
 
@@ -239,7 +254,7 @@ class WearableConnectScreen extends Component {
   connectPeripheral(connected_peripheral) {
     this.setState({
       connected_peripheral,
-      screen: 3,
+      screen: 4,
       connection_error: false,
       retrievingWifi: true
     }, async ()=>{
@@ -298,7 +313,7 @@ class WearableConnectScreen extends Component {
   }
 
   async forceSync() {
-    let { wifi_name, password, connected_peripheral } = this.state;
+    let { wifi_name, password, connected_peripheral, is_update, oldDeviceNumber } = this.state;
 
     this.setState({syncing: true, eventLogType: null})
 
@@ -337,11 +352,11 @@ class WearableConnectScreen extends Component {
     await this.write(peripheral_id, "A172D0D1-A5B8-11E5-A837-0800200C9A66","A172F7E0-A5B8-11E5-A837-0800200C9A66",url);
 
 
-    let interval = setTimeout(()=>{
+    /* let interval = setTimeout(()=>{
       this.setState({
         connection_error: true
       })
-    }, 10)
+    }, 10) */
 
     let writeVal = [1];
     // sync
@@ -354,15 +369,45 @@ class WearableConnectScreen extends Component {
    const buffer = Buffer.from(raw_event_lot);
    const eventLogType = buffer.readUInt8(0, true);
 
-   console.log('eventLogType', eventLogType);
+   console.log('eventLogType', eventLogType, typeof eventLogType);
 
-    clearTimeout(interval)
+   let { deviceNumber, deviceType, petId } = this.state;
 
-   this.setState({
-    eventLogType,
-    syncing: false
-   })
+   let data = {
+    deviceNumber, deviceType, petId, oldDeviceNumber
+   }
+
+  if(eventLogType) {
+    this.setState({
+      eventLogType,
+      syncing: false
+    })
+  } else {
+    let assign_response;
+
+    console.log('in update or assign', is_update)
+    
+    if(is_update) {
+      assign_response = await WearablesController.updateSensor(data).catch(err=>{console.log('err', err)})
+    } else {
+      assign_response = await WearablesController.assignSensor(data);
+    }
+
+    if(assign_response && assign_response.success) {
+      this.setState({
+        eventLogType,
+        syncing: false
+      })
+    } else {
+      this.setState({
+        eventLogType: 9,
+        syncing: false
+      })
+    }
   }
+
+
+}
 
   selectWifi(wifi_name) {
     console.log('selected', wifi_name)
@@ -378,7 +423,9 @@ class WearableConnectScreen extends Component {
   }
 
   pet_selection_action(pet) {
+    console.log('pet', pet.petID)
     this.setState({
+      petId: pet.petID,
       selected_pet: pet,
       screen: 1
     })
@@ -415,24 +462,29 @@ class WearableConnectScreen extends Component {
 
   async validateSensor() {
 
+    let { deviceNumber, deviceType, device_types } = this.state;
+
+    deviceType = deviceType ? deviceType : device_types[0].value;
+
     let data = {
-      deviceNumer,
-      pet_parent_id
+      deviceNumber
     }
 
-    let res = await WearablesController.validateSensor(data);
+    console.log('data', data)
+
+    let res = await WearablesController.validateSensorNumber(data);
 
     console.log('res', res)
 
     if(res.success) {
-      this.setState({screen: 2, pet_setup: false})
+      this.setState({screen: 3, pet_setup: false})
     } else {
-      this.setState({screen: 2, device_setup_error: "error" })
+      this.setState({screen: 3, device_setup_error: "error" })
     }
   }
 
   render() {
-    let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, pet_setup, connection_error, password, device_setup_error } = this.state;
+    let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, pet_setup, connection_error, password, device_setup_error, device_types, error_codes, selected_pet } = this.state;
 
     let peripherals = this.peripherals;
 
@@ -448,20 +500,6 @@ class WearableConnectScreen extends Component {
 
      */
 
-    let codes = [
-      "Sync Successful!",
-      "No SSID, Wifi connection was not attempted",
-      "Invalid Wi-Fi Network Name (SSID) or Password. Please check and try again.",
-      "Invalid Wi-Fi Network Name (SSID). Please check and try again",
-      "Invalid Password. Please check and try again. ",
-      "Timed Out Access Point Connection Attempt, failed Wifi access point connection",
-      "Failed Rudp server connection",
-      "Wifi connection aborted due to low bandwidth between Sensor and Rudp server.",
-      "Wifi connection aborted due to Sensor low battery condition detected during Rudp upload."
-    ];
-
-    let device_types = [{ name: 'AGL2', value: 'Sensor###AGL2' }, { name: 'AGL3', value: 'Sensor###AGL3' }, { name: 'HPN1', value: 'Sensor###HPN1' }];
-
     return <Screen title='Connect Device' scroll={true} navigation={this.props.navigation}>
       <ScrollView style={{flex: 1}}>
         {screen === 0 ? <View>
@@ -471,6 +509,37 @@ class WearableConnectScreen extends Component {
         {screen === 1 ? <View>
           {pet_setup ? <View></View> : null}
           {!pet_setup ? <View>
+            <Text>{selected_pet.petName}'s Devices</Text>
+            <View>
+              {selected_pet.devices && selected_pet.devices.length ? <>
+              
+                {selected_pet.devices.map(device=>{
+                  console.log('device', device)
+                  return <View><TouchableOpacity><Text>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text></TouchableOpacity>
+                  
+                    <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{
+                      this.setState({
+                        is_update: true,
+                        screen: 2,
+                        deviceNumber: device.deviceNumber,
+                        oldDeviceNumber: device.deviceNumber
+                      })
+                    }}><Text style={{ color: 'white' }}>Update Device</Text></TouchableOpacity>
+                  </View>})}
+
+                  <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{this.setState({screen: 2, is_update: false})}}><Text style={{ color: 'white' }}>Add New Device</Text></TouchableOpacity>
+               
+              </> : <>
+                <Text>{selected_pet.petName} doesn't have any devices set up</Text>
+                <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{this.setState({screen: 2, is_update: false})}}><Text style={{ color: 'white' }}>Setup Device</Text></TouchableOpacity>
+              </>}
+            </View>
+          </View> : null}
+        </View> : null }
+
+        {screen === 2 ? <View>
+          {pet_setup ? <View></View> : null}
+          {!pet_setup ? <View>
             <Text>Setup Pet's Device</Text>
             <View>
               {device_setup_error ? <Text style={{color: 'red'}}>{device_setup_error}</Text> : null}
@@ -478,7 +547,7 @@ class WearableConnectScreen extends Component {
 
               <Picker
               style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
-              selectedValue={this.state.pet_breed}
+              selectedValue={this.state.deviceType}
               onValueChange={ (deviceType) => {
                 this.setState({ deviceType })
               }}>
@@ -491,7 +560,7 @@ class WearableConnectScreen extends Component {
           </View> : null}
         </View> : null }
 
-        {screen === 2 ? <View style={{flexDirection: 'column'}}>
+        {screen === 3 ? <View style={{flexDirection: 'column'}}>
             {isScanning ? <Text>Scanning ...</Text> :
             <TouchableOpacity style={{backgroundColor: 'blue', padding: 20, margin: 40}} onPress={this.startScan}><Text style={{color: 'white'}}>Scan Devices</Text></TouchableOpacity>}
 
@@ -504,7 +573,7 @@ class WearableConnectScreen extends Component {
 
 
         <View>
-          {screen === 3 ?
+          {screen === 4 ?
           <View>
             {connection_error ? <View>
               <Text>Connection error: Please shake the device and try connecting again</Text>
@@ -524,7 +593,7 @@ class WearableConnectScreen extends Component {
                 </View> : null}
               {retrievingWifi && !syncing ? <Text>Retrieving ...</Text> : null}
               {syncing ? <Text style={{color: 'red'}}>Syncing...</Text> : null}
-              {eventLogType || eventLogType === 0 ? <Text style={{color: 'red'}}>Sync result: {codes[eventLogType]}</Text> : null}
+              {eventLogType || eventLogType === 0 ? <Text style={{color: 'red'}}>Sync result: {error_codes[eventLogType]}</Text> : null}
             </View></>}
           </View> :
           null}

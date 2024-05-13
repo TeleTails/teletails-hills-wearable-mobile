@@ -1,10 +1,6 @@
-//import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
+import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
 import { getItem, setItem } from '../../storage';
 import io from 'socket.io-client';
-
-let API_URL="http://localhost:3000/data";
-let CHAT_URL="http://localhost:5000";
-let NOTIF_URL="http://localhost:5000"  ;
 
 let sockets = {};
 
