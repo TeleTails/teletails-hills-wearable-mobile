@@ -40,13 +40,13 @@ export default class UserController {
 
   static getUserArticles = UserController.exceptionWrapper(async (data) => {
     let partner_name = PARTNER_NAME;
-    let response   = await UtilitiesController.get(`/v4/api/user/get_partner_articles/${partner_name}`, data, true);
+    let response   = await UtilitiesController.get(`/v4/api/user/get_partner_articles/hills-wearables`, data, true);
     return response;
   });
 
   static getNewUserArticles = UserController.exceptionWrapper(async (data) => {
     let partner_name = PARTNER_NAME;
-    let response   = await UtilitiesController.get(`/v4/get_new_user_partner_articles/${partner_name}`, data, true);
+    let response   = await UtilitiesController.get(`/v4/get_new_user_partner_articles/hills-wearables`, data, true);
     return response;
   });
 
