@@ -423,6 +423,8 @@ class HomeTab extends Component {
     let user              = await AuthController.getUser(true);
     let wearables_user_id = user && user.wearables_user_id || '';
 
+    console.log('user', user);
+
     if (!wearables_user_id) {
       let register_response = await WearablesController.registerNewUser();
       let updated_user      = await AuthController.getUser(true);

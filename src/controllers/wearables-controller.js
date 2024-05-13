@@ -17,6 +17,11 @@ export default class WearablesController {
     return response;
   });
 
+  static validateSensorNumber = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/validate_sensor_nuber`, data, true);
+    return response;
+  });
+
   static getAllFeedingPreferences = WearablesController.exceptionWrapper(async (data) => {
     let response = await UtilitiesController.post(`/wearables/api/get_all_feeding_preferences`, {}, true);
     return response;

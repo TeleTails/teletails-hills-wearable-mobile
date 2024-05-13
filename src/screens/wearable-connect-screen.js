@@ -9,7 +9,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import BleManager from 'react-native-ble-manager';
 import { Picker }      from '@react-native-picker/picker';
 import { stringToBytes, bytesToString } from "convert-string";
-import { PetsController } from "../controllers";
+import { PetsController, WearablesController } from "../controllers";
 import { StringUtils }       from '../utils';
 
 
@@ -42,6 +42,8 @@ class WearableConnectScreen extends Component {
 
     this.render_pet_selection = this.render_pet_selection.bind(this);
     this.pet_selection_action = this.pet_selection_action.bind(this);
+
+    this.validateSensor = this.validateSensor.bind(this);
   }
 
   async componentDidMount() {
@@ -408,8 +410,26 @@ class WearableConnectScreen extends Component {
     </View>
   }
 
+  async validateSensor() {
+
+    let data = {
+      deviceNumer,
+      pet_parent_id
+    }
+
+    let res = await WearablesController.validateSensor(data);
+
+    console.log('res', res)
+
+    if(res.success) {
+      this.setState({screen: 2, pet_setup: false})
+    } else {
+      this.setState({screen: 2, device_setup_error: "error" })
+    }
+  }
+
   render() {
-    let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, pet_setup, connection_error, password } = this.state;
+    let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, pet_setup, connection_error, password, device_setup_error } = this.state;
 
     let peripherals = this.peripherals;
 
@@ -450,6 +470,7 @@ class WearableConnectScreen extends Component {
           {!pet_setup ? <View>
             <Text>Setup Pet's Device</Text>
             <View>
+              {device_setup_error ? <Text style={{color: 'red'}}>{device_setup_error}</Text> : null}
               <Input type={'text'} placeholder={'Device Number'} onChangeText={(deviceNumber)=>{this.setState({deviceNumber})}} />
 
               <Picker
@@ -464,7 +485,7 @@ class WearableConnectScreen extends Component {
 
 
 
-              <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{this.setState({screen: 2, pet_setup: false})}}><Text style={{ color: 'white' }}>Continue</Text></TouchableOpacity>
+              <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={this.validateSensor}><Text style={{ color: 'white' }}>Continue</Text></TouchableOpacity>
             </View>
           </View> : null}
         </View> : null }
