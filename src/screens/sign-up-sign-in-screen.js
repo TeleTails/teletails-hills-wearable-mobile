@@ -166,8 +166,10 @@ class SignUpSignInScreen extends Component {
     let response = await AuthController.singleEmailSignUpSignInCodeVerify(data);
 
     if(response && response.success) {
-      let user = await AuthController.getUser(true);
-      if(user && user.first_name && (user.first_name.toLowerCase() !== 'pet')) {
+      let user        = await AuthController.getUser(true);
+      let has_address = user && user.address    && user.address.city ? true : false;
+      let has_name    = user && user.first_name && user.first_name.toLowerCase() !== 'pet';
+      if(has_address && has_name) {
         this.props.navigation.push('SignInWelcomeScreen')
       } else {
         this.props.navigation.push('SignUpInfoScreen')

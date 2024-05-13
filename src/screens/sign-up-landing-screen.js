@@ -37,15 +37,20 @@ class SignUpLandingScreen extends Component {
     clearInterval(this.state.t);
   }
 
-  _onHalfSecond = () => {
+  _onHalfSecond = async () => {
     if (this.welcome_animation && !this.state.welcome_animation_started) {
       this.welcome_animation.play();
       this.setState({ welcome_animation_started: true });
     }
 
     if (this.state.navigate_to_home && this.state.elapsed_seconds > 2) {
-      this.props.navigation.push('Home');
-      this.setState({ navigate_to_home: false });
+      let user = await getItem('user');
+      let has_address = user && user.address    && user.address.city ? true : false;
+      let has_name    = user && user.first_name && user.first_name.toLowerCase() !== 'pet';
+      if (has_name && has_address) {
+        this.props.navigation.push('Home');
+        this.setState({ navigate_to_home: false });
+      }
     }
 
     if (this.state.elapsed_seconds > 5) {
