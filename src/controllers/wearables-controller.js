@@ -102,4 +102,9 @@ export default class WearablesController {
     return response;
   });
 
+  static getPetWeightHistory = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/get_pet_weight_history`, data, true);
+    return response;
+  });
+
 }

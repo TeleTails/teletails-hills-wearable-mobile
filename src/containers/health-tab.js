@@ -1,9 +1,9 @@
 import { Component } from 'react';
 import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { PetsController }   from '../controllers';
+import { AuthController, PetsController, WearablesController }   from '../controllers';
 import { StringUtils    }   from '../utils';
 import { setItem, getItem } from '../../storage';
-import { Text, Line, Icon, Colors } from '../components';
+import { Text, Line, Icon, Colors, Input } from '../components';
 import { SignIn } from '../containers';
 
 class HealthTab extends Component {
@@ -31,6 +31,18 @@ class HealthTab extends Component {
 
   componentDidMount = async () => {
     this.pull_pets();
+
+    let user_pets_response = await WearablesController.getUserPets({});
+    let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
+
+    let user              = await AuthController.getUser(true);
+    let wearables_user_id = user && user.wearables_user_id || '';
+
+    this.setState({
+      wearables_user_id,
+      wearable_pets: pets
+    })
+
   }
 
   render_pet_selection_list = () => {
@@ -107,13 +119,89 @@ class HealthTab extends Component {
   }
 
   render_entry_buttons = () => {
+    let { wearable_pets, weight_history, selected_wearables_pet_id, weight_input } = this.state;
     let selected_pet_id = this.state.selected_pet && this.state.selected_pet._id ? this.state.selected_pet._id : '';
 
     if (!selected_pet_id) {
       return null;
     }
 
+    const getPet = async (petId) => {
+      let weight_history = await WearablesController.getPetWeightHistory({pet_id: petId});
+      console.log('weight_history1', JSON.stringify(weight_history));
+      weight_history = weight_history && weight_history.data && weight_history.data.weight_history && weight_history.data.weight_history.petWeightHistories ? weight_history.data.weight_history.petWeightHistories : [];
+
+      console.log('weight_history', JSON.stringify(weight_history));
+
+      this.setState({weight_history, selected_wearables_pet_id: petId});
+    }
+
+    const addWeight = async () => {
+      let { weight_input, selected_wearables_pet_id, wearables_user_id, weight_history } = this.state;
+
+      let date = new Date();
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      let day = date.getDate();
+
+      let petWeightId;
+
+      if(weight_history && weight_history.length) {
+        petWeightId = weight_history[weight_history.length - 1].petWeightId++;
+      } else {
+        petWeightId = 0
+      }
+
+      let pet_weight_data = {
+          petWeightId,
+          "petId": selected_wearables_pet_id,
+          "userId": wearables_user_id,
+          "weight": weight_input,
+          "weightUnit": "lbs",
+          "addDate": `${year}-${month}-${day}`
+      }
+
+      console.log('dpet_weight_dataata', pet_weight_data)
+
+      let res = await WearablesController.addPetWeight({pet_weight_data});
+      console.log('res', JSON.stringify(res));
+      await getPet(selected_wearables_pet_id)
+    }
+
     return <View style={{ padding: 20 }}>
+      <View>
+        <Text>Wearables weight</Text>
+        <View>
+          {wearable_pets && wearable_pets.map(a=>{
+            console.log('a', a);
+
+            return <TouchableOpacity style={{padding: 20, backgroundColor: 'black', borderBottomWidth: 1}} onPress={()=>{getPet(a.petID)}}>
+              <Text style={{color: 'white'}}>{a.petName}</Text>
+              {selected_wearables_pet_id === a.petID ? <View style={{backgroundColor: 'green'}}>
+                <View>
+                <Input value={ weight_input } type='number'
+                  style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+                  border_color='#e7e7e7'
+                  onChangeText={(weight_input)=>{
+                    this.setState({ weight_input });
+                  }}/>
+                  <TouchableOpacity onPress={addWeight}><Text style={{padding: 20, backgroundColor: 'red', color: 'white'}}>Add Weight</Text></TouchableOpacity>
+                </View>
+                {weight_history && weight_history.length ?
+                <View>
+                  <Text style={{padding: 20, fontSize: 20}}>Weight History</Text>
+                  {weight_history.map(b=>{
+
+      //"weight":28,"weightKgs":28,"weightLbs":61.73,"addDate":"2024-05-13T19:06:08","weightUnit":"1"
+                    return <Text style={{color: 'white', padding: 20}}>{b.weight}lbs - {b.addDate}</Text>
+                  })}
+                </View> : <View><Text>No weight history yet</Text></View>}
+
+              </View> : null}
+            </TouchableOpacity>
+          })}
+        </View>
+      </View>
       <TouchableOpacity style={styles.entry_button_container}
                         onPress={ () => { this.props.navigation.push('HealthWeight', { pet_id: selected_pet_id }) }}>
         <Text style={styles.entry_button_title}>Weight</Text>
