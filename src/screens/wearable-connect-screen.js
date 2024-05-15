@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import LottieView from 'lottie-react-native';
 import { StyleSheet, View, NativeModules,
   NativeEventEmitter, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
-import { Screen, Line, Text, Icon, Input, Colors } from '../components';
+import { Screen, Line, Text, Icon, Input, Colors, Button } from '../components';
 import { setItem, getItem } from '../../storage';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Marker } from 'react-native-maps';
@@ -24,6 +25,7 @@ class WearableConnectScreen extends Component {
 
     this.state = {
       screen: 0,
+      loading_pets: false,
       peripherals: [],
       device_types: [{ name: 'AGL2', value: 'Sensor###AGL2' }, { name: 'AGL3', value: 'Sensor###AGL3' }, { name: 'HPN1', value: 'Sensor###HPN1' }],
       error_codes: [
@@ -61,12 +63,14 @@ class WearableConnectScreen extends Component {
 
   async componentDidMount() {
 
+    this.setState({ loading_pets: true });
+
     let user_pets_response = await WearablesController.getUserPets({});
     let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
 
     console.log('user_pets_response', user_pets_response.data.pets)
 
-    this.setState({ pets: pets });
+    this.setState({ pets: pets, loading_pets: false });
 
     console.log('Platform', Platform)
 
@@ -386,7 +390,7 @@ class WearableConnectScreen extends Component {
     let assign_response;
 
     console.log('in update or assign', is_update)
-    
+
     if(is_update) {
       assign_response = await WearablesController.updateSensor(data).catch(err=>{console.log('err', err)})
     } else {
@@ -433,6 +437,7 @@ class WearableConnectScreen extends Component {
 
   render_pet_selection() {
     let pets = this.state.pets || [];
+    let is_loading_pets = this.state.loading_pets;
 
     let pet_rows = pets.map((pet) => {
       let pet_name = pet.petName;
@@ -446,6 +451,10 @@ class WearableConnectScreen extends Component {
 
     return <View style={styles.section_container}>
       <Text style={styles.section_title}>Select a pet</Text>
+      { is_loading_pets ? <View style={{ alignItems: 'center', marginTop: 10 }}>
+        <LottieView autoPlay style={{ width: 100, height: 100 }} source={ require('../../assets/animations/dog-trot.json') } />
+        <Text style={{ fontWeight: 'medium' }}>Loading Pets</Text>
+      </View> : null }
       { pet_rows }
       <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}
                         onPress={ () => {
@@ -508,30 +517,42 @@ class WearableConnectScreen extends Component {
 
         {screen === 1 ? <View>
           {pet_setup ? <View></View> : null}
-          {!pet_setup ? <View>
-            <Text>{selected_pet.petName}'s Devices</Text>
+          {!pet_setup ? <View style={{ padding: 20, alignItems: 'center' }}>
+            <Text style={styles.section_title} >{selected_pet.petName}'s Device</Text>
             <View>
               {selected_pet.devices && selected_pet.devices.length ? <>
-              
+
                 {selected_pet.devices.map(device=>{
                   console.log('device', device)
-                  return <View><TouchableOpacity><Text>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text></TouchableOpacity>
-                  
-                    <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{
-                      this.setState({
-                        is_update: true,
-                        screen: 2,
-                        deviceNumber: device.deviceNumber,
-                        oldDeviceNumber: device.deviceNumber
-                      })
-                    }}><Text style={{ color: 'white' }}>Update Device</Text></TouchableOpacity>
+                  return <View style={{ alignItems: 'center' }}>
+                    <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text>
+                    <Button style={{padding: 20, backgroundColor: 'blue' }}
+                            title='Update Device'
+                            onPress={()=>{
+                              this.setState({
+                                is_update: true,
+                                screen: 2,
+                                deviceNumber: device.deviceNumber,
+                                oldDeviceNumber: device.deviceNumber
+                              })
+                            }} />
                   </View>})}
 
-                  <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{this.setState({screen: 2, is_update: false})}}><Text style={{ color: 'white' }}>Add New Device</Text></TouchableOpacity>
-               
+                  { selected_pet.devices && selected_pet.devices.length ? null : <Button style={{padding: 20, backgroundColor: 'blue', margin: 40}}
+                                                                                          title='Add New Device'
+                                                                                          onPress={() => {
+                                                                                            this.setState({screen: 2, is_update: false})
+                                                                                          }}>
+                                                                                      <Text style={{ color: 'white' }}>Add New Device</Text>
+                                                                                  </Button>  }
+
               </> : <>
-                <Text>{selected_pet.petName} doesn't have any devices set up</Text>
-                <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={()=>{this.setState({screen: 2, is_update: false})}}><Text style={{ color: 'white' }}>Setup Device</Text></TouchableOpacity>
+                <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>{selected_pet.petName} doesn't have any devices set up</Text>
+                <Button style={{padding: 20, backgroundColor: 'blue' }}
+                        title='Setup Device'
+                        onPress={ () => {
+                          this.setState({screen: 2, is_update: false})
+                        }} />
               </>}
             </View>
           </View> : null}
@@ -539,12 +560,13 @@ class WearableConnectScreen extends Component {
 
         {screen === 2 ? <View>
           {pet_setup ? <View></View> : null}
-          {!pet_setup ? <View>
-            <Text>Setup Pet's Device</Text>
+          {!pet_setup ? <View style={{ padding: 20 }}>
+            <Text style={styles.section_title}>Setup Pet's Device</Text>
             <View>
               {device_setup_error ? <Text style={{color: 'red'}}>{device_setup_error}</Text> : null}
+              <View style={{ height: 10 }} />
               <Input type={'text'} placeholder={'Device Number'} onChangeText={(deviceNumber)=>{this.setState({deviceNumber})}} />
-
+              <View style={{ height: 10 }} />
               <Picker
               style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
               selectedValue={this.state.deviceType}
@@ -552,46 +574,62 @@ class WearableConnectScreen extends Component {
                 this.setState({ deviceType })
               }}>
                 {device_types.map(type=><Picker.Item key={type.value} label={type.name} value={type.value} />)}
+              </Picker>
 
-            </Picker>
+              <Button title='Continue'
+                      style={{ marginTop: 20, padding: 20, backgroundColor: 'blue' }}
+                      onPress={this.validateSensor} />
 
-              <TouchableOpacity style={{padding: 20, backgroundColor: 'blue', margin: 40}} onPress={this.validateSensor}><Text style={{ color: 'white' }}>Continue</Text></TouchableOpacity>
             </View>
           </View> : null}
         </View> : null }
 
-        {screen === 3 ? <View style={{flexDirection: 'column'}}>
-            {isScanning ? <Text>Scanning ...</Text> :
-            <TouchableOpacity style={{backgroundColor: 'blue', padding: 20, margin: 40}} onPress={this.startScan}><Text style={{color: 'white'}}>Scan Devices</Text></TouchableOpacity>}
+        {screen === 3 ? <View style={{flexDirection: 'column', padding: 20 }}>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={styles.section_title}>Bluetooth Device Scan</Text>
+              {isScanning ? <Text style={{ marginTop: 40, textAlign: 'center', fontSize: 16, color: Colors.PRIMARY }}>Scanning ...</Text> :
+              <Button title='Scan Devices'
+                      style={{backgroundColor: 'blue', padding: 20, marginTop: 15, width: 300 }}
+                      onPress={this.startScan} /> }
+            </View>
 
             {peripherals && peripherals.length ? <View style={{flexDirection: 'column'}}>
-              <Text>Bluetooth Devices</Text>
-              <Text style={{color: 'red'}}>If you don't see your device listed below, please shake the device and hit the 'Scan Devices' button again.</Text>
-              {peripherals.map(a=><TouchableOpacity onPress={()=>{this.connectPeripheral(a)}}><Text style={{backgroundColor: 'blue', color: 'white', padding: 20}}>{a.name}</Text></TouchableOpacity>)}
+              <Line style={{ marginTop: 15, marginBottom: 15 }} />
+              <Text style={{ color: 'grey', marginBottom: 15 }}>If you don't see your device listed below, please shake the device and hit the 'Scan Devices' button again.</Text>
+              {peripherals.map( a => <TouchableOpacity onPress={()=>{this.connectPeripheral(a)}}>
+                                       <Text style={{ padding: 20 }}>{a.name}</Text>
+                                       <Line />
+                                     </TouchableOpacity>) }
             </View> : null}
           </View> : null}
 
 
         <View>
           {screen === 4 ?
-          <View>
-            {connection_error ? <View>
+          <View style={{ padding: 20 }}>
+            {connection_error ? <View style={{ }}>
               <Text>Connection error: Please shake the device and try connecting again</Text>
               <TouchableOpacity onPress={()=>{this.connectPeripheral(connected_peripheral)}}><Text style={{color: 'white', backgroundColor: 'green', padding: 20}}>Re-connect</Text></TouchableOpacity>
               </View> : <>
-            <Text>Connected to: {connected_peripheral.name}</Text>
+            <Text style={styles.section_title}>Connected to: {connected_peripheral.name}</Text>
             <View style={{flexDirection: 'column'}}>
-              <Text>Wifi list</Text>
+              <Text style={{ fontWeight: 'medium', fontSize: 16, marginTop: 15, marginBottom: 5 }}>Wifi list</Text>
               {wifi_list ? <View>
-                  {wifi_list.map(a=><View><TouchableOpacity onPress={()=>{this.selectWifi(a)}}><Text style={{color: 'white', backgroundColor: 'green', padding: 20}}>{a}</Text></TouchableOpacity>
-                  {wifi_name && wifi_name === a ? <View>
-                    <Input value={password} type={'password'} placeholder={'type password'} onChangeText={this.updatePassword} />
-                    <TouchableOpacity onPress={this.forceSync}><Text style={{color: 'white', backgroundColor: 'black', padding: 20}}>Connect & sync</Text></TouchableOpacity>
-                  </View> : null}
-
+                  {wifi_list.map(a=>
+                    <View>
+                      <TouchableOpacity onPress={()=>{this.selectWifi(a)}}>
+                        <Text style={{ padding: 20}}>{ a }</Text>
+                      </TouchableOpacity>
+                      {wifi_name && wifi_name === a ? <View>
+                        <Input value={password} type={'password'} placeholder={'type password'} onChangeText={this.updatePassword} />
+                        <Button title='Connect & sync'
+                                style={{ marginTop: 10, marginBottom: 20 }}
+                                onPress={this.forceSync} />
+                    </View> : null}
+                    <Line />
                   </View>)}
                 </View> : null}
-              {retrievingWifi && !syncing ? <Text>Retrieving ...</Text> : null}
+              {retrievingWifi && !syncing ? <Text style={{ marginTop: 10, marginBottom: 10, color: Colors.PRIMARY }}>Retrieving ...</Text> : null}
               {syncing ? <Text style={{color: 'red'}}>Syncing...</Text> : null}
               {eventLogType || eventLogType === 0 ? <Text style={{color: 'red'}}>Sync result: {error_codes[eventLogType]}</Text> : null}
             </View></>}
