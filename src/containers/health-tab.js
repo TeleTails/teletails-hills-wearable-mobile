@@ -267,9 +267,9 @@ class HealthTab extends Component {
 
     return <View style={{  }}>
       <View>
-        { this.render_pet_section()         }
-        { this.render_entry_buttons() }
-        {/* { this.render_coming_soon()         } */}
+        { this.render_pet_section()       }
+        {/* this.render_entry_buttons()*/ }
+        { this.render_coming_soon()       }
       </View>
     </View>
   }
