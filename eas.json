@@ -11,6 +11,12 @@
       },
       "ios": {
         "buildConfiguration": "Debug"
+      },
+      "env": {
+        "API_URL": "https://prod-elb-api.teletails.com/data",
+        "CHAT_URL": "https://prod-elb-chat.teletails.com",
+        "NOTIF_URL": "https://prod-elb-chat.teletails.com",
+        "PARTNER_ID": "61fd4d95cbb0c41ec9705073"
       }
     },
     "preview": {
@@ -19,6 +25,12 @@
     "production": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "API_URL": "https://prod-elb-api.teletails.com/data",
+        "CHAT_URL": "https://prod-elb-chat.teletails.com",
+        "NOTIF_URL": "https://prod-elb-chat.teletails.com",
+        "PARTNER_ID": "61fd4d95cbb0c41ec9705073"
       }
     }
   },
