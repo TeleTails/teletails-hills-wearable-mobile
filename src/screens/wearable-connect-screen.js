@@ -28,6 +28,7 @@ class WearableConnectScreen extends Component {
       loading_pets: false,
       peripherals: [],
       device_types: [{ name: 'AGL2', value: 'Sensor###AGL2' }, { name: 'AGL3', value: 'Sensor###AGL3' }, { name: 'HPN1', value: 'Sensor###HPN1' }],
+      deviceType: { name: 'AGL3', value: 'Sensor###AGL3' },
       error_codes: [
         "Sync Successful!",
         "No SSID, Wifi connection was not attempted",
@@ -291,7 +292,8 @@ class WearableConnectScreen extends Component {
         let writeWifiNameChar = 'A1734606-A5B8-11E5-A837-0800200C9A66';
         let readWifiNameChar = 'a1736d12-a5b8-11e5-a837-0800200c9a66';
 
-        wifiCount = 3;
+        wifiCount = 10;
+
         let wifi_list = [];
         for(var i = 0; i < wifiCount; i++) {
           console.log('--------reading wifi index---------: ', i)
@@ -304,9 +306,7 @@ class WearableConnectScreen extends Component {
 
           if(read_result && read_result != '') {
             wifi_list.push(read_result)
-            this.setState({
-              wifi_list
-            })
+            this.setState({ wifi_list: wifi_list })
           }
         }
 
@@ -479,26 +479,187 @@ class WearableConnectScreen extends Component {
       deviceNumber
     }
 
+    this.setState({ loading_validate_num: true });
+
     console.log('data', data)
 
     let res = await WearablesController.validateSensorNumber(data);
 
     console.log('res', res)
 
-    if(res.success) {
-      this.setState({screen: 3, pet_setup: false})
+    if (deviceNumber && res.success) {
+      this.setState({ screen: 3, loading_validate_num: false })
     } else {
-      this.setState({screen: 3, device_setup_error: "error" })
+      this.setState({ device_setup_error: "The device number is invalid", loading_validate_num: false })
     }
   }
 
-  render() {
-    let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, pet_setup, connection_error, password, device_setup_error, device_types, error_codes, selected_pet } = this.state;
+  render_pet_selection_screen = () => {
+    if (this.state.screen !== 0) {
+      return null;
+    }
+
+    return this.render_pet_selection();
+  }
+
+  render_pet_device_screen = () => {
+    if (this.state.screen !== 1) {
+      return null;
+    }
+
+    let selected_pet = this.state.selected_pet;
+    let pet_devices  = selected_pet && selected_pet.devices ? selected_pet.devices : [];
+    let has_devices  = pet_devices.length > 0;
+
+    let device_rows  = pet_devices.map((device) => {
+      return <View style={{ alignItems: 'center' }}>
+        <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text>
+        <Button style={{padding: 20 }}
+                title='Update Device'
+                onPress={()=>{
+                  this.setState({ is_update: true, screen: 2, deviceNumber: device.deviceNumber, oldDeviceNumber: device.deviceNumber });
+                }} />
+      </View>
+    })
+
+    return <View>
+      <View style={{ padding: 20, alignItems: 'center' }}>
+        <Text style={styles.section_title} >{ selected_pet.petName }'s Device</Text>
+        <View>
+          { has_devices ? <View>{ device_rows }</View>
+                        : <View>
+                            <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>{selected_pet.petName} doesn't have any devices set up</Text>
+                            <Button style={{padding: 20 }}
+                                    title='Setup Device'
+                                    onPress={ () => {
+                                      this.setState({ screen: 2, is_update: false })
+                                    }} />
+                          </View> }
+        </View>
+      </View>
+    </View>
+  }
+
+  render_device_number_input = () => {
+    if (this.state.screen !== 2) {
+      return null;
+    }
+
+    let device_setup_error   = this.state.device_setup_error;
+    let loading_validate_num = this.state.loading_validate_num;
+
+    return <View>
+      <View style={{ padding: 20 }}>
+        <Text style={styles.section_title}>Setup Pet's Device</Text>
+        <View>
+          <View style={{ height: 10 }} />
+          <Input type={'text'} value={this.state.deviceNumber} placeholder={'Device Number'} onChangeText={(deviceNumber) => { this.setState({ deviceNumber: deviceNumber.toUpperCase() }) }} />
+          { device_setup_error ? <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>{ device_setup_error }</Text> : null }
+          <Button title='Continue'
+                  style={{ marginTop: 10, padding: 20 }}
+                  loading={loading_validate_num}
+                  onPress={this.validateSensor} />
+        </View>
+      </View>
+    </View>
+  }
+
+  render_bluetooth_scan = () => {
+    if (this.state.screen !== 3) {
+      return null;
+    }
 
     let peripherals = this.peripherals;
+    let is_scanning = this.state.isScanning;
+    let bluetooths  = peripherals && peripherals.length ? peripherals : [];
 
-    /**
-     * export const SENSOR_FAIL_1 = "No SSID, Wifi connection was not attempted";
+    let bluetooth_rows = bluetooths.map( (a) => {
+      return <TouchableOpacity onPress={()=>{this.connectPeripheral(a)}}>
+               <Text style={{ padding: 20 }}>{ a.name }</Text>
+               <Line />
+             </TouchableOpacity>
+    })
+
+    return <View style={{flexDirection: 'column', padding: 20 }}>
+      <View style={{ alignItems: 'center' }}>
+        <Text style={styles.section_title}>Bluetooth Device Scan</Text>
+        { is_scanning ? <View style={{ backgroundColor: Colors.PRIMARY, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: 20 }}>
+                          <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+                          <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Scanning ...</Text>
+                        </View>
+                      : <Button title='Scan Devices'
+                                style={{ padding: 20, marginTop: 15, width: 300 }}
+                                onPress={this.startScan} /> }
+
+      </View>
+
+      { bluetooth_rows.length ? <View style={{flexDirection: 'column'}}>
+                                  <Line style={{ marginTop: 15, marginBottom: 15 }} />
+                                  <Text style={{ color: 'grey', marginBottom: 15 }}>If you don't see your device listed below, please shake the device and hit the 'Scan Devices' button again.</Text>
+                                  { bluetooth_rows }
+                                </View>
+                              : null }
+    </View>
+  }
+
+  render_wifi_scan = () => {
+    if (this.state.screen !== 4) {
+      return null;
+    }
+
+    if (this.state.connection_error) {
+      return <View style={{ }}>
+         <Text>Connection error: Please shake the device and try connecting again</Text>
+         <TouchableOpacity onPress={() => { this.connectPeripheral(connected_peripheral) }}>
+           <Text style={{ color: 'white', backgroundColor: 'green', padding: 20 }}>Re-connect</Text>
+         </TouchableOpacity>
+       </View>
+    }
+
+    let connected_peripheral = this.state.connected_peripheral;
+    let wifi_list            = this.state.wifi_list || [];
+    let wifi_name            = this.state.wifi_name;
+    let password             = this.state.password;
+    let retrievingWifi       = this.state.retrievingWifi;
+    let syncing              = this.state.syncing;
+    let eventLogType         = this.state.eventLogType;
+    let error_codes          = this.state.error_codes;
+
+    let wifi_rows = wifi_list.map((a) => {
+      let is_selected = wifi_name && wifi_name === a;
+      return <View>
+        <TouchableOpacity onPress={()=>{this.selectWifi(a)}}>
+          <Text style={{ padding: 20}}>{ a }</Text>
+        </TouchableOpacity>
+        { is_selected ? <View>
+                          <Input value={password} type={'password'} placeholder={'type password'} onChangeText={this.updatePassword} />
+                          <Button title='Connect & sync'
+                                  style={{ marginTop: 10, marginBottom: 20 }}
+                                  onPress={this.forceSync} />
+                        </View>
+                      : null }
+        <Line />
+      </View>
+    })
+
+    return <View style={{ padding: 20 }}>
+      <Text style={styles.section_title}>Connected to: { connected_peripheral.name }</Text>
+      { wifi_rows }
+      { retrievingWifi && !syncing ? <View style={{ backgroundColor: Colors.PRIMARY, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: 20, alignSelf: 'center' }}>
+                                       <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+                                       <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Retrieving ...</Text>
+                                     </View>
+                                   : null }
+      { syncing ? <Text style={{ color: 'red' }}>Syncing...</Text> : null}
+      { eventLogType || eventLogType === 0 ? <Text style={{color: 'red'}}>Sync result: { error_codes[eventLogType] }</Text> : null}
+    </View>
+  }
+
+  render() {
+    let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, connection_error, password, device_setup_error, error_codes } = this.state;
+
+    /*
+      export const SENSOR_FAIL_1 = "No SSID, Wifi connection was not attempted";
       export const SENSOR_FAIL_2 ="Invalid Wi-Fi Network Name (SSID) or Password. Please check and try again.";
       export const SENSOR_FAIL_3 ="Invalid Wi-Fi Network Name (SSID). Please check and try again";
       export const SENSOR_FAIL_4 = "Invalid Password. Please check and try again. ";
@@ -506,136 +667,15 @@ class WearableConnectScreen extends Component {
       export const SENSOR_FAIL_6 = "Failed Rudp server connection";
       export const SENSOR_FAIL_7 ="Wifi connection aborted due to low bandwidth between Sensor and Rudp server.";
       export const SENSOR_FAIL_8 ="Wifi connection aborted due to Sensor low battery condition detected during Rudp upload.";
-
-     */
+    */
 
     return <Screen title='Connect Device' scroll={true} navigation={this.props.navigation}>
       <ScrollView style={{flex: 1}}>
-        {screen === 0 ? <View>
-          {this.render_pet_selection()}
-        </View> : null}
-
-        {screen === 1 ? <View>
-          {pet_setup ? <View></View> : null}
-          {!pet_setup ? <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={styles.section_title} >{selected_pet.petName}'s Device</Text>
-            <View>
-              {selected_pet.devices && selected_pet.devices.length ? <>
-
-                {selected_pet.devices.map(device=>{
-                  console.log('device', device)
-                  return <View style={{ alignItems: 'center' }}>
-                    <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text>
-                    <Button style={{padding: 20, backgroundColor: 'blue' }}
-                            title='Update Device'
-                            onPress={()=>{
-                              this.setState({
-                                is_update: true,
-                                screen: 2,
-                                deviceNumber: device.deviceNumber,
-                                oldDeviceNumber: device.deviceNumber
-                              })
-                            }} />
-                  </View>})}
-
-                  { selected_pet.devices && selected_pet.devices.length ? null : <Button style={{padding: 20, backgroundColor: 'blue', margin: 40}}
-                                                                                          title='Add New Device'
-                                                                                          onPress={() => {
-                                                                                            this.setState({screen: 2, is_update: false})
-                                                                                          }}>
-                                                                                      <Text style={{ color: 'white' }}>Add New Device</Text>
-                                                                                  </Button>  }
-
-              </> : <>
-                <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>{selected_pet.petName} doesn't have any devices set up</Text>
-                <Button style={{padding: 20, backgroundColor: 'blue' }}
-                        title='Setup Device'
-                        onPress={ () => {
-                          this.setState({screen: 2, is_update: false})
-                        }} />
-              </>}
-            </View>
-          </View> : null}
-        </View> : null }
-
-        {screen === 2 ? <View>
-          {pet_setup ? <View></View> : null}
-          {!pet_setup ? <View style={{ padding: 20 }}>
-            <Text style={styles.section_title}>Setup Pet's Device</Text>
-            <View>
-              {device_setup_error ? <Text style={{color: 'red'}}>{device_setup_error}</Text> : null}
-              <View style={{ height: 10 }} />
-              <Input type={'text'} placeholder={'Device Number'} onChangeText={(deviceNumber)=>{this.setState({deviceNumber})}} />
-              <View style={{ height: 10 }} />
-              <Picker
-              style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
-              selectedValue={this.state.deviceType}
-              onValueChange={ (deviceType) => {
-                this.setState({ deviceType })
-              }}>
-                {device_types.map(type=><Picker.Item key={type.value} label={type.name} value={type.value} />)}
-              </Picker>
-
-              <Button title='Continue'
-                      style={{ marginTop: 20, padding: 20, backgroundColor: 'blue' }}
-                      onPress={this.validateSensor} />
-
-            </View>
-          </View> : null}
-        </View> : null }
-
-        {screen === 3 ? <View style={{flexDirection: 'column', padding: 20 }}>
-            <View style={{ alignItems: 'center' }}>
-              <Text style={styles.section_title}>Bluetooth Device Scan</Text>
-              {isScanning ? <Text style={{ marginTop: 40, textAlign: 'center', fontSize: 16, color: Colors.PRIMARY }}>Scanning ...</Text> :
-              <Button title='Scan Devices'
-                      style={{backgroundColor: 'blue', padding: 20, marginTop: 15, width: 300 }}
-                      onPress={this.startScan} /> }
-            </View>
-
-            {peripherals && peripherals.length ? <View style={{flexDirection: 'column'}}>
-              <Line style={{ marginTop: 15, marginBottom: 15 }} />
-              <Text style={{ color: 'grey', marginBottom: 15 }}>If you don't see your device listed below, please shake the device and hit the 'Scan Devices' button again.</Text>
-              {peripherals.map( a => <TouchableOpacity onPress={()=>{this.connectPeripheral(a)}}>
-                                       <Text style={{ padding: 20 }}>{a.name}</Text>
-                                       <Line />
-                                     </TouchableOpacity>) }
-            </View> : null}
-          </View> : null}
-
-
-        <View>
-          {screen === 4 ?
-          <View style={{ padding: 20 }}>
-            {connection_error ? <View style={{ }}>
-              <Text>Connection error: Please shake the device and try connecting again</Text>
-              <TouchableOpacity onPress={()=>{this.connectPeripheral(connected_peripheral)}}><Text style={{color: 'white', backgroundColor: 'green', padding: 20}}>Re-connect</Text></TouchableOpacity>
-              </View> : <>
-            <Text style={styles.section_title}>Connected to: {connected_peripheral.name}</Text>
-            <View style={{flexDirection: 'column'}}>
-              <Text style={{ fontWeight: 'medium', fontSize: 16, marginTop: 15, marginBottom: 5 }}>Wifi list</Text>
-              {wifi_list ? <View>
-                  {wifi_list.map(a=>
-                    <View>
-                      <TouchableOpacity onPress={()=>{this.selectWifi(a)}}>
-                        <Text style={{ padding: 20}}>{ a }</Text>
-                      </TouchableOpacity>
-                      {wifi_name && wifi_name === a ? <View>
-                        <Input value={password} type={'password'} placeholder={'type password'} onChangeText={this.updatePassword} />
-                        <Button title='Connect & sync'
-                                style={{ marginTop: 10, marginBottom: 20 }}
-                                onPress={this.forceSync} />
-                    </View> : null}
-                    <Line />
-                  </View>)}
-                </View> : null}
-              {retrievingWifi && !syncing ? <Text style={{ marginTop: 10, marginBottom: 10, color: Colors.PRIMARY }}>Retrieving ...</Text> : null}
-              {syncing ? <Text style={{color: 'red'}}>Syncing...</Text> : null}
-              {eventLogType || eventLogType === 0 ? <Text style={{color: 'red'}}>Sync result: {error_codes[eventLogType]}</Text> : null}
-            </View></>}
-          </View> :
-          null}
-        </View>
+        { this.render_pet_selection_screen() }
+        { this.render_pet_device_screen()    }
+        { this.render_device_number_input()  }
+        { this.render_bluetooth_scan()       }
+        { this.render_wifi_scan()            }
       </ScrollView>
     </Screen>
   }
