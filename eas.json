@@ -23,6 +23,9 @@
       "distribution": "internal"
     },
     "production": {
+      "developmentClient": false,
+      "distribution": "store",
+      "channel": "production",
       "android": {
         "buildType": "apk"
       },

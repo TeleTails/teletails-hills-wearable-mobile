@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teletails.petfit",
-      "buildNumber": "10"
+      "buildNumber": "12"
     },
     "android": {
       "adaptiveIcon": {
@@ -35,6 +35,10 @@
         "projectId": "667f8005-ca1a-47ed-bca6-b96ebb28586d"
       }
     },
-    "owner": "teletails"
+    "owner": "teletails",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/667f8005-ca1a-47ed-bca6-b96ebb28586d"
+    }
   }
 }
