@@ -1,10 +1,6 @@
-//import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
+import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
 import { getItem, setItem } from '../../storage';
 import io from 'socket.io-client';
-
-let API_URL =  "https://prod-elb-api.teletails.com/data";
-let CHAT_URL = "https://prod-elb-chat.teletails.com";
-let NOTIF_URL =  "https://prod-elb-chat.teletails.com";
 
 let sockets = {};
 
