@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import LottieView from 'lottie-react-native';
 import { StyleSheet, View, NativeModules,
-  NativeEventEmitter, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
+  NativeEventEmitter, TouchableOpacity, Linking, PermissionsAndroid, Platform, PERMISSIONS } from 'react-native';
 import { Screen, Line, Text, Icon, Input, Colors, Button } from '../components';
 import { setItem, getItem } from '../../storage';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
@@ -60,91 +60,199 @@ class WearableConnectScreen extends Component {
     this.pet_selection_action = this.pet_selection_action.bind(this);
 
     this.validateSensor = this.validateSensor.bind(this);
+    this.checkBluetoothState = this.checkBluetoothState.bind(this);
+
+    this.completeDeviceSetup = this.completeDeviceSetup.bind(this);
   }
 
   async componentDidMount() {
+    try {
+      let bluetooth_state = await this.checkBluetoothState();
 
-    this.setState({ loading_pets: true });
+      //Linking.openSettings();
+      
+      this.setState({ loading_pets: true, bluetooth_state });
 
-    let user_pets_response = await WearablesController.getUserPets({});
-    let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
+      let user_pets_response = await WearablesController.getUserPets({});
+      let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
 
-    console.log('user_pets_response', user_pets_response.data.pets)
+      console.log('user_pets_response', user_pets_response.data.pets)
 
-    this.setState({ pets: pets, loading_pets: false });
+      this.setState({ pets: pets, loading_pets: false });
 
-    console.log('Platform', Platform)
+      console.log('Platform', Platform)
 
-    if (Platform.OS === 'android'){
-      BleManager.enableBluetooth().then(() => {
-        console.log('Bluetooth is turned on!');
+      BleManager.start({showAlert: false}).then(() => {
+        console.log('BleManager initialized');
       });
-    }
 
-    BleManager.start({showAlert: false}).then(() => {
-      console.log('BleManager initialized');
-    });
+      let stopDiscoverListener = BleManagerEmitter.addListener(
+        'BleManagerDiscoverPeripheral',
+        peripheral => {
+          console.log('discover peripheral', peripheral)
 
-    let stopDiscoverListener = BleManagerEmitter.addListener(
-      'BleManagerDiscoverPeripheral',
-      peripheral => {
-        console.log('discover peripheral', peripheral)
-
-        if(peripheral.name) {
-          if(this.peripherals.filter(a=>a.name === peripheral.name).length === 0) {
-            this.peripherals.push(peripheral)
+          if(peripheral.name) {
+            if(this.peripherals.filter(a=>a.name === peripheral.name).length === 0) {
+              this.peripherals.push(peripheral)
+            }
           }
-        }
-      },
-    );
-    let stopConnectListener = BleManagerEmitter.addListener(
-      'BleManagerConnectPeripheral',
-      peripheral => {
-        console.log('BleManagerConnectPeripheral:', peripheral);
-      },
-    );
-    let stopScanListener = BleManagerEmitter.addListener(
-      'BleManagerStopScan',
-      () => {
-        this.setState({isScanning: false});
-        console.log('scan stopped');
-      },
-    );
+        },
+      );
+      let stopConnectListener = BleManagerEmitter.addListener(
+        'BleManagerConnectPeripheral',
+        peripheral => {
+          console.log('BleManagerConnectPeripheral:', peripheral);
+        },
+      );
+      let stopScanListener = BleManagerEmitter.addListener(
+        'BleManagerStopScan',
+        () => {
+          this.setState({isScanning: false});
+          console.log('scan stopped');
+        },
+      );
 
-    if (Platform.OS === 'android' && Platform.Version >= 31) {
-      PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      ]).then(result => {
-        if (result) {
-          console.debug(
-            '[handleAndroidPermissions] User accepts runtime permissions android 12+',
-          );
-        } else {
-          console.error(
-            '[handleAndroidPermissions] User refuses runtime permissions android 12+',
-          );
-        }
-      });
-    } else if (Platform.OS === 'android' && Platform.Version >= 23) {
-      PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      ).then(result => {
-        if (result) {
-          console.log('Permission is OK');
-        } else {
-          PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          ).then(result => {
+    } catch(err) {
+      this.setState({bluetooth_state: false})
+    }
+  }
+
+  async checkBluetoothState(user_initiated) {
+    return new Promise((resolve, reject) => {
+
+      if (Platform.OS === 'android') {
+        if (Platform.OS === 'android' && Platform.Version >= 31) {
+          PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          ]).then(result => {
             if (result) {
-              console.log('User accepted');
+              BleManager.enableBluetooth().then(result=>{
+                console.log('bluetooth enabled result', result)
+                BleManager.checkState().then(the_state=>{
+                  console.log('the_state', the_state)
+                  switch(the_state) {
+                    case "unauthorized":
+                    case "off":
+                    case "unknown":
+                      resolve(false);
+                      break;
+                    default: 
+                      resolve(true);
+                    break;
+                  }});
+              }).catch(err=>{
+                resolve(false);
+              })
+              console.debug(
+                '[handleAndroidPermissions] User accepts runtime permissions android 12+',
+              );
             } else {
-              console.log('User refused');
+              resolve(false);
+              console.error(
+                '[handleAndroidPermissions] User refuses runtime permissions android 12+',
+              );
             }
           });
+        } else if (Platform.OS === 'android' && Platform.Version >= 23) {
+          PermissionsAndroid.check(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          ).then(result => {
+            console.log('asking permissions', result)
+            if (result) {
+              BleManager.enableBluetooth().then(result=>{
+                console.log('bluetooth enabled result', result)
+                BleManager.checkState().then(the_state=>{
+                  console.log('the_state', the_state)
+                  switch(the_state) {
+                    case "unauthorized":
+                    case "off":
+                    case "unknown":
+                      resolve(false);
+                      break;
+                    default: 
+                      resolve(true);
+                    break;
+                  }});
+              }).catch(err=>{
+                resolve(false);
+              })
+            } else {
+              PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+              ).then(result => {
+                if (result) {
+                  BleManager.enableBluetooth().then(result=>{
+                    console.log('bluetooth enabled result', result)
+                    BleManager.checkState().then(the_state=>{
+                      console.log('the_state', the_state)
+                      switch(the_state) {
+                        case "unauthorized":
+                        case "off":
+                        case "unknown":
+                          resolve(false);
+                          break;
+                        default: 
+                          resolve(true);
+                        break;
+                      }});
+                  }).catch(err=>{
+                    resolve(false);
+                  })
+                } else {
+                  resolve(false);
+                }
+              });
+            }
+          });
+        } else {
+          BleManager.enableBluetooth().then(result=>{
+            console.log('bluetooth enabled result', result)
+            BleManager.checkState().then(the_state=>{
+              console.log('the_state', the_state)
+              switch(the_state) {
+                case "unauthorized":
+                case "off":
+                case "unknown":
+                  resolve(false);
+                  break;
+                default: 
+                  resolve(true);
+                break;
+              }});
+          }).catch(err=>{
+            resolve(false);
+          })
         }
-      });
-    }
+      }
+console.log('Platform.OS', Platform.OS)
+console.log('user_initiated', user_initiated, !user_initiated)
+      if (Platform.OS === 'ios') {
+        if(user_initiated) {
+          Linking.openURL('app-settings:');
+        } else {
+          console.log('checking state')
+          BleManagerEmitter.addListener('BleManagerDidUpdateState', (args)=>{
+            let the_state = args.state;
+            console.log('the_state', the_state)
+            switch(the_state) {
+              case "unauthorized":
+              case "off":
+              case "unknown":
+                resolve(false);
+                break;
+              default: 
+                resolve(true);
+              break;
+            }
+          });
+
+          BleManager.checkState()
+
+          resolve(true)
+        }
+      }
+    });
   }
 
   startScan() {
@@ -495,11 +603,30 @@ class WearableConnectScreen extends Component {
   }
 
   render_pet_selection_screen = () => {
-    if (this.state.screen !== 0) {
+    if (this.state.screen !== 0 || !this.state.bluetooth_state) {
       return null;
     }
 
     return this.render_pet_selection();
+  }
+
+  async completeDeviceSetup(device, selected_pet) {
+    let { deviceNumber, deviceType } = device;
+
+    let petId = selected_pet.petID;
+
+    let data = { deviceNumber, deviceType, petId };
+
+    let assign_response = await WearablesController.updateSensor(data).catch(err=>{console.log('err', err)})
+
+    console.log('assign_response', JSON.stringify(assign_response))
+
+    let user_pets_response = await WearablesController.getUserPets({});
+    let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
+
+    console.log('user_pets_response', user_pets_response.data.pets)
+
+    this.setState({ pets: pets, loading_pets: false });
   }
 
   render_pet_device_screen = () => {
@@ -512,6 +639,8 @@ class WearableConnectScreen extends Component {
     let has_devices  = pet_devices.length > 0;
 
     let device_rows  = pet_devices.map((device) => {
+      console.log('device', device);
+      let { isDeviceSetupDone } = device;
       return <View style={{ alignItems: 'center' }}>
         <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text>
         <Button style={{padding: 20 }}
@@ -519,6 +648,11 @@ class WearableConnectScreen extends Component {
                 onPress={()=>{
                   this.setState({ is_update: true, screen: 2, deviceNumber: device.deviceNumber, oldDeviceNumber: device.deviceNumber });
                 }} />
+
+        {isDeviceSetupDone ? 
+          <Button style={{padding: 20 }}
+                  title='Complete Device Setup'
+                  onPress={()=>{this.completeDeviceSetup(device, selected_pet) }} /> : null }
       </View>
     })
 
@@ -655,6 +789,23 @@ class WearableConnectScreen extends Component {
     </View>
   }
 
+  render_enable_bluetooth = () => {
+    if (this.state.bluetooth_state) {
+      return null;
+    }
+
+    const checkB = async () => {
+      let bluetooth_state = await this.checkBluetoothState(true);
+
+      this.setState({ bluetooth_state })
+    }
+    
+    return <View>
+      <Text>Must enable bluetooth</Text>
+      <TouchableOpacity style={{padding: 20, backgroundColor: 'blue'}} onPress={checkB}><Text>Enable</Text></TouchableOpacity>
+    </View>
+  }
+
   render() {
     let { screen, isScanning, connected_peripheral, wifi_list, wifi_name, retrievingWifi, eventLogType, syncing, connection_error, password, device_setup_error, error_codes } = this.state;
 
@@ -671,6 +822,7 @@ class WearableConnectScreen extends Component {
 
     return <Screen title='Connect Device' scroll={true} navigation={this.props.navigation}>
       <ScrollView style={{flex: 1}}>
+        { this.render_enable_bluetooth()     }
         { this.render_pet_selection_screen() }
         { this.render_pet_device_screen()    }
         { this.render_device_number_input()  }
