@@ -4,6 +4,7 @@ import { AuthController, PetsController, WearablesController }   from '../contro
 import { StringUtils    }   from '../utils';
 import { setItem, getItem } from '../../storage';
 import { Text, Line, Icon, Colors, Input } from '../components';
+import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { SignIn } from '../containers';
 
 class HealthTab extends Component {
@@ -264,8 +265,11 @@ class HealthTab extends Component {
   }
 
   render() {
-
+    const data=[ {value:50}, {value:80}, {value:90}, {value:70} ]
     return <View style={{  }}>
+
+
+      <BarChart data = {data} />
       <View>
         { this.render_pet_section()       }
         {/* this.render_entry_buttons()*/ }

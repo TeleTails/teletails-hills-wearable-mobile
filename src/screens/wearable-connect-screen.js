@@ -652,7 +652,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
         {!isDeviceSetupDone ? 
           <Button style={{padding: 20 }}
                   title='Complete Device Setup'
-                  onPress={()=>{this.setState({ screen: 2, is_update: false }) }} /> : <Text style={styles.section_title}>Device Setup Complete</Text> }
+                  onPress={()=>{this.setState({ screen: 3, is_update: false }) }} /> : <Text style={styles.section_title}>Device Setup Complete</Text> }
       </View>
     })
 
