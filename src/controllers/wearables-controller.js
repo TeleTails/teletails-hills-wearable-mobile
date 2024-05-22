@@ -112,4 +112,8 @@ export default class WearablesController {
     return response;
   });
 
+  static getPetBehavior = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/get_pet_behavior`, data, true);
+    return response;
+  });
 }
