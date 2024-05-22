@@ -617,7 +617,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
 
     let data = { deviceNumber, deviceType, petId };
 
-    let assign_response = await WearablesController.updateSensor(data).catch(err=>{console.log('err', err)})
+    let assign_response = await WearablesController.completeManually(data).catch(err=>{console.log('err', err)})
 
     console.log('assign_response', JSON.stringify(assign_response))
 
@@ -643,16 +643,16 @@ console.log('user_initiated', user_initiated, !user_initiated)
       let { isDeviceSetupDone } = device;
       return <View style={{ alignItems: 'center' }}>
         <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text>
-        <Button style={{padding: 20 }}
+        {/* <Button style={{padding: 20 }}
                 title='Update Device'
                 onPress={()=>{
                   this.setState({ is_update: true, screen: 2, deviceNumber: device.deviceNumber, oldDeviceNumber: device.deviceNumber });
-                }} />
+                }} /> */}
 
-        {isDeviceSetupDone ? 
+        {!isDeviceSetupDone ? 
           <Button style={{padding: 20 }}
                   title='Complete Device Setup'
-                  onPress={()=>{this.completeDeviceSetup(device, selected_pet) }} /> : null }
+                  onPress={()=>{this.setState({ screen: 2, is_update: false }) }} /> : <Text style={styles.section_title}>Device Setup Complete</Text> }
       </View>
     })
 
