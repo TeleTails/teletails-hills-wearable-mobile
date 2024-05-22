@@ -483,11 +483,10 @@ class WearableConnectScreen extends Component {
 
     console.log('data', data)
 
-    let res = await WearablesController.validateSensorNumber(data);
+    let res             = await WearablesController.validateSensorNumber(data);
+    let is_number_valid = res && res.data && res.data.is_valid ? true : false;
 
-    console.log('res', res)
-
-    if (deviceNumber && res.success) {
+    if (deviceNumber && is_number_valid) {
       this.setState({ screen: 3, loading_validate_num: false })
     } else {
       this.setState({ device_setup_error: "The device number is invalid", loading_validate_num: false })

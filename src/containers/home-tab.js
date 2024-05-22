@@ -196,6 +196,15 @@ class HomeTab extends Component {
 
       { /*
 
+        <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
+                          onPress={ async () => {
+                            let pet_id            = '7875';
+                            let behavior_response = await WearablesController.getPetBehavior({ pet_id: pet_id });
+
+                          }}>
+          <Text>Get Behavior Data</Text>
+        </TouchableOpacity>
+
       <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
                         onPress={ async () => {
                           let wearables_user_profile = await getItem('wearables_user_profile');
