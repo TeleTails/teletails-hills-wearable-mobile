@@ -265,11 +265,21 @@ class HealthTab extends Component {
   }
 
   render() {
-    const data=[ {value:50}, {value:80}, {value:90}, {value:70} ]
+    const data=[
+      { value: 50, label: 'Mon' },
+      { value: 80, label: 'Tue', showStrip: true, stripHeight: 190 },
+      { value: 90, label: 'Wed' },
+      { value: 70, label: 'Thu' }
+    ]
+
     return <View style={{  }}>
+      <LineChart
+        data = {data}
+        curved={true}
+        color="#0BA5A4"
+        hideRules
+      />
 
-
-      <BarChart data = {data} />
       <View>
         { this.render_pet_section()       }
         {/* this.render_entry_buttons()*/ }

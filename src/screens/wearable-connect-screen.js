@@ -1,18 +1,18 @@
 import React, { Component } from "react";
 import LottieView from 'lottie-react-native';
 import { StyleSheet, View, NativeModules,
-  NativeEventEmitter, TouchableOpacity, Linking, PermissionsAndroid, Platform, PERMISSIONS } from 'react-native';
+  NativeEventEmitter, TouchableOpacity, Linking, PermissionsAndroid, Platform, PERMISSIONS, Image, Dimensions } from 'react-native';
 import { Screen, Line, Text, Icon, Input, Colors, Button } from '../components';
 import { setItem, getItem } from '../../storage';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 import { ScrollView } from "react-native-gesture-handler";
 import BleManager from 'react-native-ble-manager';
-import { Picker }      from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
+import { Video }  from 'expo-av';
 import { stringToBytes, bytesToString } from "convert-string";
 import { PetsController, WearablesController } from "../controllers";
 import { StringUtils }       from '../utils';
-
 
 var Buffer = require("buffer/").Buffer;
 
@@ -29,6 +29,7 @@ class WearableConnectScreen extends Component {
       peripherals: [],
       device_types: [{ name: 'AGL2', value: 'Sensor###AGL2' }, { name: 'AGL3', value: 'Sensor###AGL3' }, { name: 'HPN1', value: 'Sensor###HPN1' }],
       deviceType: { name: 'AGL3', value: 'Sensor###AGL3' },
+      bluetooth_scan_started: false,
       error_codes: [
         "Sync Successful!",
         "No SSID, Wifi connection was not attempted",
@@ -70,7 +71,7 @@ class WearableConnectScreen extends Component {
       let bluetooth_state = await this.checkBluetoothState();
 
       //Linking.openSettings();
-      
+
       this.setState({ loading_pets: true, bluetooth_state });
 
       let user_pets_response = await WearablesController.getUserPets({});
@@ -137,7 +138,7 @@ class WearableConnectScreen extends Component {
                     case "unknown":
                       resolve(false);
                       break;
-                    default: 
+                    default:
                       resolve(true);
                     break;
                   }});
@@ -170,7 +171,7 @@ class WearableConnectScreen extends Component {
                     case "unknown":
                       resolve(false);
                       break;
-                    default: 
+                    default:
                       resolve(true);
                     break;
                   }});
@@ -192,7 +193,7 @@ class WearableConnectScreen extends Component {
                         case "unknown":
                           resolve(false);
                           break;
-                        default: 
+                        default:
                           resolve(true);
                         break;
                       }});
@@ -216,7 +217,7 @@ class WearableConnectScreen extends Component {
                 case "unknown":
                   resolve(false);
                   break;
-                default: 
+                default:
                   resolve(true);
                 break;
               }});
@@ -241,7 +242,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
               case "unknown":
                 resolve(false);
                 break;
-              default: 
+              default:
                 resolve(true);
               break;
             }
@@ -262,7 +263,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
         BleManager.scan([], 5, true)
         .then(() => {
           console.log('start scan')
-          this.setState({isScanning: true});
+          this.setState({ isScanning: true, bluetooth_scan_started: true });
         })
         .catch(error => {
           console.error(error);
@@ -338,7 +339,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
             })
           })
         }
-      })
+      }).catch((error) => { console.log("==== ERROR ===="); console.log(error) })
     })
   }
 
@@ -539,7 +540,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
     this.setState({
       petId: pet.petID,
       selected_pet: pet,
-      screen: 1
+      screen: 0.5
     })
   }
 
@@ -592,7 +593,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
     console.log('data', data)
 
     let res             = await WearablesController.validateSensorNumber(data);
-    let is_number_valid = res && res.data && res.data.is_valid ? true : false;
+    let is_number_valid = res && res.data && res.data.validate_device_response && res.data.validate_device_response.data && res.data.validate_device_response.data.isValidDeviceNumber ? true : false;
 
     if (deviceNumber && is_number_valid) {
       this.setState({ screen: 3, loading_validate_num: false })
@@ -628,6 +629,27 @@ console.log('user_initiated', user_initiated, !user_initiated)
     this.setState({ pets: pets, loading_pets: false });
   }
 
+  render_video_screen = () => {
+    if (this.state.screen !== 0.5) {
+      return null;
+    }
+
+    return <View style={{ padding: 20 }}>
+      <Text style={styles.section_title}>Welcome!</Text>
+      <Text style={{ fontWeight: 'medium', fontSize: 16, marginTop: 5, marginBottom: 20 }}>Here’s what to expect:</Text>
+      <Video style={{ width: '100%', height: 300, borderRadius: 5 }}
+             source={{ uri: 'https://4728109.fs1.hubspotusercontent-na1.net/hubfs/4728109/PetFit%20in-app.mov' }}
+             useNativeControls
+             resizeMode="contain"
+             shouldPlay={true}
+             isLooping={true}
+           />
+      <Button style={{ padding: 20, marginTop: 20 }}
+              title='Continue'
+              onPress={()=>{ this.setState({ screen: 1 }) }} />
+    </View>
+  }
+
   render_pet_device_screen = () => {
     if (this.state.screen !== 1) {
       return null;
@@ -648,7 +670,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
                   this.setState({ is_update: true, screen: 2, deviceNumber: device.deviceNumber, oldDeviceNumber: device.deviceNumber });
                 }} /> */}
 
-        {!isDeviceSetupDone ? 
+        {!isDeviceSetupDone ?
           <Button style={{padding: 20 }}
                   title='Complete Device Setup'
                   onPress={()=>{this.setState({ screen: 3, is_update: false }) }} /> : <Text style={styles.section_title}>Device Setup Complete</Text> }
@@ -683,8 +705,10 @@ console.log('user_initiated', user_initiated, !user_initiated)
 
     return <View>
       <View style={{ padding: 20 }}>
-        <Text style={styles.section_title}>Setup Pet's Device</Text>
         <View>
+          <Image style={{ height: 200, width: '100%', marginBottom: 15, borderRadius: 20 }} resizeMode='cover' source={ require('../../assets/images/device-number.png') } />
+          <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: 'medium', marginBottom: 5 }}>What’s your device number?</Text>
+          <Text style={{ textAlign: 'center', fontSize: 15, marginBottom: 5 }}>This is found on the back of your device and listed after “DN:” at the top.</Text>
           <View style={{ height: 10 }} />
           <Input type={'text'} value={this.state.deviceNumber} placeholder={'Device Number'} onChangeText={(deviceNumber) => { this.setState({ deviceNumber: deviceNumber.toUpperCase() }) }} />
           { device_setup_error ? <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>{ device_setup_error }</Text> : null }
@@ -705,6 +729,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
     let peripherals = this.peripherals;
     let is_scanning = this.state.isScanning;
     let bluetooths  = peripherals && peripherals.length ? peripherals : [];
+    let scan_strtd  = this.state.bluetooth_scan_started;
 
     let bluetooth_rows = bluetooths.map( (a) => {
       return <TouchableOpacity onPress={()=>{this.connectPeripheral(a)}}>
@@ -713,22 +738,38 @@ console.log('user_initiated', user_initiated, !user_initiated)
              </TouchableOpacity>
     })
 
+    if (!scan_strtd) {
+      return <View style={{flexDirection: 'column', padding: 20 }}>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={styles.section_title}>Bluetooth Device Scan</Text>
+          <Image style={{ height: 100, width: '100%', borderRadius: 20, marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+          <Text style={{ fontWeight: 'medium', fontSize: 16 }}>Let’s find your device!</Text>
+          <Text style={{ color: 'grey', fontSize: 16, textAlign: 'center', marginTop: 5 }}>Please make sure your device has been charged for at least 30 minutes. Unplug your device and position it near your phone for pairing.</Text>
+          <Button title={ 'Scan Devices' }
+                  style={{ padding: 20, marginTop: 20, width: '100%' }}
+                  onPress={this.startScan} />
+        </View>
+      </View>
+    }
+
     return <View style={{flexDirection: 'column', padding: 20 }}>
       <View style={{ alignItems: 'center' }}>
-        <Text style={styles.section_title}>Bluetooth Device Scan</Text>
-        { is_scanning ? <View style={{ backgroundColor: Colors.PRIMARY, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: 20 }}>
-                          <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
-                          <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Scanning ...</Text>
+        <Text style={{ fontSize: 16, fontWeight: 'medium', textAlign: 'center' }}>Select your device below. Your device name will start with “AGL3.”</Text>
+        { is_scanning ? <View style={{ alignItems: 'center' }}>
+                          <LottieView autoPlay style={{ width: 100, height: 100, marginTop: -2 }} source={ require('../../assets/animations/dog-trot.json') } />
+                          <View style={{ backgroundColor: '#3276b6', flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: -15, marginBottom: 5 }}>
+                            <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+                            <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Scanning ...</Text>
+                          </View>
                         </View>
-                      : <Button title='Scan Devices'
+                      : <Button title={ 'Re-Scan for Device' }
                                 style={{ padding: 20, marginTop: 15, width: 300 }}
                                 onPress={this.startScan} /> }
-
       </View>
 
       { bluetooth_rows.length ? <View style={{flexDirection: 'column'}}>
                                   <Line style={{ marginTop: 15, marginBottom: 15 }} />
-                                  <Text style={{ color: 'grey', marginBottom: 15 }}>If you don't see your device listed below, please shake the device and hit the 'Scan Devices' button again.</Text>
+                                  <Text style={{ color: 'grey', marginBottom: 15, fontSize: 15 }}>Don’t see your device? Make sure your device is charged and try shaking it like you are mixing a margherita at 5pm on a Friday 💃.</Text>
                                   { bluetooth_rows }
                                 </View>
                               : null }
@@ -741,15 +782,18 @@ console.log('user_initiated', user_initiated, !user_initiated)
     }
 
     if (this.state.connection_error) {
-      return <View style={{ }}>
-         <Text>Connection error: Please shake the device and try connecting again</Text>
-         <TouchableOpacity onPress={() => { this.connectPeripheral(connected_peripheral) }}>
-           <Text style={{ color: 'white', backgroundColor: 'green', padding: 20 }}>Re-connect</Text>
-         </TouchableOpacity>
+      return <View style={{ padding: 20, alignItems: 'center' }}>
+         <Text style={{ fontWeight: 'medium', fontSize: 18 }}>Connection error</Text>
+         <Text style={{ fontSize: 16, color: 'grey', textAlign: 'center', marginTop: 5, marginBottom: 15 }}>Please shake the device and try connecting again</Text>
+         <Button title='Re-connect'
+                 style={{ width: '100%' }}
+                 onPress={() => {
+                   this.connectPeripheral(connected_peripheral)
+                 }} />
        </View>
     }
 
-    let connected_peripheral = this.state.connected_peripheral;
+    let connected_peripheral = this.state.connected_peripheral || { name: 'No Device Selected' };
     let wifi_list            = this.state.wifi_list || [];
     let wifi_name            = this.state.wifi_name;
     let password             = this.state.password;
@@ -762,11 +806,11 @@ console.log('user_initiated', user_initiated, !user_initiated)
       let is_selected = wifi_name && wifi_name === a;
       return <View>
         <TouchableOpacity onPress={()=>{this.selectWifi(a)}}>
-          <Text style={{ padding: 20}}>{ a }</Text>
+          <Text style={{ padding: 20, fontSize: 16 }}>{ a }</Text>
         </TouchableOpacity>
         { is_selected ? <View>
-                          <Input value={password} type={'password'} placeholder={'type password'} onChangeText={this.updatePassword} />
-                          <Button title='Connect & sync'
+                          <Input value={password} type={'password'} placeholder={'Enter WiFi Password'} onChangeText={this.updatePassword} />
+                          <Button title='Connect & Sync'
                                   style={{ marginTop: 10, marginBottom: 20 }}
                                   onPress={this.forceSync} />
                         </View>
@@ -775,16 +819,46 @@ console.log('user_initiated', user_initiated, !user_initiated)
       </View>
     })
 
+    if (eventLogType && eventLogType === 0) {
+      let window        = Dimensions.get('window');
+      let window_height = window && window.height ? window.height : 300;
+      return <View style={{ padding: 20 }}>
+        <View style={{ alignItems: 'center' }}>
+          <View style={{ height: window_height / 2 - 250, width: '100%' }} />
+          <Icon name='check-circle' size={60} color={Colors.GREEN} />
+          <Text style={{ marginTop: 10, fontWeight: 'medium', fontSize: 16 }}>Synced</Text>
+          <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center', marginBottom: 20 }}>
+            <Image style={{ height: 25, width: 25, marginRight: 8 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+            <Text style={{ fontSize: 16 }}>{ connected_peripheral.name }</Text>
+          </View>
+        </View>
+        <Button title='Back To Home'
+                onPress={ () => { this.props.navigation.pop(); }}/>
+      </View>
+    }
+
     return <View style={{ padding: 20 }}>
-      <Text style={styles.section_title}>Connected to: { connected_peripheral.name }</Text>
+      <View style={{ alignItems: 'center' }}>
+        <Text style={{ fontWeight: 'medium', fontSize: 15 }}>Bluetooth Device Connected</Text>
+        <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+          <Image style={{ height: 25, width: 25, marginRight: 8 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+          <Text style={{ fontSize: 16 }}>{ connected_peripheral.name }</Text>
+        </View>
+      </View>
+      <Line style={{ marginTop: 30, marginBottom: 20 }} />
+      <Text style={{ fontWeight: 'medium', fontSize: 15, textAlign: 'center' }}>WiFi Networks</Text>
       { wifi_rows }
       { retrievingWifi && !syncing ? <View style={{ backgroundColor: Colors.PRIMARY, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: 20, alignSelf: 'center' }}>
                                        <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
-                                       <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Retrieving ...</Text>
+                                       <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Scanning WiFi Networks ...</Text>
                                      </View>
                                    : null }
-      { syncing ? <Text style={{ color: 'red' }}>Syncing...</Text> : null}
-      { eventLogType || eventLogType === 0 ? <Text style={{color: 'red'}}>Sync result: { error_codes[eventLogType] }</Text> : null}
+      { syncing ? <View style={{ backgroundColor: Colors.GREEN, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: 20, alignSelf: 'center' }}>
+                    <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+                    <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Syncing Device ...</Text>
+                  </View>
+                : null }
+      { eventLogType && eventLogType !== 0 ? <Text style={{ color: 'red', textAlign: 'center', marginTop: 15, fontSize: 16 }}>{ error_codes[eventLogType] }</Text> : null }
     </View>
   }
 
@@ -798,7 +872,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
 
       this.setState({ bluetooth_state })
     }
-    
+
     return <View>
       <Text>Must enable bluetooth</Text>
       <TouchableOpacity style={{padding: 20, backgroundColor: 'blue'}} onPress={checkB}><Text>Enable</Text></TouchableOpacity>
@@ -820,9 +894,10 @@ console.log('user_initiated', user_initiated, !user_initiated)
     */
 
     return <Screen title='Connect Device' scroll={true} navigation={this.props.navigation}>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{ flex: 1 }}>
         { this.render_enable_bluetooth()     }
         { this.render_pet_selection_screen() }
+        { this.render_video_screen()         }
         { this.render_pet_device_screen()    }
         { this.render_device_number_input()  }
         { this.render_bluetooth_scan()       }
