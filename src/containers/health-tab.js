@@ -100,20 +100,20 @@ class HealthTab extends Component {
     let single_pet = pets && pets.length === 1;
     let switch_ttl = this.state.display_pet_selection ? 'Done' : 'Switch Pet';
 
-    pet_name   = 'Health'
-    switch_ttl = '';
+    // pet_name   = 'Health'
+    // switch_ttl = '';
 
     return <View>
     <View>
       <View style={{ backgroundColor: Colors.PRIMARY, padding: 20, paddingBottom: 0, borderTopRightRadius: 15, borderTopLeftRadius: 15 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 20, alignItems: 'center' }}
+        <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 20, alignItems: 'center' }}
                           onPress={ () => { this.setState({ display_pet_selection: !this.state.display_pet_selection }) }}>
           <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>{ pet_name }</Text>
           <Text style={{ fontSize: 16, color: 'white' }}>{ single_pet ? '' : switch_ttl }</Text>
-        </View>
+        </TouchableOpacity>
         { this.render_pet_selection_list()    }
       </View>
-      { /* this.render_add_button_padding() */ }
+      { this.render_add_button_padding() }
     </View>
     { /* this.render_add_button_components() */ }
     </View>
@@ -264,26 +264,73 @@ class HealthTab extends Component {
     </View>
   }
 
+  render_data_squares = () => {
+    return <View style={{ marginTop: 30 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        <View style={{ height: 140, width: '45%', backgroundColor: Colors.PRIMARY, borderRadius: 25, padding: 20, paddingTop: 15 }}>
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Walking</Text>
+        </View>
+        <View style={{ width: 10 }} />
+        <View style={{ height: 140, width: '45%', backgroundColor: Colors.PRIMARY, borderRadius: 25, padding: 20, paddingTop: 15 }}>
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Running</Text>
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+        <View style={{ height: 140, width: '45%', backgroundColor: Colors.PRIMARY, borderRadius: 25, padding: 20, paddingTop: 15 }}>
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Sleeping</Text>
+        </View>
+        <View style={{ width: 10 }} />
+        <View style={{ height: 140, width: '45%', backgroundColor: Colors.PRIMARY, borderRadius: 25, padding: 20, paddingTop: 15 }}>
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Total Forward</Text>
+        </View>
+      </View>
+    </View>
+  }
+
   render() {
     const data=[
       { value: 50, label: 'Mon' },
-      { value: 80, label: 'Tue', showStrip: true, stripHeight: 190 },
-      { value: 90, label: 'Wed' },
+      { value: 20, label: 'Tue', showStrip: false, stripHeight: 190 },
+      { value: 90, label: 'Wed', dataPointText: '90' },
       { value: 70, label: 'Thu' }
     ]
 
     return <View style={{  }}>
-      <LineChart
-        data = {data}
-        curved={true}
-        color="#0BA5A4"
-        hideRules
-      />
-
       <View>
         { this.render_pet_section()       }
-        {/* this.render_entry_buttons()*/ }
-        { this.render_coming_soon()       }
+        <LineChart
+          data={data}
+          initialSpacing={20}
+          spacing={90}
+          curved={true}
+          textShiftY={-8}
+          textFontSize={13}
+          color={Colors.PRIMARY}
+          thickness={3}
+          xAxisColor={Colors.PRIMARY}
+          yAxisColor={Colors.PRIMARY}
+          hideRules
+        />
+        { this.render_data_squares() }
+
+        <View style={{ height: 40 }} />
+        <LineChart
+          data={data}
+          initialSpacing={20}
+          spacing={90}
+          curved={true}
+          textShiftY={-8}
+          textFontSize={13}
+          color={Colors.PRIMARY}
+          thickness={3}
+          xAxisColor={Colors.PRIMARY}
+          yAxisColor={Colors.PRIMARY}
+          hideRules
+        />
+
+        <View style={{ height: 40 }} />
+        { /* this.render_entry_buttons() */ }
+        { /* this.render_coming_soon()   */ }
       </View>
     </View>
   }

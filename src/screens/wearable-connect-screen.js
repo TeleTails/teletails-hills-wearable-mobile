@@ -811,6 +811,7 @@ console.log('user_initiated', user_initiated, !user_initiated)
         { is_selected ? <View>
                           <Input value={password} type={'password'} placeholder={'Enter WiFi Password'} onChangeText={this.updatePassword} />
                           <Button title='Connect & Sync'
+                                  loading={syncing}
                                   style={{ marginTop: 10, marginBottom: 20 }}
                                   onPress={this.forceSync} />
                         </View>
