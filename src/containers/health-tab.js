@@ -1,9 +1,10 @@
 import { Component } from 'react';
+import LottieView    from 'lottie-react-native';
 import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { AuthController, PetsController, WearablesController }   from '../controllers';
 import { StringUtils    }   from '../utils';
 import { setItem, getItem } from '../../storage';
-import { Text, Line, Icon, Colors, Input } from '../components';
+import { Text, Line, Icon, Colors, Input, Button } from '../components';
 import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { SignIn } from '../containers';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -17,11 +18,17 @@ class HealthTab extends Component {
       selected_pet: {},
       display_pet_selection: false,
       behavior_data: {},
-      weight_history: {}
+      weight_history: {},
+      pet_weight: 0,
+      display_weight_input: false,
+      loading_add_weight: false,
+      loading_pull_pets: false
     }
   }
 
   pull_pets = async () => {
+    this.setState({ loading_pull_pets: true });
+
     let user_pets_response = await WearablesController.getUserPets({});
     let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
     let selected_pet       = pets && pets.length > 0 && pets[0] ? pets[0] : {};
@@ -34,7 +41,7 @@ class HealthTab extends Component {
 
     this.pull_selected_pet_data(pet_id);
 
-    this.setState({ pets: pets, selected_pet: selected_pet })
+    this.setState({ pets: pets, selected_pet: selected_pet, loading_pull_pets: false })
   }
 
   pull_selected_pet_data = async (pet_id) => {
@@ -104,7 +111,8 @@ class HealthTab extends Component {
         <View style={{ backgroundColor: Colors.PRIMARY, padding: 20, paddingBottom: 0, borderTopRightRadius: 15, borderTopLeftRadius: 15 }}>
           <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 20, alignItems: 'center' }}
                             onPress={ () => { this.setState({ display_pet_selection: !this.state.display_pet_selection }) }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>{ pet_name }</Text>
+           { this.state.loading_pull_pets ? <LottieView autoPlay style={{ width: 25, height: 25 }} source={ require('../../assets/animations/white-spinner.json') } />
+                                          : <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'white' }}>{ pet_name }</Text> }
             <Text style={{ fontSize: 16, color: 'white' }}>{ single_pet ? '' : switch_ttl }</Text>
           </TouchableOpacity>
           { this.render_pet_selection_list()    }
@@ -285,27 +293,104 @@ class HealthTab extends Component {
   }
 
   render_weight_graph = () => {
-    const data=[
-      { value: 14, label: 'Mon' },
-      { value: 20, label: 'Tue', showStrip: false, stripHeight: 190 },
-      { value: 18, label: 'Wed', dataPointText: '90' },
-      { value: 25, label: 'Thu' }
-    ]
 
-    return <View style={{ marginTop: 30 }}>
+    let window        = Dimensions.get('window');
+    let window_width  = window && window.width  ? window.width  : 300;
+    let window_height = window && window.height ? window.height : 300;
+    let chart_width   = window_width - (40 + 30 + 60);
+
+    let weight_hist   = this.state.weight_history && this.state.weight_history.petWeightHistories ? this.state.weight_history.petWeightHistories : [];
+    let chart_data    = [];
+
+    weight_hist.forEach((weight_data, i) => {
+      let weight_value = weight_data.weightKgs || 0;
+      let js_date      = new Date(weight_data.addDate);
+      var dayOfMonth   = js_date.getDate();
+      var month        = js_date.toLocaleString('default', { month: 'short' });
+      let lbl_date_str = month + ' ' + dayOfMonth;
+      let weight_label = weight_value.toString();
+      let data_object  = { value: weight_value, label: lbl_date_str, dataPointText: weight_label };
+      if (i < 5) {
+        chart_data.push(data_object);
+      }
+    });
+
+    // chart_data = [{"dataPointText": "19.95", "label": "May 21", "value": 19.95}, {"dataPointText": "19.95", "label": "May 22", "value": 19.95}, {"dataPointText": "19.95", "label": "May 23", "value": 19.95}, {"dataPointText": "23", "label": "May 24", "value": 23}, {"dataPointText": "20", "label": "May 25", "value": 20}]
+
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 15 }}>
+      <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginBottom: 5, color: Colors.DARK_GREY }}>Weight</Text>
+      <Text style={{ fontWeight: 'medium', fontSize: 12, color: 'grey', marginLeft: 5, marginBottom: 15 }}>Kgs</Text>
       <LineChart
-        data={data}
+        data={chart_data}
+        width={chart_width}
+        spacing={chart_width/4.9}
         initialSpacing={20}
-        spacing={90}
         curved={true}
         textShiftY={-8}
         textFontSize={13}
         color={Colors.PRIMARY}
-        thickness={3}
-        xAxisColor={Colors.PRIMARY}
-        yAxisColor={Colors.PRIMARY}
-        hideRules
+        thickness={4}
+        xAxisThickness={0}
+        yAxisThickness={0}
+        noOfSections={4}
+        xAxisLabelTextStyle={{ width: chart_width/4.0, fontWeight: 'bold', fontSize: 12, color: Colors.DARK_GREY }}
+        yAxisTextStyle={{ fontWeight: 'bold', fontSize: 12, color: Colors.DARK_GREY }}
+        hideRules={false}
       />
+    </View>
+  }
+
+  render_weight_entries = () => {
+    let weight_hist = this.state.weight_history && this.state.weight_history.petWeightHistories ? this.state.weight_history.petWeightHistories : [];
+    let disp_input  = this.state.display_weight_input;
+
+    let weight_rows = weight_hist.map((weight_data, i) => {
+      let weight_value = weight_data.weightKgs || 0;
+      let js_date      = new Date(weight_data.addDate);
+      var dayOfMonth   = js_date.getDate();
+      var month        = js_date.toLocaleString('default', { month: 'short' });
+      let date_string  = month + ' ' + dayOfMonth;
+      return <View>
+        <View style={{ flexDirection: 'row', justifyContent:  'space-between', alignItems: 'center', paddingTop: 15, paddingBottom: 15 }}>
+          <View style={{ }}>
+            <Text style={{ fontSize: 16 }}>{ weight_value }</Text>
+            <Text style={{ fontSize: 12, fontWeight: 'medium'}}>{ 'KGS' }</Text>
+          </View>
+          <View style={{ alignItems: 'center', marginRight: 5 }}>
+            <Text style={{ fontSize: 16 }}>{ dayOfMonth }</Text>
+            <Text style={{ fontSize: 12, fontWeight: 'medium'}}>{ month }</Text>
+          </View>
+        </View>
+        <Line hide={ i === weight_hist.length - 1} />
+      </View>
+    })
+
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 15, marginTop: 0 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Weight Entries</Text>
+        <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10 }}>
+          <Icon name={ disp_input ? 'close' : 'plus-circle' } size={25} color={Colors.PRIMARY} onPress={ () => { this.setState({ display_weight_input: !this.state.display_weight_input }) }}/>
+        </TouchableOpacity>
+      </View>
+      { disp_input ? <View style={{ marginTop: 20, marginBottom: 20 }}>
+                       <Input value={this.state.pet_weight}
+                              style={{ alignSelf: 'center', width: 130, textAlign: 'center' }}
+                              keyboardType='decimal-pad'
+                              placeholder='0.0 (Kgs)'
+                              onChangeText={ (text) => {
+                                this.setState({ ...this.state, pet_weight: text });
+                              }}/>
+                        <Button style={{ marginTop: 10 }}
+                                title='Add New Entry'
+                                loading={this.state.loading_add_weight}
+                                onPress={()=>{
+                                  this.add_weight();
+                                }} />
+                     </View> : null }
+      <Line hide={!this.state.display_weight_input} />
+      <View style={{ marginTop: 5 }}>
+        { weight_rows }
+      </View>
     </View>
   }
 
@@ -319,50 +404,40 @@ class HealthTab extends Component {
         { this.render_walking_running()          }
         { this.render_sleep_bar_chart()          }
         { this.render_weight_graph()             }
+        { this.render_weight_entries()           }
       </View>
     </View>
   }
 
-  getPet = async (petId) => {
-    let weight_history = await WearablesController.getPetWeightHistory({pet_id: petId});
-    console.log('weight_history1', JSON.stringify(weight_history));
-    weight_history = weight_history && weight_history.data && weight_history.data.weight_history && weight_history.data.weight_history.petWeightHistories ? weight_history.data.weight_history.petWeightHistories : [];
+  add_weight = async () => {
+    this.setState({ loading_add_weight: true });
 
-    console.log('weight_history', JSON.stringify(weight_history));
+    let selected_pet_id   = this.state.selected_pet && this.state.selected_pet.petID ? this.state.selected_pet.petID : '';
+    let wearables_user_id = this.state.wearables_user_id;
+    let weight_input      = this.state.pet_weight;
 
-    this.setState({weight_history, selected_wearables_pet_id: petId});
-  }
-
-  addWeight = async () => {
-    let { weight_input, selected_wearables_pet_id, wearables_user_id, weight_history } = this.state;
-
-    let date = new Date();
-    let year = date.getFullYear();
+    let date  = new Date();
+    let year  = date.getFullYear();
     let month = date.getMonth() + 1;
-    let day = date.getDate();
-
-    let petWeightId;
-
-    if(weight_history && weight_history.length) {
-      petWeightId = weight_history[weight_history.length - 1].petWeightId++;
-    } else {
-      petWeightId = 0
-    }
+    let day   = date.getDate();
 
     let pet_weight_data = {
-        petWeightId,
-        "petId": selected_wearables_pet_id,
-        "userId": wearables_user_id,
-        "weight": weight_input,
-        "weightUnit": "lbs",
-        "addDate": `${year}-${month}-${day}`
+      "petWeightId": 0,
+      "petId": selected_pet_id,
+      "userId": wearables_user_id,
+      "weight": weight_input,
+      "weightUnit": "kgs",
+      "addDate": `${year}-${month}-${day}`
     }
 
-    console.log('dpet_weight_dataata', pet_weight_data)
+    let add_weight_res = await WearablesController.addPetWeight({ pet_weight_data: pet_weight_data });
 
-    let res = await WearablesController.addPetWeight({pet_weight_data});
-    console.log('res', JSON.stringify(res));
-    await getPet(selected_wearables_pet_id)
+    if (add_weight_res && add_weight_res.success) {
+      this.pull_selected_pet_data(selected_pet_id);
+      this.setState({ loading_add_weight: false, pet_weight: 0, display_weight_input: false });
+    } else {
+      this.setState({ loading_add_weight: false, pet_weight: 0, display_weight_input: false });
+    }
   }
 
   seconds_to_hms = (seconds) => {
