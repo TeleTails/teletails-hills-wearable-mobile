@@ -5,8 +5,10 @@ import { StyleSheet, View, NativeModules,
 import { Screen, Line, Text, Icon, Input, Colors, Button } from '../components';
 import { setItem, getItem } from '../../storage';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import * as Network from 'expo-network';
 import { Marker } from 'react-native-maps';
 import { ScrollView } from "react-native-gesture-handler";
+import { BleManager as BleManagerPlx } from 'react-native-ble-plx';
 import BleManager from 'react-native-ble-manager';
 import { Picker }      from '@react-native-picker/picker';
 import { stringToBytes, bytesToString } from "convert-string";
@@ -118,7 +120,7 @@ class WearableConnectScreen extends Component {
   }
 
   async checkBluetoothState(user_initiated) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
 
       if (Platform.OS === 'android') {
         if (Platform.OS === 'android' && Platform.Version >= 31) {
@@ -225,31 +227,21 @@ class WearableConnectScreen extends Component {
           })
         }
       }
-console.log('Platform.OS', Platform.OS)
-console.log('user_initiated', user_initiated, !user_initiated)
+
       if (Platform.OS === 'ios') {
         if(user_initiated) {
           Linking.openURL('app-settings:');
         } else {
-          console.log('checking state')
-          BleManagerEmitter.addListener('BleManagerDidUpdateState', (args)=>{
-            let the_state = args.state;
-            console.log('the_state', the_state)
-            switch(the_state) {
-              case "unauthorized":
-              case "off":
-              case "unknown":
-                resolve(false);
-                break;
-              default: 
-                resolve(true);
-              break;
-            }
-          });
 
-          BleManager.checkState()
+          const manager = new BleManagerPlx();
+          console.log('manager', manager)
 
-          resolve(true)
+          const subscription = manager.onStateChange((state) => {
+            let enabled = state === 'PoweredOn';
+            resolve(enabled);
+            this.setState({bluetooth_state: enabled})
+          }, true);
+          manager.state();
         }
       }
     });

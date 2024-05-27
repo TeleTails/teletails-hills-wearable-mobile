@@ -67,7 +67,7 @@
       </dict>
     </dict>
     <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>To connect to your pet's sensor, We need to enable Bluetooth on your device.</string>
+    <string>Allow $(PRODUCT_NAME) to connect to bluetooth devices</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
     <string>To connect to your pet's sensor, We need to enable Bluetooth on your device.</string>
     <key>NSCameraUsageDescription</key>
@@ -82,6 +82,7 @@
       <string>processing</string>
       <string>remote-notification</string>
       <string>bluetooth-central</string>
+      <string>bluetooth-peripheral</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
