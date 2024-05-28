@@ -417,7 +417,7 @@ class WearableConnectScreen extends Component {
   }
 
   async forceSync() {
-    let { wifi_name, password, connected_peripheral, is_update, oldDeviceNumber } = this.state;
+    let { wifi_name, password, connected_peripheral, is_update, oldDeviceNumber, deviceNumber, deviceType, petId } = this.state;
 
     this.setState({syncing: true, eventLogType: null})
 
@@ -456,12 +456,6 @@ class WearableConnectScreen extends Component {
     await this.write(peripheral_id, "A172D0D1-A5B8-11E5-A837-0800200C9A66","A172F7E0-A5B8-11E5-A837-0800200C9A66",url);
 
 
-    /* let interval = setTimeout(()=>{
-      this.setState({
-        connection_error: true
-      })
-    }, 10) */
-
     let writeVal = [1];
     // sync
     console.log('----------- write sync ---------')
@@ -475,12 +469,6 @@ class WearableConnectScreen extends Component {
 
    console.log('eventLogType', eventLogType, typeof eventLogType);
 
-   let { deviceNumber, deviceType, petId } = this.state;
-
-   let data = {
-    deviceNumber, deviceType, petId, oldDeviceNumber
-   }
-
   if(eventLogType) {
     this.setState({
       eventLogType,
@@ -491,11 +479,22 @@ class WearableConnectScreen extends Component {
 
     console.log('in update or assign', is_update)
 
+    let data = {
+      deviceNumber, 
+      deviceType: deviceType.value, 
+      petId, 
+      oldDeviceNumber
+    }
+ 
+    console.log('data', data)
+
     if(is_update) {
       assign_response = await WearablesController.updateSensor(data).catch(err=>{console.log('err', err)})
     } else {
       assign_response = await WearablesController.assignSensor(data);
     }
+
+    console.log('assign_response', JSON.stringify(assign_response));
 
     if(assign_response && assign_response.success) {
       this.setState({
@@ -673,7 +672,12 @@ class WearableConnectScreen extends Component {
 
         { !isDeviceSetupDone ? <Button style={{padding: 20 }}
                                        title='Complete Device Setup'
-                                       onPress={ ()=> { this.setState({ screen: 3, is_update: false }) }} />
+                                       onPress={ ()=> { 
+                                       this.setState({ 
+                                        screen: 3, 
+                                        is_update: false,
+                                        deviceNumber: device.deviceNumber
+                                      }) }} />
                              : null }
       </View>
     })
