@@ -654,22 +654,33 @@ class WearableConnectScreen extends Component {
       console.log('device', device);
       let { isDeviceSetupDone } = device;
       return <View style={{ alignItems: 'center' }}>
-        <Text style={{ fontSize: 16, marginTop: 20, marginBottom: 20 }}>DeviceNumber:{device.deviceNumber} - Model:{device.deviceModel}</Text>
+        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontSize: 16 }}>{ device.deviceNumber }</Text>
+            <Text style={{ fontSize: 13, fontWeight: 'medium', color: Colors.DARK_GREY }}>Device Number</Text>
+          </View>
+          <View style={{ width: 20 }} />
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontSize: 16 }}>{ 'AGL3' }</Text>
+            <Text style={{ fontSize: 13, fontWeight: 'medium', color: Colors.DARK_GREY }}>Device Model</Text>
+          </View>
+        </View>
         {/* <Button style={{padding: 20 }}
                 title='Update Device'
                 onPress={()=>{
                   this.setState({ is_update: true, screen: 2, deviceNumber: device.deviceNumber, oldDeviceNumber: device.deviceNumber });
                 }} /> */}
 
-        {!isDeviceSetupDone ?
-          <Button style={{padding: 20 }}
-                  title='Complete Device Setup'
-                  onPress={()=>{this.setState({ screen: 3, is_update: false }) }} /> : <Text style={styles.section_title}>Device Setup Complete</Text> }
+        { !isDeviceSetupDone ? <Button style={{padding: 20 }}
+                                       title='Complete Device Setup'
+                                       onPress={ ()=> { this.setState({ screen: 3, is_update: false }) }} />
+                             : null }
       </View>
     })
 
     return <View>
       <View style={{ padding: 20, alignItems: 'center' }}>
+        <Image style={{ height: 40, width: '100%', borderRadius: 20, marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
         <Text style={styles.section_title} >{ selected_pet.petName }'s Device</Text>
         <View>
           { has_devices ? <View>{ device_rows }</View>
@@ -747,7 +758,7 @@ class WearableConnectScreen extends Component {
       <View style={{ alignItems: 'center' }}>
         <Text style={{ fontSize: 16, fontWeight: 'medium', textAlign: 'center' }}>Select your device below. Your device name will start with “AGL3.”</Text>
         { is_scanning ? <View style={{ alignItems: 'center' }}>
-                          <LottieView autoPlay style={{ width: 100, height: 100, marginTop: -2 }} source={ require('../../assets/animations/dog-trot.json') } />
+                          <LottieView autoPlay style={{ width: 140, height: 140, marginTop: -2 }} source={ require('../../assets/animations/dog-trot.json') } />
                           <View style={{ backgroundColor: '#3276b6', flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: -15, marginBottom: 5 }}>
                             <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
                             <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Scanning ...</Text>
@@ -865,9 +876,13 @@ class WearableConnectScreen extends Component {
       this.setState({ bluetooth_state })
     }
 
-    return <View>
-      <Text>Must enable bluetooth</Text>
-      <TouchableOpacity style={{padding: 20, backgroundColor: 'blue'}} onPress={checkB}><Text>Enable</Text></TouchableOpacity>
+    return <View style={{ padding: 20, alignItems: 'center' }}>
+      <Image style={{ height: 100, width: '100%', borderRadius: 20, marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+      <Text style={{ fontWeight: 'medium', fontSize: 18 }}>Bluetooth Is Disabled</Text>
+      <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 5, color: 'grey' }}>Please enable Bluetooth on your device to continue</Text>
+      <Button style={{ marginTop: 10 }}
+              title='Open Settings'
+              onPress={checkB} />
     </View>
   }
 

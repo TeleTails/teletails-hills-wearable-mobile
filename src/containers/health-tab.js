@@ -21,6 +21,7 @@ class HealthTab extends Component {
       weight_history: {},
       pet_weight: 0,
       display_weight_input: false,
+      behavior_data_loaded: false,
       loading_add_weight: false,
       loading_pull_pets: false
     }
@@ -53,7 +54,7 @@ class HealthTab extends Component {
     let weight_response   = await WearablesController.getPetWeightHistory({ pet_id: pet_id });
     let weight_history    = weight_response && weight_response.data && weight_response.data.weight_history ? weight_response.data.weight_history : {};
 
-    this.setState({ behavior_data: behavior_data, weight_history: weight_history, loading_behavior_data: false })
+    this.setState({ behavior_data: behavior_data, weight_history: weight_history, loading_behavior_data: false, behavior_data_loaded: true })
   }
 
   componentDidMount = async () => {
@@ -124,8 +125,8 @@ class HealthTab extends Component {
   render_forward_motion_bar_chart = () => {
     let behavior_data = this.state.behavior_data;
 
-    let yesterday     = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.previousDayForwardMotion ? behavior_data.forwardMotionInfo.previousDayForwardMotion : 19300;
-    let today_so_far  = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.todayForwardMotionSofar  ? behavior_data.forwardMotionInfo.todayForwardMotionSofar  : 12300;
+    let yesterday     = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.previousDayForwardMotion ? behavior_data.forwardMotionInfo.previousDayForwardMotion : 0;
+    let today_so_far  = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.todayForwardMotionSofar  ? behavior_data.forwardMotionInfo.todayForwardMotionSofar  : 0;
 
     let yest_minutes  = (yesterday/60).toFixed(1);
     let toda_minutes  = (today_so_far/60).toFixed(1);
@@ -137,10 +138,13 @@ class HealthTab extends Component {
     let window_width  = window && window.width  ? window.width : 300;
     let window_height = window && window.height ? window.height : 300;
 
+    yest_minutes = parseFloat(yest_minutes);
+    toda_minutes = parseFloat(toda_minutes);
+
     let barData = [
         { spacing: window_width/5, value: 0, frontColor: '#ED6665'},
-        { value: parseInt(yest_minutes), spacing: 2, labelTextStyle: {color: 'gray'}, frontColor: '#ED6665' },
-        { value: parseInt(toda_minutes), frontColor: '#177AD5' },
+        { value: yest_minutes, spacing: 2, labelTextStyle: {color: 'gray'}, frontColor: '#ED6665' },
+        { value: toda_minutes, frontColor: '#177AD5' },
         { spacing: window_width/5, value: 0, frontColor: '#ED6665'},
     ];
 
@@ -181,8 +185,8 @@ class HealthTab extends Component {
   render_sleep_bar_chart = () => {
     let behavior_data = this.state.behavior_data;
 
-    let yesterday     = behavior_data.sleepInfo && behavior_data.sleepInfo.previousDayTotalSleep ? behavior_data.sleepInfo.previousDayTotalSleep : 20300;
-    let today_so_far  = behavior_data.sleepInfo && behavior_data.sleepInfo.todayTotalSleepSofar  ? behavior_data.sleepInfo.todayTotalSleepSofar  : 8002;
+    let yesterday     = behavior_data.sleepInfo && behavior_data.sleepInfo.previousDayTotalSleep ? behavior_data.sleepInfo.previousDayTotalSleep : 0;
+    let today_so_far  = behavior_data.sleepInfo && behavior_data.sleepInfo.todayTotalSleepSofar  ? behavior_data.sleepInfo.todayTotalSleepSofar  : 0;
 
     let yest_minutes  = (yesterday/60).toFixed(1);
     let toda_minutes  = (today_so_far/60).toFixed(1);
@@ -315,7 +319,7 @@ class HealthTab extends Component {
       }
     });
 
-    // chart_data = [{"dataPointText": "19.95", "label": "May 21", "value": 19.95}, {"dataPointText": "19.95", "label": "May 22", "value": 19.95}, {"dataPointText": "19.95", "label": "May 23", "value": 19.95}, {"dataPointText": "23", "label": "May 24", "value": 23}, {"dataPointText": "20", "label": "May 25", "value": 20}]
+    chart_data.reverse();
 
     return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 15 }}>
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginBottom: 5, color: Colors.DARK_GREY }}>Weight</Text>
@@ -365,7 +369,7 @@ class HealthTab extends Component {
       </View>
     })
 
-    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 15, marginTop: 0 }}>
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, marginTop: 0 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Weight Entries</Text>
         <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10 }}>
@@ -395,12 +399,24 @@ class HealthTab extends Component {
   }
 
   render() {
+    let behavior_data_loaded = this.state.behavior_data_loaded;
+
+    if (!behavior_data_loaded) {
+      return <View>
+        { this.render_pet_section()              }
+        <View style={{ marginTop: 40, alignItems: 'center' }}>
+          <View style={{ backgroundColor: Colors.PRIMARY, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: -15, marginBottom: 5 }}>
+            <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
+            <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Loading Pet Data ...</Text>
+          </View>
+        </View>
+      </View>
+    }
 
     return <View style={{  }}>
       <View>
         { this.render_pet_section()              }
         { this.render_forward_motion_bar_chart() }
-        { /* this.render_data_squares()       */ }
         { this.render_walking_running()          }
         { this.render_sleep_bar_chart()          }
         { this.render_weight_graph()             }
