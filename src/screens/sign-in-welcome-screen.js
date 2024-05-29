@@ -77,11 +77,11 @@ class SignInWelcomeScreen extends Component {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <LottieView loop={true} ref={animation => { this.dog_animation = animation }} style={{ width: 250, height: 250 }} source={require('../../assets/animations/dog-pouncing.json')} />
         </View>
-        <View style={{ height: 260, backgroundColor: 'white', borderRadius: 30, padding: 30, marginRight: 10, marginLeft: 10, alignItems: 'center' }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 22 }}>Welcome to Perfect Poop Challenge</Text>
+        <View style={{ height: 220, backgroundColor: 'white', borderRadius: 30, padding: 30, marginRight: 10, marginLeft: 10, alignItems: 'center' }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 22 }}>Welcome to PetFit</Text>
           <View style={{ flexDirection: 'row', width: '100%', backgroundColor: 'white', marginBottom: 20, marginTop: 5 }}>
             <Checkbox style={{ marginRight: 5, marginLeft: 20, borderColor: check_color }} checked={this.state.agreed} onPress={ () => { this.setState({ agreed: !this.state.agreed }) }} />
-            <Text style={{ flex: 1, color: 'grey', fontWeight: 'medium', fontSize: 16, paddingTop: 10 }}>I agree to Perfect Poop Challenge <Text onPress={ () => { Linking.openURL('https://www.teletails.com/toshills') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Terms & Conditions</Text> and <Text onPress={ () => { Linking.openURL('https://www.teletails.com/privacypolicy') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Privacy Policy.</Text></Text>
+            <Text style={{ flex: 1, color: 'grey', fontWeight: 'medium', fontSize: 16, paddingTop: 10 }}>I agree to PetFit<Text onPress={ () => { Linking.openURL('https://www.teletails.com/toshills') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Terms & Conditions</Text> and <Text onPress={ () => { Linking.openURL('https://www.teletails.com/privacypolicy') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Privacy Policy.</Text></Text>
           </View>
           <Button title={'CONTINUE'}
                   style={{ width: 330, marginBottom: 10, borderWidth: 2, borderColor: 'white' }}

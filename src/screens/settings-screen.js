@@ -39,6 +39,7 @@ class SettingsScreen extends Component {
     await setItem('token', '');
     await setItem('user_id', '');
     await setItem('user', {});
+    await setItem('wearables_user_profile', null);
     this.props.navigation.popToTop();
   }
 

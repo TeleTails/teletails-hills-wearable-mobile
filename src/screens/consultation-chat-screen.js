@@ -458,7 +458,7 @@ class ConsultationChatScreen extends Component {
     let full_messages     = [];
 
     if (display_welcome) {
-      let async_welcome_1 = 'Hi! Thanks for reaching out to DodoVet. Our care team is busy helping other pet parents at the moment, but we’ll be with you as soon as possible.'
+      let async_welcome_1 = 'Hi! Thanks for reaching out to PetFit. Our care team is busy helping other pet parents at the moment, but we’ll be with you as soon as possible.'
       let async_welcome_2 = 'You will get a notification when your provider joins the session shortly.'
       let online_welcome  = "Welcome! We’re looking forward to chatting with you. We will be with you momentarily. In the meantime, feel free to add a brief summary of your questions/concerns today or any additional information, photos or videos you feel is important.";
       let base_msg_fields = { consultation_id: care_consultation._id, from: 'system', type: "TEXT", created_at: care_consultation.created_at, updated_at: care_consultation.created_at }

@@ -270,8 +270,8 @@ class HealthTab extends Component {
   render_walking_running = () => {
 
     let behavior_data = this.state.behavior_data;
-    let walking       = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.walking ? behavior_data.forwardMotionInfo.walking : 8300;
-    let running       = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.running ? behavior_data.forwardMotionInfo.running : 4020;
+    let walking       = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.walking ? behavior_data.forwardMotionInfo.walking : 0;
+    let running       = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.running ? behavior_data.forwardMotionInfo.running : 0;
 
     let walking_str   = this.seconds_to_hms(walking);
     let running_str   = this.seconds_to_hms(running);
