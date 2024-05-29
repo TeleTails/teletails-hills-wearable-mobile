@@ -4,7 +4,7 @@ import { StringUtils } from '../utils';
 import { StyleSheet, View, TouchableOpacity, ImageBackground } from 'react-native';
 import { Screen, Line, Text, Icon, Button, Colors } from '../components';
 import { setItem, getItem } from '../../storage';
-import { PetsController }   from '../controllers';
+import { PetsController, WearablesController } from '../controllers';
 
 class PetsScreen extends Component {
 
@@ -38,9 +38,9 @@ class PetsScreen extends Component {
        let is_last = index === pets.length - 1;
            is_last = false;
        let pet_id  = pet._id;
-       let name    = StringUtils.displayName(pet);
-       let gender  = StringUtils.sentenceCase(pet.gender.toLowerCase());
-       let type    = StringUtils.sentenceCase(pet.type.toLowerCase());
+       let name    = pet.petName; //StringUtils.displayName(pet);
+       let gender  = ''; // StringUtils.sentenceCase(pet.gender.toLowerCase());
+       let type    = ''; // StringUtils.sentenceCase(pet.type.toLowerCase());
        let descrpt = gender + ' ' + type;
        let age     = '';
 
@@ -53,22 +53,19 @@ class PetsScreen extends Component {
        }
 
        return <View key={pet_id}>
-         <TouchableOpacity style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+         <View style={{ marginTop: 20, marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                            onPress={ () => { this.open_pet_details(pet_id) }}>
           <View>
             <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#040415' }}>{ name }</Text>
-            <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ descrpt + age }</Text>
           </View>
-          <Icon name='chevron-right' solid={true} size={13} color={'#cccccc'} />
-         </TouchableOpacity>
+          { /* <Icon name='chevron-right' solid={true} size={13} color={'#cccccc'} /> */ }
+         </View>
          <Line hide={is_last} />
        </View>
      })
 
      let no_pets_message = pet_rows && pet_rows.length === 0 ? true : false;
      let is_mobile       = Platform.OS === 'ios' || Platform.OS === 'android' ? true : false;
-
-     no_pets_message = true;
 
      return <View style={{ marginBottom: 10 }}>
       { no_pets_message ? <View style={{ height: 250, marginBottom: 15 }}>
@@ -82,6 +79,17 @@ class PetsScreen extends Component {
                             </ImageBackground>
                           </View>
                         : pet_rows }
+      { no_pets_message ? null
+                        : <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}
+                                            onPress={ () => {
+                                              this.props.navigation.push('AddPetFlow');
+                                            }}>
+                            <Icon name='plus-circle' color={Colors.PRIMARY} />
+                            <View style={{ marginLeft: 15 }}>
+                              <Text style={{ fontSize: 15, fontWeight: 'medium', color: '#535353' }}>{ 'Add A New Pet' }</Text>
+                              <Text style={{ fontSize: 14, color: '#575762', marginTop: 3 }}>{ 'Add another pet to your account' }</Text>
+                            </View>
+                          </TouchableOpacity> }
      </View>
   }
 
@@ -119,9 +127,9 @@ class PetsScreen extends Component {
   }
 
   pull_pets = async () => {
-    let pets_response = await PetsController.getPets();
-    let is_success    = pets_response && pets_response.success;
-    let pets          = is_success && pets_response.data && pets_response.data.pets ? pets_response.data.pets : [];
+
+    let user_pets_response = await WearablesController.getUserPets({});
+    let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
 
     this.setState({ pets: pets });
   }

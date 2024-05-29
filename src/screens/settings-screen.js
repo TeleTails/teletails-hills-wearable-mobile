@@ -40,6 +40,7 @@ class SettingsScreen extends Component {
     await setItem('user_id', '');
     await setItem('user', {});
     await setItem('wearables_user_profile', null);
+    await setItem('hide_add_pets', 'false');
     this.props.navigation.popToTop();
   }
 
