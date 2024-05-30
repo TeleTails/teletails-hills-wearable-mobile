@@ -419,12 +419,12 @@ class WearableConnectScreen extends Component {
   async forceSync() {
     let { wifi_name, password, connected_peripheral, is_update, oldDeviceNumber, deviceNumber, deviceType, petId } = this.state;
 
-    this.setState({syncing: true, eventLogType: null})
+    this.setState({syncing: true, eventLogType: null, error_message: null})
 
     let peripheral_id = connected_peripheral.id;
     console.log('wifi_name', wifi_name)
     console.log('password', password)
-    password = password ? password : ""
+    password = password ? password : "";
 
     const WIFI_SSID_CHAR = 'A172F7E1-A5B8-11E5-A837-0800200C9A66';
     const WIFI_PSD_CHAR = 'A172F7E2-A5B8-11E5-A837-0800200C9A66';
@@ -483,7 +483,7 @@ class WearableConnectScreen extends Component {
       deviceNumber, 
       deviceType: deviceType.value, 
       petId, 
-      oldDeviceNumber
+      oldDeviceNumber: oldDeviceNumber ? oldDeviceNumber : deviceNumber
     }
  
     console.log('data', data)
@@ -496,20 +496,36 @@ class WearableConnectScreen extends Component {
 
     console.log('assign_response', JSON.stringify(assign_response));
 
+    /* { 
+      "success": false, 
+      "error": { 
+        "status": { "success": false, "httpStatus": 400 }, 
+        "errors": [{ "code": "WEARABLES_INVAL_ERR_010", "message": "Please select valid device number", "key": "service.asset.invalid.deviceNumber" }] 
+      } 
+    } */
+
     if(assign_response && assign_response.success) {
       this.setState({
+        error_message: null,
         eventLogType,
         syncing: false
       })
     } else {
+      let error_message = assign_response.error && assign_response.error.errors && assign_response.error.errors.length ? assign_response.error.errors[0].message : null;
+
+      let error_key = assign_response.error && assign_response.error.errors && assign_response.error.errors.length ? assign_response.error.errors[0].key : null;
+
+      let show_device_number_edit = error_key === 'service.asset.invalid.deviceNumber'
+      
       this.setState({
         eventLogType: 9,
-        syncing: false
+        error_message,
+        syncing: false,
+        show_device_number_edit,
+        screen: show_device_number_edit ? 2 : this.state.screen
       })
     }
   }
-
-
 }
 
   selectWifi(wifi_name) {
@@ -568,7 +584,7 @@ class WearableConnectScreen extends Component {
     </View>
   }
 
-  async validateSensor() {
+  async validateSensor(is_update) {
 
     let { deviceNumber, deviceType, device_types } = this.state;
 
@@ -586,7 +602,7 @@ class WearableConnectScreen extends Component {
     let is_number_valid = res && res.data && res.data.validate_device_response && res.data.validate_device_response.data && res.data.validate_device_response.data.isValidDeviceNumber ? true : false;
 
     if (deviceNumber && is_number_valid) {
-      this.setState({ screen: 3, loading_validate_num: false })
+      this.setState({ screen: 3, loading_validate_num: false, is_update })
     } else {
       this.setState({ device_setup_error: "The device number is invalid", loading_validate_num: false })
     }
@@ -675,7 +691,7 @@ class WearableConnectScreen extends Component {
                                        onPress={ ()=> { 
                                        this.setState({ 
                                         screen: 3, 
-                                        is_update: false,
+                                        is_update: true,
                                         deviceNumber: device.deviceNumber
                                       }) }} />
                              : null }
@@ -708,20 +724,26 @@ class WearableConnectScreen extends Component {
 
     let device_setup_error   = this.state.device_setup_error;
     let loading_validate_num = this.state.loading_validate_num;
+    let show_device_number_edit = this.state.show_device_number_edit;
 
     return <View>
       <View style={{ padding: 20 }}>
         <View>
+          {show_device_number_edit ? <Text style={{color: 'red', textAlign: 'center', marginTop: 15, fontSize: 16, marginBottom: 15}}>The current device number could not be associated. Please make sure this number is correct and is not assigned to another pet.</Text> : null}
           <Image style={{ height: 200, width: '100%', marginBottom: 15, borderRadius: 20 }} resizeMode='cover' source={ require('../../assets/images/device-number.png') } />
           <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: 'medium', marginBottom: 5 }}>What’s your device number?</Text>
           <Text style={{ textAlign: 'center', fontSize: 15, marginBottom: 5 }}>This is found on the back of your device and listed after “DN:” at the top.</Text>
           <View style={{ height: 10 }} />
-          <Input type={'text'} value={this.state.deviceNumber} placeholder={'Device Number'} onChangeText={(deviceNumber) => { this.setState({ deviceNumber: deviceNumber.toUpperCase() }) }} />
+          <Input type={'text'} value={this.state.deviceNumber} placeholder={'Device Number'} onChangeText={(deviceNumber) => { 
+            this.setState({ 
+              oldDeviceNumber: !this.state.oldDeviceNumber ? deviceNumber : this.state.oldDeviceNumber,
+              deviceNumber: deviceNumber.toUpperCase()})
+            }} />
           { device_setup_error ? <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>{ device_setup_error }</Text> : null }
           <Button title='Continue'
                   style={{ marginTop: 10, padding: 20 }}
                   loading={loading_validate_num}
-                  onPress={this.validateSensor} />
+                  onPress={()=>this.validateSensor(show_device_number_edit)} />
         </View>
       </View>
     </View>
@@ -807,6 +829,7 @@ class WearableConnectScreen extends Component {
     let syncing              = this.state.syncing;
     let eventLogType         = this.state.eventLogType;
     let error_codes          = this.state.error_codes;
+    let error_message        = this.state.error_message;
 
     let wifi_rows = wifi_list.map((a) => {
       let is_selected = wifi_name && wifi_name === a;
@@ -826,7 +849,7 @@ class WearableConnectScreen extends Component {
       </View>
     })
 
-    if (eventLogType && eventLogType === 0) {
+    if (eventLogType === 0) {
       let window        = Dimensions.get('window');
       let window_height = window && window.height ? window.height : 300;
       return <View style={{ padding: 20 }}>
@@ -865,7 +888,7 @@ class WearableConnectScreen extends Component {
                     <Text style={{ marginLeft: 8, fontSize: 14, color: 'white', fontWeight: 'medium' }}>Syncing Device ...</Text>
                   </View>
                 : null }
-      { eventLogType && eventLogType !== 0 ? <Text style={{ color: 'red', textAlign: 'center', marginTop: 15, fontSize: 16 }}>{ error_codes[eventLogType] }</Text> : null }
+      { eventLogType && eventLogType !== 0 ? <Text style={{ color: 'red', textAlign: 'center', marginTop: 15, fontSize: 16 }}>{ error_message ? error_message : error_codes[eventLogType] }</Text> : null }
     </View>
   }
 
