@@ -4,9 +4,11 @@ import io from 'socket.io-client';
 
 let sockets = {};
 
-/* let API_URL = "https://prod-elb-api.teletails.com/data";
-let CHAT_URL = "https://prod-elb-chat.teletails.com";
-let NOTIF_URL = "https://prod-elb-chat.teletails.com"; */
+//let API_URL = "https://prod-elb-api.teletails.com/data";
+/* let CHAT_URL = "https://prod-elb-chat.teletails.com";
+let NOTIF_URL = "https://prod-elb-chat.teletails.com";
+let API_URL = 'https://1266-71-172-17-224.ngrok-free.app/data';
+ */
 /* let API_URL = "http://localhost:3000/data";
 let CHAT_URL = "https://prod-elb-chat.teletails.com";
 let NOTIF_URL = "https://prod-elb-chat.teletails.com"; */

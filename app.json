@@ -25,7 +25,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teletails.petfit",
-      "buildNumber": "13"
+      "buildNumber": "16"
     },
     "android": {
       "adaptiveIcon": {

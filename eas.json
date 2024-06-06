@@ -16,11 +16,29 @@
         "API_URL": "https://prod-elb-api.teletails.com/data",
         "CHAT_URL": "https://prod-elb-chat.teletails.com",
         "NOTIF_URL": "https://prod-elb-chat.teletails.com",
-        "PARTNER_ID": "61fd4d95cbb0c41ec9705073"
+        "PARTNER_ID": "61fd4d95cbb0c41ec9705073",
+        "VIDEO_BASE_URL": "https://video.teletails.com",
+        "SELECTED_PARTNER": "hills",
+        "PARTNER_NAME": "hills",
+        "PRACTICE_ID": "60bf84e240dd{53c32c81b00",
+        "PARTNER_HILLS_DISPLAY_NAME": "Hills",
+        "PARTNER_HILLS_TELETAILS_NAME": "hills"
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "API_URL": "https://prod-elb-api.teletails.com/data",
+        "CHAT_URL": "https://prod-elb-chat.teletails.com",
+        "NOTIF_URL": "https://prod-elb-chat.teletails.com",
+        "PARTNER_ID": "61fd4d95cbb0c41ec9705073",
+        "VIDEO_BASE_URL": "https://video.teletails.com",
+        "SELECTED_PARTNER": "hills",
+        "PARTNER_NAME": "hills",
+        "PRACTICE_ID": "60bf84e240dd{53c32c81b00",
+        "PARTNER_HILLS_DISPLAY_NAME": "Hills",
+        "PARTNER_HILLS_TELETAILS_NAME": "hills"
+      }
     },
     "production": {
       "developmentClient": false,
@@ -33,7 +51,13 @@
         "API_URL": "https://prod-elb-api.teletails.com/data",
         "CHAT_URL": "https://prod-elb-chat.teletails.com",
         "NOTIF_URL": "https://prod-elb-chat.teletails.com",
-        "PARTNER_ID": "61fd4d95cbb0c41ec9705073"
+        "PARTNER_ID": "61fd4d95cbb0c41ec9705073",
+        "VIDEO_BASE_URL": "https://video.teletails.com",
+        "SELECTED_PARTNER": "hills",
+        "PARTNER_NAME": "hills",
+        "PRACTICE_ID": "60bf84e240dd{53c32c81b00",
+        "PARTNER_HILLS_DISPLAY_NAME": "Hills",
+        "PARTNER_HILLS_TELETAILS_NAME": "hills"
       }
     }
   },
