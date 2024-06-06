@@ -81,7 +81,7 @@ class SignInWelcomeScreen extends Component {
           <Text style={{ fontWeight: 'bold', fontSize: 22 }}>Welcome to PetFit</Text>
           <View style={{ flexDirection: 'row', width: '100%', backgroundColor: 'white', marginBottom: 20, marginTop: 5 }}>
             <Checkbox style={{ marginRight: 5, marginLeft: 20, borderColor: check_color }} checked={this.state.agreed} onPress={ () => { this.setState({ agreed: !this.state.agreed }) }} />
-            <Text style={{ flex: 1, color: 'grey', fontWeight: 'medium', fontSize: 16, paddingTop: 10 }}>I agree to PetFit<Text onPress={ () => { Linking.openURL('https://www.teletails.com/toshills') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Terms & Conditions</Text> and <Text onPress={ () => { Linking.openURL('https://www.teletails.com/privacypolicy') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Privacy Policy.</Text></Text>
+            <Text style={{ flex: 1, color: 'grey', fontWeight: 'medium', fontSize: 16, paddingTop: 10 }}>I agree to PetFit <Text onPress={ () => { Linking.openURL('https://www.teletails.com/toshills') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Terms & Conditions</Text> and <Text onPress={ () => { Linking.openURL('https://www.teletails.com/privacypolicy') }} style={{ fontWeight: 'medium', color: Colors.PRIMARY }}>Privacy Policy.</Text></Text>
           </View>
           <Button title={'CONTINUE'}
                   style={{ width: 330, marginBottom: 10, borderWidth: 2, borderColor: 'white' }}
