@@ -35,7 +35,7 @@ class HomeCtaButtons extends Component {
                           this.props.navigation.push('WearableConnectScreen')
                         }}>
         <View style={styles.icon_container}>
-          <Image style={{ height: 26, width: 26, tintColor: Colors.PRIMARY }} source={ require('../../assets/images/register-a-kit.png') } />
+          <Image style={{ height: 26, width: 26, tintColor: Colors.PRIMARY }} source={ require('../../assets/images/connect-a-device.png') } />
         </View>
         <Text style={styles.button_title}>Connect Your</Text>
         <Text style={styles.button_title}>Wearable</Text>
