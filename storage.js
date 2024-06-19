@@ -1,5 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+let clearStorate = async () => {
+  await AsyncStorage.clearStorate();
+}
+
 let setItem = async (key, value) => {
   try {
     let storage = await AsyncStorage.getItem('storage');
@@ -56,5 +60,6 @@ let deleteItem = async (key) => {
 export {
   setItem,
   getItem,
-  deleteItem
+  deleteItem,
+  clearStorate
 }

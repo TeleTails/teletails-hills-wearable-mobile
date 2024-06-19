@@ -1,6 +1,6 @@
 import { UtilitiesController } from '../controllers';
 import { SELECTED_PARTNER } from '@env'
-import { setItem, getItem }    from '../../storage';
+import { setItem, getItem, clearStorate }    from '../../storage';
 
 export default class AuthController {
 
@@ -13,10 +13,11 @@ export default class AuthController {
     };
 
     static signOut = AuthController.exceptionWrapper(async () => {
-        await AuthController.clearToken();
+        await clearStorate();
     });
 
     static clearToken = async (user) => {
+
       await setItem('token', '');
       await setItem('user_id', '');
       await setItem('user', {});

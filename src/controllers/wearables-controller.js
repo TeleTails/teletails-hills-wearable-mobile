@@ -116,4 +116,30 @@ export default class WearablesController {
     let response = await UtilitiesController.post(`/wearables/api/get_pet_behavior`, data, true);
     return response;
   });
+
+  static getRecommendedDiet = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/recommended_diet`, data, true);
+    return response;
+  });
+
+  static getPetIntake = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/intake`, data, true);
+    return response;
+  });
+
+  static getPetIntakeConfig = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/intake_config`, data, true);
+    return response;
+  });
+
+  static addPetIntake = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/add_intake`, data, true);
+    return response;
+  });
+
+  static deletePetIntake = WearablesController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/wearables/api/intake_delete`, data, true);
+    return response;
+  });
+
 }

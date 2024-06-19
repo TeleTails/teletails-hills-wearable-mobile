@@ -4,6 +4,7 @@ import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { AuthController, PetsController, WearablesController }   from '../controllers';
 import { StringUtils    }   from '../utils';
 import { setItem, getItem } from '../../storage';
+import { Picker      } from '@react-native-picker/picker';
 import { Text, Line, Icon, Colors, Input, Button } from '../components';
 import { BarChart, LineChart, PieChart, PopulationPyramid } from "react-native-gifted-charts";
 import { SignIn } from '../containers';
@@ -48,6 +49,8 @@ class HealthTab extends Component {
   pull_selected_pet_data = async (pet_id) => {
     this.setState({ loading_behavior_data: true });
 
+    this.getIntakeData(pet_id);
+
     let behavior_response = await WearablesController.getPetBehavior({ pet_id: pet_id });
     let behavior_data     = behavior_response && behavior_response.data && behavior_response.data.bahavior_data && behavior_response.data.bahavior_data.forwardMotionInfo ? behavior_response.data.bahavior_data : {};
 
@@ -55,6 +58,151 @@ class HealthTab extends Component {
     let weight_history    = weight_response && weight_response.data && weight_response.data.weight_history ? weight_response.data.weight_history : {};
 
     this.setState({ behavior_data: behavior_data, weight_history: weight_history, loading_behavior_data: false, behavior_data_loaded: true })
+  }
+
+  getIntakeData = async (pet_id) => {
+    let today = new Date();
+
+    let { selected_pet } = this.state;
+
+    if(!pet_id) {
+      pet_id = selected_pet.petID;
+    }
+
+    let diet_data = {
+      pet_id, 
+      date: `${today.getFullYear()}-${today.getMonth() < 9 ? '0' : ''}${today.getMonth() + 1}-${today.getDate()}`
+    }
+
+    let recommended_diet = await WearablesController.getRecommendedDiet(diet_data);
+
+    recommended_diet = recommended_diet && recommended_diet.data && recommended_diet.data.recommended_diet ? recommended_diet.data.recommended_diet : [];
+
+    console.log('recommended_diet', recommended_diet)
+
+    let intake_data = {
+      toDate: `${today.getFullYear()}-${today.getMonth() < 9 ? '0' : ''}${today.getMonth() + 1}-${today.getDate()}`,
+      pet_id
+    }
+
+    let intake = await WearablesController.getPetIntake(intake_data);
+
+    let intake_config = await WearablesController.getPetIntakeConfig(intake_data);
+    //{"data": {"config": {"dietFeedback": [Array], "measurementUnits": [Array], "otherFoods": [Array], "recommendedDiet": [Array]}}, "success": true}
+    //console.log('intake_config', intake_config);
+    intake_config = intake_config && intake_config.data && intake_config.data.config ? intake_config.data.config : null;
+
+    let intake_measurement_units = intake_config && intake_config.measurementUnits ? intake_config.measurementUnits : [];
+
+    let intake_other_foods = intake_config && intake_config.otherFoods ? intake_config.otherFoods : [];
+
+    let intake_diet_feedback = intake_config && intake_config.dietFeedback ? intake_config.dietFeedback : [];
+
+    /* console.log('intake_measurement_units', JSON.stringify(intake_measurement_units));
+    console.log('intake_other_foods', JSON.stringify(intake_other_foods));
+    console.log('intake_diet_feedback', JSON.stringify(intake_diet_feedback));
+ */
+    //{ "data": { "get_intake_config_res": { "data": [Object], "success": true }, "get_intake_history_res": { "data": [Object], "success": true }, "get_intake_list_res": { "data": [Object], "success": true } }, "success": true }
+
+    let intake_history = intake && intake.data && intake.data.intake_history ? intake.data.intake_history : [];
+
+    let intake_list = intake && intake.data && intake.data.intake_list ? intake.data.intake_list : []
+
+    //console.log('intake2', intake_list);
+
+    this.setState({recommended_diet, intake_history, intake_measurement_units, intake_other_foods, intake_diet_feedback, intake_data_loaded: true, intake_list, display_diet_input: false, loading_add_diet: false });
+  }
+
+  removeIntake = async (intake, intakeDate) => {
+    console.log('intake', intake)
+
+    let { selected_pet } = this.state;
+
+    let { intakeId } = intake
+
+    let pet_id = selected_pet.petID;
+
+    let intake_data = {
+      foodIntakeHistory: {
+        ...intake,
+        isDeleted: 1
+      },
+      intakeId,
+      pet_id,
+      intakeDate
+    }
+
+    console.log('intake_data', intake_data)
+
+    let intake_res = await WearablesController.deletePetIntake(intake_data);
+console.log('intake_res', JSON.stringify(intake_res))
+    if(intake_res && intake_res.success) {
+      this.getIntakeData();
+    } else {
+      this.setState({intake_error_message: "There was an error adding your intake"})
+    }
+  }
+
+  addIntake = async () => {
+    this.setState({loading_add_diet: true}, async ()=>{
+      let { 
+        otherFoodTypeName,
+        foodName,
+        isOtherFood,
+        intake_other_foods,
+        otherFoodSelectedIndex,
+        percentConsumed, 
+        selected_pet,
+        recommendedDietSelectedIndex,
+        recommended_diet, 
+        quantityOffered, 
+        quantityConsumed } = this.state;
+
+      let pet_id = selected_pet.petID;
+
+      let intake_data = {};
+
+      console.log('isOtherFood', isOtherFood)
+      if(isOtherFood) {
+        otherFoodSelectedIndex = otherFoodSelectedIndex ? otherFoodSelectedIndex : 0;
+        let food = intake_other_foods[otherFoodSelectedIndex];
+
+        otherFoodTypeId = food.otherFoodId;
+        otherFoodTypeName = food.otherFoodType;
+
+        intake_data = { 
+          pet_id,
+          otherFoodTypeName,
+          foodName,
+          isOtherFood,
+          otherFoodTypeId,
+          percentConsumed };
+      } else {
+        recommendedDietSelectedIndex = recommendedDietSelectedIndex ? recommendedDietSelectedIndex : 0;
+        let selected_recommended_diet = recommended_diet[recommendedDietSelectedIndex];
+
+        console.log('selected_recommended_diet', selected_recommended_diet)
+
+        intake_data = { 
+          pet_id,
+          isOtherFood: false,
+          quantityOffered,
+          percentConsumed,
+          quantityConsumed,
+          ...selected_recommended_diet
+        };
+      }
+
+      console.log('intake_data2', intake_data)
+
+      let intake = await WearablesController.addPetIntake(intake_data);
+  console.log('intake_res', intake)
+      if(intake && intake.success) {
+        this.getIntakeData();
+      } else {
+        this.setState({intake_error_message: "There was an error adding your intake", loading_add_diet: false})
+      }
+    });
   }
 
   componentDidMount = async () => {
@@ -67,7 +215,7 @@ class HealthTab extends Component {
   pet_selected_action = async (pet) => {
     let pet_id = pet && pet.petID ? pet.petID : '';
     this.pull_selected_pet_data(pet_id);
-    this.setState({ display_pet_selection: false, selected_pet: pet });
+    this.setState({ display_pet_selection: false, selected_pet: pet, diet: null });
   }
 
   render_pet_selection_list = () => {
@@ -398,8 +546,182 @@ class HealthTab extends Component {
     </View>
   }
 
+  render_diet_entries = () => {
+    let { recommended_diet, display_diet_input, diet_list, intake_history, intake_diet_feedback, intake_measurement_units, intake_other_foods, diet, otherFoodTypeId, foodName, percentConsumed, intake_data_loaded, otherFoodSelectedIndex, intake_error_message, intake_list, recommendedDietSelectedIndex, quantityOffered, loading_add_diet } = this.state;
+
+    diet_list = diet_list ? diet_list : [];
+
+    // recommended_diet
+    //[{"dietId": 364, "dietName": "SD Healthy Advantage Puppy Dry 12L", "feedingScheduledId": 32799, "recommendedAmountCups": 0, "recommendedAmountGrams": 0, "recommendedRoundedCups": "0", "recommendedRoundedGrams": "0", "unit": "cup", "unitId": 4}]
+
+    /* 
+ LOG  intake_diet_feedback [{"feedbackId":1,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is way too much for my dog"},{"feedbackId":2,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is a little too much for my dog"},{"feedbackId":3,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is just right for my dog"},{"feedbackId":4,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is a little too low for my dog"},{"feedbackId":5,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is way too low for my dog"},{"feedbackId":6,"feedbackCategory":"Food Recommendation Feedback","description":"Other feedback (specify)"},{"feedbackId":7,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog has no behaviour issues related to food"},{"feedbackId":8,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is not interested in food"},{"feedbackId":9,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is begging for food"},{"feedbackId":10,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is becoming aggressive around food"},{"feedbackId":11,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is eating food from other pets or people"},{"feedbackId":12,"feedbackCategory":"Pet Behaviour Feedback","description":"Other feedback (specify)"}] */
+
+ console.log('otherFoodTypeId', otherFoodTypeId)
+
+ recommendedDietSelectedIndex = recommendedDietSelectedIndex ? recommendedDietSelectedIndex : 0
+
+ let selected_recommended_diet = recommended_diet[recommendedDietSelectedIndex];
+
+    let diet_input = <View style={{ marginTop: 20, marginBottom: 20 }}>
+      
+      {recommended_diet.length !== 0 ? <>
+        <Text>Add from... </Text>
+          <Button style={{ marginTop: 10 }}
+                  title='Other Diet'
+                  loading={this.state.loading_add_weight}
+                  onPress={()=>{ this.setState({diet: 0, isOtherFood: true, foodName: null}) }} />
+          <Button style={{ marginTop: 10 }}
+                  title='Recommended Diet'
+                  loading={this.state.loading_add_weight}
+                  onPress={()=>{ this.setState({diet: 1, isOtherFood: false, foodName: null}) }} />
+
+    </> : null}
+      {diet === 0 ? <View>
+        <Picker
+              style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
+              selectedValue={otherFoodSelectedIndex}
+              onValueChange={ (otherFoodSelectedIndex) => {
+                otherFoodSelectedIndex = parseInt(otherFoodSelectedIndex);
+                let food = intake_other_foods[otherFoodSelectedIndex];
+                console.log('food', food)
+                this.setState({ otherFoodSelectedIndex, otherFoodTypeId: food.otherFoodId, otherFoodTypeName: food.otherFoodType })
+              }}>
+                {intake_other_foods.map((a, i) => {
+                  //[{"otherFoodId":1,"otherFoodType":"Wet Food","description":"Including cans, pouches, refrigerated fresh pet foods, single-serve entrees, etc."},{"otherFoodId":2,"otherFoodType":"Dry Food"},{"otherFoodId":3,"otherFoodType":"Purchased Food","description":"Store-bought Raw food, BARF (Bones and Raw Food), etc."},{"otherFoodId":4,"otherFoodType":"Human Food","description":"(raw or cooked), homemade pet food recipes, homemade treats, etc."},{"otherFoodId":5,"otherFoodType":"Treats"},{"otherFoodId":6,"otherFoodType":"Other","description":"Please specify"}]
+                  //
+                  return <Picker.Item value={i} key={i} label={a.otherFoodType} />
+                })}
+            </Picker>
+
+            <View style={{flexDirection: 'column'}}>
+              <Text>Food Name</Text>
+              <Input type={'number'} value={foodName} onChangeText={foodName=>{this.setState({foodName})}} />
+            </View>
+
+            <View style={{flexDirection: 'column'}}>
+              <Text>Percentage Consumed</Text>
+              <Input keyboardType={'number-pad'} value={percentConsumed} onChangeText={percentConsumed=>{this.setState({percentConsumed})}} />
+            </View>
+            {intake_error_message ? <Text style={{color: 'red'}}>{intake_error_message}</Text> : null}
+            <Button style={{ marginTop: 10 }}
+              title='Add Intake'
+              loading={this.state.loading_add_diet}
+              onPress={this.addIntake} />
+      </View> : null}
+      {diet === 1 ? <View>
+        <Picker
+              style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
+              selectedValue={recommendedDietSelectedIndex}
+              onValueChange={ (recommendedDietSelectedIndex) => {
+                recommendedDietSelectedIndex = parseInt(recommendedDietSelectedIndex);
+                let food = recommended_diet[recommendedDietSelectedIndex];
+                console.log('food', food)
+                this.setState({ recommendedDietSelectedIndex })
+              }}>
+                {recommended_diet.map((a, i) => {
+                  //[{"dietId": 364, "dietName": "SD Healthy Advantage Puppy Dry 12L", "feedingScheduledId": 32802, "recommendedAmountCups": 0, "recommendedAmountGrams": 0, "recommendedRoundedCups": "0", "recommendedRoundedGrams": "0", "unit": "cup", "unitId": 4}]
+                  //
+                  return <Picker.Item value={i} key={i} label={a.dietName} />
+                })}
+            </Picker>
+
+            <View style={{flexDirection: 'column'}}>
+              <Text>Quantity Offered ({selected_recommended_diet.unit}s)</Text>
+              <Input keyboardType={'number-pad'} value={quantityOffered} onChangeText={quantityOffered=>{this.setState({quantityOffered})}} />
+            </View>
+
+            <View style={{flexDirection: 'column'}}>
+              <Text>Percentage Consumed</Text>
+              <Input keyboardType={'number-pad'} value={percentConsumed} onChangeText={percentConsumed=>{this.setState({percentConsumed})}} />
+            </View>
+            {intake_error_message ? <Text style={{color: 'red'}}>{intake_error_message}</Text> : null}
+            <Button style={{ marginTop: 10 }}
+              title='Add Intake'
+              loading={this.state.loading_add_diet}
+              onPress={this.addIntake} />
+      </View> : null}
+    </View>
+
+    let recommended_diet_rows = <View>
+      <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Today's Recommended Diet</Text>
+      <View>{recommended_diet.length === 0 ? <Text>No diet recommended yet</Text> : null}
+        {recommended_diet.map(a=>{
+          let unit = a.unit;
+          return <View style={{flexDirection: 'column'}}>
+            <View><Text>Name: {a.dietName}</Text></View>
+            <View><Text>{unit}: {unit === 'cups' ? a.recommendedAmountCups : a.recommendedAmountGrams}</Text></View>
+            </View>
+        })}
+      </View>
+    </View>
+
+    console.log('intake_history', intake_history)
+
+    // intake_history
+    //{"dietList": [{"dietId": 365, "dietName": "PD Canine c/d, Dry", "isDietSelected": 1}], "foodIntakeHistory": [{"intakeComparision": [Array], "intakeDate": "2024-06-01", "intakeDistribution": [Array]}, {"intakeComparision": [Array], "intakeDate": "2024-06-02", "intakeDistribution": [Array]}, {"intakeComparision": [Array], "intakeDate": "2024-06-03", "intakeDistribution": [Array]}, {"intakeComparision": [Array], "intakeDate": "2024-06-04", "intakeDistribution": [Array]}, {"intakeComparision": [Array], "intakeDate": "2024-06-05", "intakeDistribution": [Array]}, {"intakeComparision": [Array], "intakeDate": "2024-06-06", "intakeDistribution": [Array]}]}
+
+    let intake_dates = Object.keys(intake_list);
+
+    let intake_list_rows = intake_dates.map((date, i) => {
+
+      let intake_data = intake_list[date];
+      let other_foods = intake_data.other_foods;
+      let recommended_foods = intake_data.recommended_foods;
+
+      let intake_foods = other_foods.concat(recommended_foods);
+
+      console.log('intake_data', intake_data)
+      console.log('other_foods', other_foods)
+      console.log('recommended_foods', recommended_foods)
+
+      let data_value = '';
+
+      let js_date      = new Date(date + ' 23:00:00');
+      var dayOfMonth   = js_date.getDate();
+      var month        = js_date.toLocaleString('default', { month: 'short' });
+
+      return intake_foods.map(a=>{
+        console.log('a', a)
+        return a.foodIntakeHistory.map(b=>{
+          data_value = `${b.foodName ? b.foodName : b.dietName} - ${b.percentConsumed}% consumed`
+          return <View>
+            <View style={{ flexDirection: 'row', justifyContent:  'space-between', alignItems: 'center', paddingTop: 15, paddingBottom: 15 }}>
+              <View style={{ flex: 10}}>
+                <Text style={{ fontSize: 16 }}>{ data_value }</Text>
+              </View>
+              <View style={{ alignItems: 'center', marginRight: 5, flex: 1 }}>
+                <Text style={{ fontSize: 16 }}>{ dayOfMonth }</Text>
+                <Text style={{ fontSize: 12, fontWeight: 'medium'}}>{ month }</Text>
+              </View>
+              <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10, flex: 1 }}>
+                <Icon name={ 'close' } size={25} color={Colors.PRIMARY} onPress={ () => { this.removeIntake(b, date) }}/>
+              </TouchableOpacity>
+            </View>
+            <Line hide={ i === intake_list.length - 1} />
+          </View>
+        })
+      })
+    })
+
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, marginTop: 0 }}>
+      {recommended_diet_rows}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Diet Entries</Text>
+        <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10 }}>
+          <Icon name={ display_diet_input ? 'close' : 'plus-circle' } size={25} color={Colors.PRIMARY} onPress={ () => { this.setState({ display_diet_input: !this.state.display_diet_input, diet: recommended_diet.length === 0 ? 0 : null }) }}/>
+        </TouchableOpacity>
+      </View>
+      { display_diet_input ? diet_input : null }
+      <Line hide={!display_diet_input} />
+      <View style={{ marginTop: 5 }}>
+        { intake_list_rows }
+      </View>
+    </View>
+  }
+
   render() {
-    let behavior_data_loaded = this.state.behavior_data_loaded;
+    let { behavior_data_loaded,  intake_data_loaded } = this.state;
 
     if (!behavior_data_loaded) {
       return <View>
@@ -421,6 +743,7 @@ class HealthTab extends Component {
         { this.render_sleep_bar_chart()          }
         { this.render_weight_graph()             }
         { this.render_weight_entries()           }
+        { intake_data_loaded ? this.render_diet_entries()   : null          }
       </View>
     </View>
   }
