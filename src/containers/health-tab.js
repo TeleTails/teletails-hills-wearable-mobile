@@ -92,15 +92,17 @@ class HealthTab extends Component {
     //console.log('intake_config', intake_config);
     intake_config = intake_config && intake_config.data && intake_config.data.config ? intake_config.data.config : null;
 
+    console.log('intake_config', JSON.stringify(intake_config))
+
     let intake_measurement_units = intake_config && intake_config.measurementUnits ? intake_config.measurementUnits : [];
 
     let intake_other_foods = intake_config && intake_config.otherFoods ? intake_config.otherFoods : [];
 
-    let intake_diet_feedback = intake_config && intake_config.dietFeedback ? intake_config.dietFeedback : [];
+    let intake_user_diet_feedback = intake_config && intake_config.dietFeedback ? intake_config.dietFeedback : [];
 
     /* console.log('intake_measurement_units', JSON.stringify(intake_measurement_units));
     console.log('intake_other_foods', JSON.stringify(intake_other_foods));
-    console.log('intake_diet_feedback', JSON.stringify(intake_diet_feedback));
+    console.log('intake_user_diet_feedback', JSON.stringify(intake_user_diet_feedback));
  */
     //{ "data": { "get_intake_config_res": { "data": [Object], "success": true }, "get_intake_history_res": { "data": [Object], "success": true }, "get_intake_list_res": { "data": [Object], "success": true } }, "success": true }
 
@@ -110,7 +112,7 @@ class HealthTab extends Component {
 
     //console.log('intake2', intake_list);
 
-    this.setState({recommended_diet, intake_history, intake_measurement_units, intake_other_foods, intake_diet_feedback, intake_data_loaded: true, intake_list, display_diet_input: false, loading_add_diet: false });
+    this.setState({recommended_diet, intake_history, intake_measurement_units, intake_other_foods, intake_user_diet_feedback, intake_data_loaded: true, intake_list, display_diet_input: false, loading_add_diet: false });
   }
 
   removeIntake = async (intake, intakeDate) => {
@@ -156,8 +158,14 @@ console.log('intake_res', JSON.stringify(intake_res))
         recommendedDietSelectedIndex,
         recommended_diet, 
         quantityOffered, 
-        quantityConsumed } = this.state;
-
+        quantityConsumed,
+        intake_user_diet_feedback,
+        intakeDietFoodFeedbackIndex,
+        intakeDietBehaviourFeedbackIndex,
+        food_recommendation_feedback_text,
+        behaviour_recommendation_feedback_text
+       } = this.state;
+       
       let pet_id = selected_pet.petID;
 
       let intake_data = {};
@@ -178,12 +186,45 @@ console.log('intake_res', JSON.stringify(intake_res))
           otherFoodTypeId,
           percentConsumed };
       } else {
+        let selected_intake_food_feedback, selected_intake_behaviour_feedback;
+      
+        if(intakeDietFoodFeedbackIndex || intakeDietFoodFeedbackIndex === 0) {
+          selected_intake_food_feedback = intake_user_diet_feedback[intakeDietFoodFeedbackIndex];
+        }
+  
+        if(intakeDietBehaviourFeedbackIndex || intakeDietBehaviourFeedbackIndex === 0) {
+          selected_intake_behaviour_feedback = intake_user_diet_feedback[intakeDietBehaviourFeedbackIndex];
+        }
+
         recommendedDietSelectedIndex = recommendedDietSelectedIndex ? recommendedDietSelectedIndex : 0;
         let selected_recommended_diet = recommended_diet[recommendedDietSelectedIndex];
 
         console.log('selected_recommended_diet', selected_recommended_diet)
 
+        let dietFeedback = [];
+        
+        if(selected_intake_food_feedback) {
+          dietFeedback.push({
+            "dietFeedbackId": 0,
+            "intakeId": 0,
+            "feedbackId": selected_intake_food_feedback.feedbackId,
+            "feedbackText": food_recommendation_feedback_text,
+            "isDeleted": 0
+          })
+        }
+
+        if(selected_intake_behaviour_feedback) {
+          dietFeedback.push({
+            "dietFeedbackId": 0,
+            "intakeId": 0,
+            "feedbackId": selected_intake_behaviour_feedback.feedbackId,
+            "feedbackText": behaviour_recommendation_feedback_text,
+            "isDeleted": 0
+          })
+        }
+
         intake_data = { 
+          dietFeedback,
           pet_id,
           isOtherFood: false,
           quantityOffered,
@@ -196,7 +237,8 @@ console.log('intake_res', JSON.stringify(intake_res))
       console.log('intake_data2', intake_data)
 
       let intake = await WearablesController.addPetIntake(intake_data);
-  console.log('intake_res', intake)
+      console.log('intake_res', intake)
+      
       if(intake && intake.success) {
         this.getIntakeData();
       } else {
@@ -547,7 +589,7 @@ console.log('intake_res', JSON.stringify(intake_res))
   }
 
   render_diet_entries = () => {
-    let { recommended_diet, display_diet_input, diet_list, intake_history, intake_diet_feedback, intake_measurement_units, intake_other_foods, diet, otherFoodTypeId, foodName, percentConsumed, intake_data_loaded, otherFoodSelectedIndex, intake_error_message, intake_list, recommendedDietSelectedIndex, quantityOffered, loading_add_diet } = this.state;
+    let { recommended_diet, display_diet_input, diet_list, intake_history, intake_user_diet_feedback, intake_measurement_units, intake_other_foods, diet, otherFoodTypeId, foodName, percentConsumed, intake_data_loaded, otherFoodSelectedIndex, intake_error_message, intake_list, recommendedDietSelectedIndex, quantityOffered, loading_add_diet, intakeDietFoodFeedbackIndex, food_recommendation_feedback_text, intakeDietBehaviourFeedbackIndex, behaviour_recommendation_feedback_text } = this.state;
 
     diet_list = diet_list ? diet_list : [];
 
@@ -555,26 +597,29 @@ console.log('intake_res', JSON.stringify(intake_res))
     //[{"dietId": 364, "dietName": "SD Healthy Advantage Puppy Dry 12L", "feedingScheduledId": 32799, "recommendedAmountCups": 0, "recommendedAmountGrams": 0, "recommendedRoundedCups": "0", "recommendedRoundedGrams": "0", "unit": "cup", "unitId": 4}]
 
     /* 
- LOG  intake_diet_feedback [{"feedbackId":1,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is way too much for my dog"},{"feedbackId":2,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is a little too much for my dog"},{"feedbackId":3,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is just right for my dog"},{"feedbackId":4,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is a little too low for my dog"},{"feedbackId":5,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is way too low for my dog"},{"feedbackId":6,"feedbackCategory":"Food Recommendation Feedback","description":"Other feedback (specify)"},{"feedbackId":7,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog has no behaviour issues related to food"},{"feedbackId":8,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is not interested in food"},{"feedbackId":9,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is begging for food"},{"feedbackId":10,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is becoming aggressive around food"},{"feedbackId":11,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is eating food from other pets or people"},{"feedbackId":12,"feedbackCategory":"Pet Behaviour Feedback","description":"Other feedback (specify)"}] */
+ LOG  intake_user_diet_feedback [{"feedbackId":1,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is way too much for my dog"},{"feedbackId":2,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is a little too much for my dog"},{"feedbackId":3,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is just right for my dog"},{"feedbackId":4,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is a little too low for my dog"},{"feedbackId":5,"feedbackCategory":"Food Recommendation Feedback","description":"The recommended amount is way too low for my dog"},{"feedbackId":6,"feedbackCategory":"Food Recommendation Feedback","description":"Other feedback (specify)"},{"feedbackId":7,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog has no behaviour issues related to food"},{"feedbackId":8,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is not interested in food"},{"feedbackId":9,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is begging for food"},{"feedbackId":10,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is becoming aggressive around food"},{"feedbackId":11,"feedbackCategory":"Pet Behaviour Feedback","description":"My dog is eating food from other pets or people"},{"feedbackId":12,"feedbackCategory":"Pet Behaviour Feedback","description":"Other feedback (specify)"}] */
 
  console.log('otherFoodTypeId', otherFoodTypeId)
 
- recommendedDietSelectedIndex = recommendedDietSelectedIndex ? recommendedDietSelectedIndex : 0
+ recommendedDietSelectedIndex = recommendedDietSelectedIndex ? recommendedDietSelectedIndex : 0;
+ intakeDietFoodFeedbackIndex = intakeDietFoodFeedbackIndex ? intakeDietFoodFeedbackIndex : 0;
 
  let selected_recommended_diet = recommended_diet[recommendedDietSelectedIndex];
+ let selected_intake_food_feedback = intake_user_diet_feedback[intakeDietFoodFeedbackIndex];
+ let selected_intake_behaviour_feedback = intake_user_diet_feedback[intakeDietBehaviourFeedbackIndex];
 
-    let diet_input = <View style={{ marginTop: 20, marginBottom: 20 }}>
+ let diet_input = <View style={{ marginTop: 20, marginBottom: 20 }}>
       
       {recommended_diet.length !== 0 ? <>
         <Text>Add from... </Text>
           <Button style={{ marginTop: 10 }}
                   title='Other Diet'
                   loading={this.state.loading_add_weight}
-                  onPress={()=>{ this.setState({diet: 0, isOtherFood: true, foodName: null}) }} />
+                  onPress={()=>{ this.setState({diet: 0, isOtherFood: true, foodName: null, intakeDietBehaviourFeedbackIndex: null, intakeDietFoodFeedbackIndex: null}) }} />
           <Button style={{ marginTop: 10 }}
                   title='Recommended Diet'
                   loading={this.state.loading_add_weight}
-                  onPress={()=>{ this.setState({diet: 1, isOtherFood: false, foodName: null}) }} />
+                  onPress={()=>{ this.setState({diet: 1, isOtherFood: false, foodName: null, intakeDietBehaviourFeedbackIndex: null, intakeDietFoodFeedbackIndex: null}) }} />
 
     </> : null}
       {diet === 0 ? <View>
@@ -606,7 +651,7 @@ console.log('intake_res', JSON.stringify(intake_res))
             {intake_error_message ? <Text style={{color: 'red'}}>{intake_error_message}</Text> : null}
             <Button style={{ marginTop: 10 }}
               title='Add Intake'
-              loading={this.state.loading_add_diet}
+              loading={loading_add_diet}
               onPress={this.addIntake} />
       </View> : null}
       {diet === 1 ? <View>
@@ -617,7 +662,7 @@ console.log('intake_res', JSON.stringify(intake_res))
                 recommendedDietSelectedIndex = parseInt(recommendedDietSelectedIndex);
                 let food = recommended_diet[recommendedDietSelectedIndex];
                 console.log('food', food)
-                this.setState({ recommendedDietSelectedIndex })
+                this.setState({ recommendedDietSelectedIndex, intakeDietBehaviourFeedbackIndex: null, intakeDietFoodFeedbackIndex: null })
               }}>
                 {recommended_diet.map((a, i) => {
                   //[{"dietId": 364, "dietName": "SD Healthy Advantage Puppy Dry 12L", "feedingScheduledId": 32802, "recommendedAmountCups": 0, "recommendedAmountGrams": 0, "recommendedRoundedCups": "0", "recommendedRoundedGrams": "0", "unit": "cup", "unitId": 4}]
@@ -635,10 +680,192 @@ console.log('intake_res', JSON.stringify(intake_res))
               <Text>Percentage Consumed</Text>
               <Input keyboardType={'number-pad'} value={percentConsumed} onChangeText={percentConsumed=>{this.setState({percentConsumed})}} />
             </View>
+
+            <Text style={{flexWrap: 'wrap', fontSize: 20, marginTop: 50}}>Your Pet's Food Feedback</Text>
+
+            <Picker
+              style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
+              selectedValue={intakeDietFoodFeedbackIndex}
+              onValueChange={ (intakeDietFoodFeedbackIndex) => {
+                intakeDietFoodFeedbackIndex = parseInt(intakeDietFoodFeedbackIndex);
+                this.setState({ intakeDietFoodFeedbackIndex })
+              }}>
+                {intake_user_diet_feedback.filter(a=>a.feedbackCategory === 'Food Recommendation Feedback').map((a, i) => {
+    /*               [
+                    {
+                        "feedbackId": 1,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is way too much for my dog"
+                    },
+                    {
+                        "feedbackId": 2,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is a little too much for my dog"
+                    },
+                    {
+                        "feedbackId": 3,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is just right for my dog"
+                    },
+                    {
+                        "feedbackId": 4,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is a little too low for my dog"
+                    },
+                    {
+                        "feedbackId": 5,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is way too low for my dog"
+                    },
+                    {
+                        "feedbackId": 6,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "Other feedback (specify)"
+                    },
+                    {
+                        "feedbackId": 7,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog has no behaviour issues related to food"
+                    },
+                    {
+                        "feedbackId": 8,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is not interested in food"
+                    },
+                    {
+                        "feedbackId": 9,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is begging for food"
+                    },
+                    {
+                        "feedbackId": 10,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is becoming aggressive around food"
+                    },
+                    {
+                        "feedbackId": 11,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is eating food from other pets or people"
+                    },
+                    {
+                        "feedbackId": 12,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "Other feedback (specify)"
+                    }
+                ] */
+                  let description = a.description;
+                  description = a.description.indexOf('way too much') !== -1 ? 'Way Too Much' : description;
+                  description = a.description.indexOf('little too much') !== -1 ? 'A Little Too Much' : description;
+                  description = a.description.indexOf('just right') !== -1 ? 'Just Right' : description;
+                  description = a.description.indexOf('little too low') !== -1 ? 'A Little Too Low' : description;
+                  description = a.description.indexOf('way too low') !== -1 ? 'Way Too Low' : description;
+
+                  return <Picker.Item style={{flexWrap: 'wrap', overflowWrap: 'wrap'}} value={i} key={i} label={description} />
+                })}
+            </Picker>
+
+            {selected_intake_food_feedback && selected_intake_food_feedback.feedbackId === 6 ?
+            <View style={{flexDirection: 'column'}}>
+              <Text>Specify Feedback</Text>
+              <Input keyboardType={'number-pad'} value={food_recommendation_feedback_text} onChangeText={food_recommendation_feedback_text=>{this.setState({food_recommendation_feedback_text})}} />
+            </View> : null}
+
+            <Text style={{flexWrap: 'wrap', fontSize: 20, marginTop: 50}}>Your Pet's Behaviour Issues Related to Food</Text>
+            <Picker
+              style={{ borderRadius: 10, backgroundColor: 'white', padding: 10, paddingTop: 15 }}
+              selectedValue={intakeDietBehaviourFeedbackIndex}
+              onValueChange={ (intakeDietBehaviourFeedbackIndex) => {
+                intakeDietFoodFeedbackIndex = parseInt(intakeDietBehaviourFeedbackIndex);
+                this.setState({ intakeDietBehaviourFeedbackIndex })
+              }}>
+                {intake_user_diet_feedback.map((a, i) => {
+    /*               [
+                    {
+                        "feedbackId": 1,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is way too much for my dog"
+                    },
+                    {
+                        "feedbackId": 2,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is a little too much for my dog"
+                    },
+                    {
+                        "feedbackId": 3,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is just right for my dog"
+                    },
+                    {
+                        "feedbackId": 4,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is a little too low for my dog"
+                    },
+                    {
+                        "feedbackId": 5,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "The recommended amount is way too low for my dog"
+                    },
+                    {
+                        "feedbackId": 6,
+                        "feedbackCategory": "Food Recommendation Feedback",
+                        "description": "Other feedback (specify)"
+                    },
+                    {
+                        "feedbackId": 7,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog has no behaviour issues related to food"
+                    },
+                    {
+                        "feedbackId": 8,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is not interested in food"
+                    },
+                    {
+                        "feedbackId": 9,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is begging for food"
+                    },
+                    {
+                        "feedbackId": 10,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is becoming aggressive around food"
+                    },
+                    {
+                        "feedbackId": 11,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "My dog is eating food from other pets or people"
+                    },
+                    {
+                        "feedbackId": 12,
+                        "feedbackCategory": "Pet Behaviour Feedback",
+                        "description": "Other feedback (specify)"
+                    }
+                ] */
+                if(a.feedbackCategory === 'Pet Behaviour Feedback') {  
+                  let description = a.description;
+                    description = a.description.indexOf('no behaviour issues') !== -1 ? 'No behaviour issues' : description;
+                    description = a.description.indexOf('not interested') !== -1 ? 'Not interested in the food' : description;
+                    description = a.description.indexOf('begging') !== -1 ? 'Begging for food' : description;
+                    description = a.description.indexOf('aggressive') !== -1 ? 'Aggressive around food' : description;
+                    description = a.description.indexOf('other pets or people') !== -1 ? 'Eating from other pets or people' : description;
+
+                    return <Picker.Item style={{flexWrap: 'wrap', overflowWrap: 'wrap'}} value={i} key={i} label={description} />
+                  } else {
+                    return null
+                  }
+                })}
+            </Picker>
+
+            {selected_intake_behaviour_feedback && selected_intake_behaviour_feedback.feedbackId === 12 ?
+            <View style={{flexDirection: 'column'}}>
+              <Text>Specify Feedback</Text>
+              <Input keyboardType={'number-pad'} value={behaviour_recommendation_feedback_text} onChangeText={behaviour_recommendation_feedback_text=>{this.setState({behaviour_recommendation_feedback_text})}} />
+            </View> : null}
+
             {intake_error_message ? <Text style={{color: 'red'}}>{intake_error_message}</Text> : null}
             <Button style={{ marginTop: 10 }}
               title='Add Intake'
-              loading={this.state.loading_add_diet}
+              loading={loading_add_diet}
               onPress={this.addIntake} />
       </View> : null}
     </View>
