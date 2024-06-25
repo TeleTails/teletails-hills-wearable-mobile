@@ -482,11 +482,14 @@ class WearableConnectScreen extends Component {
     let data = {
       deviceNumber, 
       deviceType: deviceType.value, 
+      wifi_name,
       petId, 
       oldDeviceNumber: oldDeviceNumber ? oldDeviceNumber : deviceNumber
     }
  
     console.log('data', data)
+
+    console.log('is_update', is_update)
 
     if(is_update) {
       assign_response = await WearablesController.updateSensor(data).catch(err=>{console.log('err', err)})
@@ -542,11 +545,14 @@ class WearableConnectScreen extends Component {
   }
 
   pet_selection_action(pet) {
-    console.log('pet', pet.petID)
+    console.log('pet', pet)
+
+    let screen = pet && pet.devices && pet.devices.length && pet.devices[0].isDeviceSetupDone ? 1 : .5
+
     this.setState({
       petId: pet.petID,
       selected_pet: pet,
-      screen: 0.5
+      screen
     })
   }
 
@@ -599,6 +605,7 @@ class WearableConnectScreen extends Component {
     console.log('data', data)
 
     let res             = await WearablesController.validateSensorNumber(data);
+    console.log('res', JSON.stringify(res))
     let is_number_valid = res && res.data && res.data.validate_device_response && res.data.validate_device_response.data && res.data.validate_device_response.data.isValidDeviceNumber ? true : false;
 
     if (deviceNumber && is_number_valid) {
