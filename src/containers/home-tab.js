@@ -6,7 +6,7 @@ import { AuthController, UserController, ConsultationController, WearablesContro
 import { setItem, getItem } from '../../storage';
 import { Text, Input, Icon, Line, Colors } from '../components';
 import { HomeCtaButtons, ArticlesSection, ArticlesHeroSection } from '../containers';
-import { View, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ImageBackground, Image } from 'react-native';
 
 class HomeTab extends Component {
 
@@ -17,6 +17,8 @@ class HomeTab extends Component {
       hero_articles: [],
       active_threads: [],
       chat_consultations: [],
+      recommended_diet: [],
+      diet_pet_name: '',
       is_wearables_user: false,
       display_add_pets: false
     }
@@ -44,6 +46,7 @@ class HomeTab extends Component {
     this.get_active_chats();
     this.get_active_threads();
     this.get_video_appointments();
+    this.get_recommended_diet();
     this.check_and_regsiter_wearables_user();
 
     if (is_signed_in) {
@@ -100,6 +103,23 @@ class HomeTab extends Component {
     </View>
   }
 
+  render_recommended_diet = () => {
+    let pet_name  = this.state.diet_pet_name;
+    let diet_name = "Hill's Science Diet Adult Perfect Weight & Joint Support";
+    let rec_diet  = this.state.recommended_diet;
+    let has_diet  = rec_diet && rec_diet.length > 0;
+
+    if (!pet_name || !has_diet) { return null }
+
+    return <View style={{ paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
+      <Text style={styles.section_title}>{ pet_name + "'s Recommended Diet"}</Text>
+      <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 12, padding: 20, paddingTop: 20, paddingBottom: 20, marginTop: 15, justifyContent: 'space-between', flexDirection: 'row' }}>
+        <Text style={{ flex: 1, fontSize: 18, fontWeight: 'medium', alignSelf: 'center' }}>{ diet_name }</Text>
+        <Image style={{ height: 120, width: 80, borderRadius: 10 }} resizeMode='contain' source={ require('../../assets/images/recommended-diet.png') } />
+      </View>
+    </View>
+  }
+
   render_hero_articles = () => {
     let hero_articles = this.state.hero_articles || [];
 
@@ -113,9 +133,10 @@ class HomeTab extends Component {
 
   render_article_sections = () => {
     let sections     = this.state.sections || [];
-    let section_rows = sections.map((section) => {
+    let section_rows = sections.map((section, ind) => {
       return <View>
         <ArticlesSection section={section}
+                         key={ind}
                          pressed_action={ (article) => {
                            this.props.navigation.push('ArticleDisplay', { url: article.url });
                          }} />
@@ -399,6 +420,7 @@ class HomeTab extends Component {
       { this.render_add_pets_section() }
       { this.render_active_chats()     }
       { this.render_active_threads()   }
+      { this.render_recommended_diet() }
       { this.render_hero_articles()    }
       { this.render_article_sections() }
 
@@ -447,6 +469,27 @@ class HomeTab extends Component {
     return show_dot;
   }
 
+  get_recommended_diet = async () => {
+    let user_pets_response = await WearablesController.getUserPets({});
+    let pets               = user_pets_response && user_pets_response.data && user_pets_response.data.pets ? user_pets_response.data.pets : [];
+    let first_pet          = pets && pets.length && pets[0] ? pets[0] : {};
+    let pet_id             = first_pet && first_pet.petID   ? first_pet.petID   : '';
+    let pet_name           = first_pet && first_pet.petName ? first_pet.petName : '';
+
+    if (!pet_id) { return }
+
+    let today     = new Date();
+    let diet_data = {
+      date: `${today.getFullYear()}-${today.getMonth() < 9 ? '0' : ''}${today.getMonth() + 1}-${today.getDate()}`,
+      pet_id: pet_id
+    }
+
+    let recommended_diet = await WearablesController.getRecommendedDiet(diet_data);
+        recommended_diet = recommended_diet && recommended_diet.data && recommended_diet.data.recommended_diet ? recommended_diet.data.recommended_diet : [];
+
+    this.setState({ recommended_diet: recommended_diet, diet_pet_name: pet_name });
+  }
+
   check_and_regsiter_wearables_user = async () => {
     let user              = await AuthController.getUser(true);
     let wearables_user_id = user && user.wearables_user_id || '';
@@ -476,7 +519,6 @@ class HomeTab extends Component {
       let user_profile     = user_profile_res && user_profile_res.data && user_profile_res.data.wearables_user_profile ? user_profile_res.data.wearables_user_profile : null;
       await setItem('wearables_user_profile', user_profile);
     }
-
 
   }
 
