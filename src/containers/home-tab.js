@@ -107,6 +107,9 @@ class HomeTab extends Component {
     let pet_name  = this.state.diet_pet_name;
     let diet_name = "Hill's Science Diet Adult Perfect Weight & Joint Support";
     let rec_diet  = this.state.recommended_diet;
+    let rec_cups  = rec_diet && rec_diet.length && rec_diet[0] && rec_diet[0].recommendedAmountCups ? rec_diet[0].recommendedAmountCups : 0;
+    let rec_str   = rec_cups       ? rec_cups + ' cups of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.' : "Hill's Science Diet Adult Perfect Weight & Joint Support";
+        rec_str   = rec_cups === 1 ? rec_cups + ' cup of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.'  : rec_str;
     let has_diet  = rec_diet && rec_diet.length > 0;
 
     if (!pet_name || !has_diet) { return null }
@@ -114,8 +117,18 @@ class HomeTab extends Component {
     return <View style={{ paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
       <Text style={styles.section_title}>{ pet_name + "'s Recommended Diet"}</Text>
       <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 12, padding: 20, paddingTop: 20, paddingBottom: 20, marginTop: 15, justifyContent: 'space-between', flexDirection: 'row' }}>
-        <Text style={{ flex: 1, fontSize: 18, fontWeight: 'medium', alignSelf: 'center' }}>{ diet_name }</Text>
-        <Image style={{ height: 120, width: 80, borderRadius: 10 }} resizeMode='contain' source={ require('../../assets/images/recommended-diet.png') } />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'medium', alignSelf: 'center' }}>{ rec_str }</Text>
+          <TouchableOpacity style={{ backgroundColor: '#F2F3F6', width: 182, height: 46, justifyContent: 'center', alignItems: 'center', borderRadius: 8, marginTop: 20 }}
+                            onPress={ () => {
+                              if (this.props.tab_chang_action) {
+                                this.props.tab_chang_action('health');
+                              }
+                            }}>
+            <Text style={{ fontSize: 14, fontWeight: 'medium' }}>Pet Food information</Text>
+          </TouchableOpacity>
+        </View>
+        <Image style={{ height: 120, width: 80, borderRadius: 10, alignSelf: 'center' }} resizeMode='contain' source={ require('../../assets/images/recommended-diet.png') } />
       </View>
     </View>
   }

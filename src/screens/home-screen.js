@@ -23,7 +23,7 @@ class HomeScreen extends Component {
   render_tab_component = () => {
     switch (this.state.selected_tab) {
       case 'home':
-        return <HomeTab navigation={this.props.navigation}   />
+        return <HomeTab navigation={this.props.navigation} tab_chang_action={ (tab_name) =>  { this.setState({ selected_tab: tab_name }) }} />
       case 'health':
         return <HealthTab navigation={this.props.navigation} />
       case 'vet_chat':

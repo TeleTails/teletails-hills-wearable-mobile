@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import LottieView    from 'lottie-react-native';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { AuthController, PetsController, WearablesController }   from '../controllers';
 import { StringUtils    }   from '../utils';
 import { setItem, getItem } from '../../storage';
@@ -576,6 +576,30 @@ class HealthTab extends Component {
     </View>
   }
 
+  render_recommended_diet_info = () => {
+    let rec_diet  = this.state.recommended_diet;
+    let has_rec   = rec_diet && rec_diet.length && rec_diet.length;
+
+    if (!has_rec) {
+      return null;
+    }
+
+    let diet_name = "Hill's Science Diet Adult Perfect Weight & Joint Support";
+    let rec_cups  = rec_diet && rec_diet.length && rec_diet[0] && rec_diet[0].recommendedAmountCups ? rec_diet[0].recommendedAmountCups : 0;
+    let rec_str   = rec_cups       ? rec_cups + ' cups of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.' : "Hill's Science Diet Adult Perfect Weight & Joint Support";
+        rec_str   = rec_cups === 1 ? rec_cups + ' cup of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.'  : rec_str;
+
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, marginBottom: 0 }}>
+      <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Food Recommendation</Text>
+      <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+        <Image style={{ height: 90, width: 50, borderRadius: 10, alignSelf: 'center' }} resizeMode='contain' source={ require('../../assets/images/recommended-diet.png') } />
+        <Text style={{ fontSize: 16, color: Colors.TEXT_GREY, flex: 1, marginLeft: 15, fontWeight: '' }}>{ rec_str }</Text>
+      </View>
+      <Text style={{ fontSize: 16, marginTop: 15, color: Colors.DARK_GREY, fontWeight: 'medium' }}>{ 'Why we like this food' }</Text>
+      <Text style={{ fontSize: 16, marginTop: 5, color: Colors.TEXT_GREY }}>{ 'This food was specially created to help dog’s lose weight and maintain a healthy weight. The high protein, coconut oil enriched, high fiber formulation supports your dog’s metabolism and provides lean muscle support. The added fish oil provides EPA and Omega-3s to help support your dog’s joint health for a healthy and active life.' }</Text>
+    </View>
+  }
+
   render_diet_entries = () => {
 
     let recommended_diet   = this.state.recommended_diet;
@@ -618,9 +642,9 @@ class HealthTab extends Component {
       })
     })
 
-    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, paddingBottom: intake_list_rows.length ? 0 : 20, marginTop: 0 }}>
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, paddingBottom: intake_list_rows.length ? 0 : 20, marginBottom: 0 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Diet Entries</Text>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Daily Feeding Entries</Text>
         <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10 }}>
           <Icon name={ display_diet_input ? 'close' : 'plus-circle' } size={25} color={Colors.PRIMARY} onPress={ () => { this.setState({ display_diet_input: !this.state.display_diet_input, diet: recommended_diet.length === 0 ? 0 : null }) }}/>
         </TouchableOpacity>
@@ -654,12 +678,13 @@ class HealthTab extends Component {
     return <View style={{  }}>
       <View>
         { this.render_pet_section()              }
+        { intake_data_loaded ? this.render_recommended_diet_info() : null }
+        { intake_data_loaded ? this.render_diet_entries()          : null }
         { this.render_forward_motion_bar_chart() }
         { this.render_walking_running()          }
         { this.render_sleep_bar_chart()          }
         { this.render_weight_graph()             }
         { this.render_weight_entries()           }
-        { intake_data_loaded ? this.render_diet_entries() : null }
       </View>
     </View>
   }
