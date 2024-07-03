@@ -55,4 +55,9 @@ export default class UserController {
     return response;
   });
 
+  static updateUserHillsApps = UserController.exceptionWrapper(async (data) => {
+    let response = await UtilitiesController.post(`/v5/api/users/update/user_hills_apps`, data, true);
+    return response;
+  });
+
 }
