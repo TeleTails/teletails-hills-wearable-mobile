@@ -20,7 +20,8 @@ class SignUpInfoScreen extends Component {
       state: '',
       country: 'United States',
       zipcode: '',
-      display_address_inputs: false
+      display_address_inputs: false,
+      mounted: false
     }
   }
 
@@ -28,7 +29,8 @@ class SignUpInfoScreen extends Component {
     let user = await AuthController.getUser(true);
 
     this.setState({
-      user
+      user,
+      mounted: true
     })
   }
 
@@ -99,6 +101,7 @@ class SignUpInfoScreen extends Component {
       <Input value={ this.state.first_name }
              style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
              border_color='#e7e7e7'
+             keyboardType={'ascii-capable'}
              placeholder='First Name*'
              onChangeText={ (text) => this.setState({ first_name: text }) }/>
       <Input value={ this.state.last_name }
@@ -132,6 +135,7 @@ class SignUpInfoScreen extends Component {
 
       <Input value={ this.state.street }
              style={{ marginBottom: 10, fontSize: 16, height: 50, paddingTop: 10, paddingBottom: 10, borderWidth: 2 }}
+             keyboardType={'ascii-capable'}
              border_color='#e7e7e7'
              placeholder='Street*'
              onChangeText={ (text) => this.setState({ street: text }) }/>
@@ -163,13 +167,15 @@ class SignUpInfoScreen extends Component {
   }
 
   render() {
-    return (
+    let { mounted } = this.state;
+
+    return (mounted ?
       <Screen scroll={true} hide_nav_bar={true} style={{ backgroundColor: '#0255A5' }}>
         <View style={{ alignItems: 'center', paddingTop: 100 }}>
           { this.render_name_inputs_section() }
           { this.render_address_inputs_section() }
         </View>
-      </Screen>
+      </Screen> : <View style={{flex: 1, backgroundColor: '#0255A5'}}></View>
     );
   }
 

@@ -2,8 +2,10 @@ import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
 import { getItem, setItem } from '../../storage';
 import io from 'socket.io-client';
 
+console.log('API_URL', API_URL)
+
 let sockets = {};
-//let API_URL = 'https://0b09-71-172-17-224.ngrok-free.app/data'
+//let API_URL = 'https://5b6c-71-172-17-224.ngrok-free.app/data'
 //let API_URL = "https://prod-elb-api.teletails.com/data";
 /* let CHAT_URL = "https://prod-elb-chat.teletails.com";
 let NOTIF_URL = "https://prod-elb-chat.teletails.com";

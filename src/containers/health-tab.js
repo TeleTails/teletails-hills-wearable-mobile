@@ -55,6 +55,9 @@ class HealthTab extends Component {
     let behavior_response = await WearablesController.getPetBehavior({ pet_id: pet_id });
     let behavior_data     = behavior_response && behavior_response.data && behavior_response.data.bahavior_data && behavior_response.data.bahavior_data.forwardMotionInfo ? behavior_response.data.bahavior_data : {};
 
+    console.log('behavior_response', behavior_response);
+    console.log('behavior_data', behavior_data);
+
     let weight_response   = await WearablesController.getPetWeightHistory({ pet_id: pet_id });
     let weight_history    = weight_response && weight_response.data && weight_response.data.weight_history ? weight_response.data.weight_history : {};
 
@@ -129,6 +132,8 @@ class HealthTab extends Component {
   render_forward_motion_bar_chart = () => {
     let behavior_data = this.state.behavior_data;
 
+    console.log('behavior_data', behavior_data)
+
     let yesterday     = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.previousDayForwardMotion ? behavior_data.forwardMotionInfo.previousDayForwardMotion : 0;
     let today_so_far  = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.todayForwardMotionSofar  ? behavior_data.forwardMotionInfo.todayForwardMotionSofar  : 0;
 
@@ -151,6 +156,10 @@ class HealthTab extends Component {
         { value: toda_minutes, frontColor: '#177AD5' },
         { spacing: window_width/5, value: 0, frontColor: '#ED6665'},
     ];
+
+    /* {"fmGoalSetting": {"forwardMotionGoalSetText": "30Min ", "forwardMotionGoalSetting": 1800, "overAchieved": 0, "overAchievedText": "0Sec", "tobeAchieved": 1800, "tobeAchievedText": "30Min ", "todayFMSofarText": "0Sec", "todayForwardMotionSofar": 0, "todayForwardMotionVsGoalSettingPercentage": 0}, "forwardMotionInfo": {"lastWeekFMAvgText": "18Min 18Sec", "lastWeekForwardMotionAverage": 1098, "prevDayFMVsLastWeekFMAvgPercentage": 0, "prevDayForwardMotionAtThisTime": 0, "previousDayFMText": "0Sec", "previousDayForwardMotion": 0, "running": 0, "runningText": "0Sec", "todayFMSofarVsLastWeekFMAvgPercentage": 0, "todayFMSofarVsPrevDayFMAtThisTime": 0, "todayForwardMotion": 0, "todayForwardMotionSofar": 0, "todayForwardMotionSofarText": "0Sec", "todayForwardMotionText": "0Sec", "todayVsLastWeekFMAvgPercentage": 0, "walking": 0, "walkingText": "0Sec"}, "petId": 7875, "sleepInfo": {"daySleep": 0, "daySleepText": "0Sec", "lastWeekTotalSleepAverage": 29355, "lastWeekTotalSleepAverageText": "8Hr 9Min 15Sec", "nightSleep": 0, "nightSleepText": "0Sec", "prevDayTSVsLastWeekTSAvgPercentage": 0, "prevDayTotalSleepAtThisTime": 0, "previousDayTotalSleep": 0, "previousDayTotalSleepText": "0Sec", "todaySleep": 0, "todaySleepText": "0Sec", "todayTSSofarVsLastWeekTSAvgPercentage": 0, "todayTSSofarVsPrevDayTSAtThisTime": 0, "todayTotalSleepSofar": 0, "todayTotalSleepSofarText": "0Sec", "todayVsLastWeekSleepAvgPercentage": 0}} */
+
+    console.log('barData', barData)
 
     return <View>
         <View style={{ margin: 20, backgroundColor: 'white', borderRadius: 12, padding: 10, paddingTop: 20 }}>

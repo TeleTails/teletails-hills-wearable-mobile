@@ -707,7 +707,7 @@ class WearableConnectScreen extends Component {
 
     return <View>
       <View style={{ padding: 20, alignItems: 'center' }}>
-        <Image style={{ height: 40, width: '100%', borderRadius: 20, marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+        <Image style={{ height: 40, width: '100%', marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
         <Text style={styles.section_title} >{ selected_pet.petName }'s Device</Text>
         <View>
           { has_devices ? <View>{ device_rows }</View>
@@ -777,7 +777,7 @@ class WearableConnectScreen extends Component {
       return <View style={{flexDirection: 'column', padding: 20 }}>
         <View style={{ alignItems: 'center' }}>
           <Text style={styles.section_title}>Bluetooth Device Scan</Text>
-          <Image style={{ height: 100, width: '100%', borderRadius: 20, marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+          <Image style={{ height: 100, width: '100%', marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
           <Text style={{ fontWeight: 'medium', fontSize: 16 }}>Let’s find your device!</Text>
           <Text style={{ color: 'grey', fontSize: 16, textAlign: 'center', marginTop: 5 }}>Please make sure your device has been charged for at least 30 minutes. Unplug your device and position it near your phone for pairing.</Text>
           <Button title={ 'Scan Devices' }
@@ -911,7 +911,7 @@ class WearableConnectScreen extends Component {
     }
 
     return <View style={{ padding: 20, alignItems: 'center' }}>
-      <Image style={{ height: 100, width: '100%', borderRadius: 20, marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
+      <Image style={{ height: 100, width: '100%', marginTop: 15, marginBottom: 15 }} resizeMode='contain' source={ require('../../assets/images/bluetooth.png') } />
       <Text style={{ fontWeight: 'medium', fontSize: 18 }}>Bluetooth Is Disabled</Text>
       <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 5, color: 'grey' }}>Please enable Bluetooth on your device to continue</Text>
       <Button style={{ marginTop: 10 }}
