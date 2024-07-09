@@ -484,7 +484,7 @@ class AddPetFlowScreen extends Component {
       </View>
 
       { this.state.pet_food_type ? <View>
-        <Text style={styles.food_quantity_titles}>Cups</Text>
+        <Text style={styles.food_quantity_titles}>Total Cups Of Food Per Day</Text>
         <View style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 30 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, padding: 10, borderRadius: 20, backgroundColor: '#e7e7e7' }}

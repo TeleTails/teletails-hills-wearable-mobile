@@ -34,7 +34,8 @@ export default class AuthController {
         zipcode: user.zipcode || '',
         address: user.address || {},
         wearables_data: user.wearables_data || {},
-        wearables_user_id: user.wearables_user_id || ''
+        wearables_user_id: user.wearables_user_id || '',
+        hills_apps: user.hills_apps || []
       }
 
       await setItem('user', user_obj);
