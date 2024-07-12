@@ -21,20 +21,39 @@ class SignInWelcomeScreen extends Component {
   }
 
   componentDidMount = async () => {
-    this.dog_animation.play();
+    try {
+      this.dog_animation.play();
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let display_notification_prompt  = existingStatus && existingStatus === 'undetermined' ? true  : false;
-        display_notification_prompt  = existingStatus && existingStatus === 'denied'       ? false : display_notification_prompt;
-        display_notification_prompt  = existingStatus && existingStatus === 'granted'      ? false : display_notification_prompt;
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
 
-    let push_token_res = await Notifications.getExpoPushTokenAsync({ projectId: Constants.expoConfig.extra.eas.projectId });
-    let push_token     = push_token_res.data;
-    if (push_token) {
-      this.update_user_token(push_token);
+
+      console.log('existingStatus', existingStatus)
+      let display_notification_prompt  = existingStatus && existingStatus === 'undetermined' ? true  : false;
+          display_notification_prompt  = existingStatus && existingStatus === 'denied'       ? false : display_notification_prompt;
+          display_notification_prompt  = existingStatus && existingStatus === 'granted'      ? false : display_notification_prompt;
+
+      console.log('display_notification_prompt', display_notification_prompt)
+
+          if (Platform.OS === 'android') {
+            Notifications.setNotificationChannelAsync('default', {
+              name: 'default',
+              importance: Notifications.AndroidImportance.MAX,
+              vibrationPattern: [0, 250, 250, 250],
+              lightColor: '#FF231F7C',
+            });
+          }
+
+      let push_token_res = await Notifications.getExpoPushTokenAsync({ projectId: Constants.expoConfig.extra.eas.projectId });
+      console.log('push_token_res', push_token_res)
+      let push_token     = push_token_res.data;
+      if (push_token) {
+        this.update_user_token(push_token);
+      }
+
+      this.setState({ display_notification_prompt: display_notification_prompt });
+    } catch(err) {
+      console.log('eer', err)
     }
-
-    this.setState({ display_notification_prompt: display_notification_prompt });
   }
 
   componentDidUpdate = () => {

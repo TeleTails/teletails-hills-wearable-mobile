@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "477028544568",
+    "project_number": "237123115877",
     "project_id": "teletailspetfit",
     "storage_bucket": "teletailspetfit.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:477028544568:android:7d68b4055f19cfd2a036cd",
+        "mobilesdk_app_id": "1:237123115877:android:55cc9d5e4afb52670f9f8c",
         "android_client_info": {
           "package_name": "com.teletails.petfit"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCHwleeC5J7BJH8Sv-cEQN5lra2grXWo5o"
+          "current_key": "AIzaSyAZWi9OnQxFpoLrq8CKKni7SzIvhekjE4I"
         }
       ],
       "services": {

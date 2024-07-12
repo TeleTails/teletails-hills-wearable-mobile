@@ -25,7 +25,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teletails.petfit",
-      "buildNumber": "20"
+      "buildNumber": "22"
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",

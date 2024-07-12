@@ -25,6 +25,25 @@
         "PARTNER_HILLS_TELETAILS_NAME": "hills"
       }
     },
+    "uat": {
+      "developmentClient": false,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "API_URL": "https://dev-elb-api.teletails.com/data",
+        "CHAT_URL": "https://dev-elb-chat.teletails.com",
+        "NOTIF_URL": "https://dev-elb-chat.teletails.com",
+        "PARTNER_ID": "63af003c627bd102d2b3593f",
+        "VIDEO_BASE_URL": "https://video.teletails.com",
+        "SELECTED_PARTNER": "hills",
+        "PARTNER_NAME": "hills",
+        "PRACTICE_ID": "60aee21ead3ef665916e1c7f",
+        "PARTNER_HILLS_DISPLAY_NAME": "Hills",
+        "PARTNER_HILLS_TELETAILS_NAME": "hills"
+      }
+    },
     "preview": {
       "distribution": "internal",
       "env": {

@@ -110,7 +110,7 @@ export default function App() {
     // registerForPushNotificationsAsync().then(token => { console.log(token) } );
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log('Received Notification')
+      console.log('Received Notification', notification)
     });
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
