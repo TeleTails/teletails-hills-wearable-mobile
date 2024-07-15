@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import LottieView    from 'lottie-react-native';
-import { View, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions, Image, ImageBackground } from 'react-native';
 import { AuthController, PetsController, WearablesController }   from '../controllers';
 import { StringUtils    }   from '../utils';
 import { setItem, getItem } from '../../storage';
@@ -112,7 +112,9 @@ class HealthTab extends Component {
     let pets       = this.state.pets;
     let pet_name   = pet.petName;
     let single_pet = pets && pets.length === 1;
+    let no_pets    = pets && pets.length === 0;
     let switch_ttl = this.state.display_pet_selection ? 'Done' : 'Switch Pet';
+        switch_ttl = no_pets ? '' : switch_ttl;
 
     return <View>
       <View>
@@ -136,6 +138,10 @@ class HealthTab extends Component {
 
     let yesterday     = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.previousDayForwardMotion ? behavior_data.forwardMotionInfo.previousDayForwardMotion : 0;
     let today_so_far  = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.todayForwardMotionSofar  ? behavior_data.forwardMotionInfo.todayForwardMotionSofar  : 0;
+
+    if (yesterday === 0 && today_so_far === 0) {
+      return null;
+    }
 
     let yest_minutes  = (yesterday/60).toFixed(1);
     let toda_minutes  = (today_so_far/60).toFixed(1);
@@ -162,7 +168,7 @@ class HealthTab extends Component {
     console.log('barData', barData)
 
     return <View>
-        <View style={{ margin: 20, backgroundColor: 'white', borderRadius: 12, padding: 10, paddingTop: 20 }}>
+        <View style={{ margin: 20, backgroundColor: 'white', borderRadius: 12, padding: 10, paddingTop: 20, marginTop: 0 }}>
           <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginBottom: 5, color: Colors.DARK_GREY }}>Total Forward Motion</Text>
           <Text style={{ fontWeight: 'medium', fontSize: 12, color: 'grey', marginLeft: 3, marginBottom: 10 }}>Mins</Text>
           <BarChart
@@ -200,6 +206,10 @@ class HealthTab extends Component {
 
     let yesterday     = behavior_data.sleepInfo && behavior_data.sleepInfo.previousDayTotalSleep ? behavior_data.sleepInfo.previousDayTotalSleep : 0;
     let today_so_far  = behavior_data.sleepInfo && behavior_data.sleepInfo.todayTotalSleepSofar  ? behavior_data.sleepInfo.todayTotalSleepSofar  : 0;
+
+    if (yesterday === 0 && today_so_far === 0) {
+      return null;
+    }
 
     let yest_minutes  = (yesterday/60).toFixed(1);
     let toda_minutes  = (today_so_far/60).toFixed(1);
@@ -286,6 +296,10 @@ class HealthTab extends Component {
     let walking       = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.walking ? behavior_data.forwardMotionInfo.walking : 0;
     let running       = behavior_data.forwardMotionInfo && behavior_data.forwardMotionInfo.running ? behavior_data.forwardMotionInfo.running : 0;
 
+    if (walking === 0 && running === 0) {
+      return null;
+    }
+
     let walking_str   = this.seconds_to_hms(walking);
     let running_str   = this.seconds_to_hms(running);
 
@@ -334,7 +348,7 @@ class HealthTab extends Component {
 
     chart_data.reverse();
 
-    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 15 }}>
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 15, marginTop: 0 }}>
       <Text style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 18, marginBottom: 5, color: Colors.DARK_GREY }}>Weight</Text>
       <Text style={{ fontWeight: 'medium', fontSize: 12, color: 'grey', marginLeft: 5, marginBottom: 15 }}>Kgs</Text>
       <LineChart
@@ -651,7 +665,7 @@ class HealthTab extends Component {
       })
     })
 
-    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, paddingBottom: intake_list_rows.length ? 0 : 20, marginBottom: 0 }}>
+    return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, paddingBottom: intake_list_rows.length ? 0 : 20, marginBottom: 20 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Daily Feeding Entries</Text>
         <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10 }}>
@@ -669,12 +683,33 @@ class HealthTab extends Component {
     </View>
   }
 
+  render_add_pets_section = () => {
+    let display_add_pets = !this.state.loading_pull_pets && this.state.pets && this.state.pets.length === 0; // this.state.display_add_pets;
+
+    if (!display_add_pets) {
+      return null;
+    }
+
+    return <View style={{ height: 250, paddingRight: 20, paddingLeft: 20, marginBottom: 25 }}>
+      <ImageBackground source={ require('../../assets/images/add-pet-cta.png') } resizeMode="contain" style={{ height: '100%' }} imageStyle={{  }}>
+        <Text style={{ marginTop: 80, marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>Add your pets for</Text>
+        <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>personalized</Text>
+        <Text style={{ marginLeft: 20, color: 'white', fontWeight: 'bold', fontSize: 20 }}>care</Text>
+        <TouchableOpacity style={{ backgroundColor: '#F2F3F6', width: 102, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: 8, marginLeft: 20, marginTop: 20 }} onPress={ () => { this.props.navigation.push('AddPetFlow') }}>
+          <Text style={{ fontSize: 14, fontWeight: 'medium' }}>Add</Text>
+        </TouchableOpacity>
+      </ImageBackground>
+    </View>
+  }
+
   render() {
-    let { behavior_data_loaded,  intake_data_loaded } = this.state;
+    let intake_data_loaded   = this.state.intake_data_loaded;
+    let behavior_data_loaded = this.state.behavior_data_loaded;
+    let display_add_pets     = !this.state.loading_pull_pets && this.state.pets && this.state.pets.length === 0;
 
     if (!behavior_data_loaded) {
       return <View>
-        { this.render_pet_section()              }
+        { this.render_pet_section() }
         <View style={{ marginTop: 40, alignItems: 'center' }}>
           <View style={{ backgroundColor: Colors.PRIMARY, flexDirection: 'row', alignItems: 'center', paddingRight: 15, paddingLeft: 15, borderRadius: 10, padding: 10, marginTop: -15, marginBottom: 5 }}>
             <LottieView autoPlay style={{ width: 15, height: 15 }} source={ require('../../assets/animations/white-spinner.json') } />
@@ -684,16 +719,24 @@ class HealthTab extends Component {
       </View>
     }
 
+    if (display_add_pets) {
+      return <View>
+        { this.render_pet_section()      }
+        { this.render_add_pets_section() }
+      </View>
+    }
+
     return <View style={{  }}>
       <View>
         { this.render_pet_section()              }
         { intake_data_loaded ? this.render_recommended_diet_info() : null }
         { intake_data_loaded ? this.render_diet_entries()          : null }
+        { this.render_add_pets_section()         }
+        { this.render_weight_entries()           }
+        { this.render_weight_graph()             }
         { this.render_forward_motion_bar_chart() }
         { this.render_walking_running()          }
         { this.render_sleep_bar_chart()          }
-        { this.render_weight_graph()             }
-        { this.render_weight_entries()           }
       </View>
     </View>
   }

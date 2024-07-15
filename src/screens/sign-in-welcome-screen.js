@@ -133,8 +133,9 @@ class SignInWelcomeScreen extends Component {
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
+        // alert('Failed to get push token for push notification!');
+        // return;
+        this.setState({ enable_continue: true });
       }
       let push_token_res = await Notifications.getExpoPushTokenAsync({ projectId: Constants.expoConfig.extra.eas.projectId });
       let push_token     = push_token_res.data;
