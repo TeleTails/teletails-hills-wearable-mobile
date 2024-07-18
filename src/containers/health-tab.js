@@ -509,7 +509,7 @@ class HealthTab extends Component {
 
     let rec_diets       = this.state.recommended_diet ? this.state.recommended_diet : [];
     let quantityOffered = this.state.quantityOffered  ? this.state.quantityOffered  : 0;
-    let percentConsumed = this.state.percentConsumed  ? this.state.percentConsumed  : 0;
+    let quantityConsumed = this.state.quantityConsumed ? this.state.quantityConsumed : 0;
 
     return <View style={{ marginTop: 15 }}>
 
@@ -530,16 +530,15 @@ class HealthTab extends Component {
       </View>
 
       <View style={{ flexDirection: 'column', marginTop: 15 }}>
-        <Text style={styles.input_titles}>Percentage Consumed</Text>
+        <Text style={styles.input_titles}>Quantity Consumed</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Input keyboardType={'number-pad'}
                  style={{ width: 100 }}
-                 value={percentConsumed}
-                 onChangeText={ percentConsumed => { this.setState({ percentConsumed: percentConsumed } )} } />
-          <Text style={{ fontSize: 20, fontWeight: 'bold', marginLeft: 5 }}>%</Text>
+                 value={quantityConsumed}
+                 onChangeText={ quantityConsumed => { this.setState({ quantityConsumed }) }} />
+          <Text style={{ fontSize: 16, fontWeight: 'medium', marginLeft: 8 }}>Cups</Text>
         </View>
       </View>
-
     </View>
   }
 
@@ -780,7 +779,6 @@ class HealthTab extends Component {
         isOtherFood,
         intake_other_foods,
         otherFoodSelectedIndex,
-        percentConsumed,
         selected_pet,
         recommendedDietSelectedIndex,
         recommended_diet,
@@ -796,6 +794,11 @@ class HealthTab extends Component {
 
       let pet_id      = selected_pet.petID;
       let intake_data = {};
+
+      let percentConsumed = (quantityConsumed / quantityOffered) * 100;
+
+      console.log('percentConsumed', percentConsumed);
+
 
       if(isOtherFood) {
         otherFoodSelectedIndex = otherFoodSelectedIndex ? otherFoodSelectedIndex : 0;
