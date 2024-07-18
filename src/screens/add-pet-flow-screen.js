@@ -522,6 +522,7 @@ class AddPetFlowScreen extends Component {
         <Text style={{ color: Colors.RED, fontSize: 16, textAlign: 'center' }}>{ this.state.error_add_pet }</Text>
         <Button title={ 'Next' }
                 style={{ marginTop: 0 }}
+                loading={this.state.loading_add_pet}
                 onPress={ () => {
                   this.process_add_pet();
                 }} />
@@ -778,7 +779,7 @@ class AddPetFlowScreen extends Component {
         IsMixed: "false",
         PetMixBreed: "",
         PetWeight: this.state.pet_weight,
-        WeightUnit: "1",
+        WeightUnit: "kgs",
         PetBFI: "",
         IsNeutered: is_neutered,
       },
