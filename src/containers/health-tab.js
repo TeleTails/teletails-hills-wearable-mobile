@@ -670,8 +670,7 @@ class HealthTab extends Component {
               <View style={{ alignItems: 'center', marginRight: 5, flex: 1 }}>
                 <Text style={{ fontSize: 16 }}>{ dayOfMonth }</Text>
                 <Text style={{ fontSize: 12, fontWeight: 'medium'}}>{ month }</Text>
-              </View>
-              { /* <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10, flex: 1 }}> <Icon name={ 'close' } size={25} color={Colors.PRIMARY} onPress={ () => { this.removeIntake(b, date) }}/></TouchableOpacity> */ }
+              </View>{/* <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10, flex: 1 }}><Icon name={ 'close' } size={25} color={Colors.PRIMARY} onPress={ () => { this.removeIntake(b, date) }}/></TouchableOpacity> */}
             </View>
             <Line hide={ food_ind === intake_foods.length - 1} />
           </View>
@@ -874,6 +873,8 @@ class HealthTab extends Component {
         };
       }
 
+      console.log('intake_data', intake_data)
+
       let intake = await WearablesController.addPetIntake(intake_data);
 
       if(intake && intake.success) {
@@ -925,9 +926,10 @@ class HealthTab extends Component {
   }
 
   removeIntake = async (intake, intakeDate) => {
+    console.log('intake to delete', intake)
     let selected_pet = this.state.selected_pet;
     let pet_id       = selected_pet.petID;
-    let intakeId     = this.state.intakeId;
+    let intakeId     = intake.intakeId;
 
     let intake_data = {
       foodIntakeHistory: {
@@ -938,6 +940,8 @@ class HealthTab extends Component {
       pet_id: pet_id,
       intakeDate: intakeDate
     }
+
+    console.log('to delete intake_data', intake_data);
 
     let intake_res = await WearablesController.deletePetIntake(intake_data);
 
