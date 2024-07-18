@@ -476,7 +476,8 @@ class HealthTab extends Component {
     if (this.state.diet !== 0 || !this.state.display_diet_input) { return null }
 
     let foodName             = this.state.foodName;
-    let percentConsumed      = this.state.percentConsumed;
+    let quantityConsumed      = this.state.quantityConsumed;
+    let quantityOffered = this.state.quantityOffered;
     let intake_error_message = this.state.intake_error_message;
     let loading_add_diet     = this.state.loading_add_diet;
 
@@ -488,15 +489,26 @@ class HealthTab extends Component {
        </View>
 
        <View style={{ flexDirection: 'column', marginTop: 15 }}>
-         <Text style={styles.input_titles}>Percentage Consumed</Text>
-         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-           <Input keyboardType={'number-pad'}
-                  style={{ width: 100 }}
-                  value={percentConsumed}
-                  onChangeText={ percentConsumed => { this.setState({ percentConsumed: percentConsumed } )} } />
-           <Text style={{ fontSize: 20, fontWeight: 'medium', marginLeft: 5 }}>%</Text>
-         </View>
-       </View>
+        <Text style={styles.input_titles}>Quantity Offered</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Input keyboardType={'number-pad'}
+                 style={{ width: 100 }}
+                 value={quantityOffered}
+                 onChangeText={ quantityOffered => { this.setState({ quantityOffered }) }} />
+          <Text style={{ fontSize: 16, fontWeight: 'medium', marginLeft: 8 }}>Cups</Text>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: 'column', marginTop: 15 }}>
+        <Text style={styles.input_titles}>Quantity Consumed</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Input keyboardType={'number-pad'}
+                 style={{ width: 100 }}
+                 value={quantityConsumed}
+                 onChangeText={ quantityConsumed => { this.setState({ quantityConsumed }) }} />
+          <Text style={{ fontSize: 16, fontWeight: 'medium', marginLeft: 8 }}>Cups</Text>
+        </View>
+      </View>
 
        { intake_error_message ? <Text style={{ color: 'red', marginTop: 10, fontSize: 15 }}>{ intake_error_message }</Text> : null }
 
@@ -794,14 +806,10 @@ class HealthTab extends Component {
         behaviour_recommendation_feedback_text
        } = this.state;
 
-
       let pet_id      = selected_pet.petID;
       let intake_data = {};
 
       let percentConsumed = (quantityConsumed / quantityOffered) * 100;
-
-      console.log('percentConsumed', percentConsumed);
-
 
       if(isOtherFood) {
         otherFoodSelectedIndex = otherFoodSelectedIndex ? otherFoodSelectedIndex : 0;
