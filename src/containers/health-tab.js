@@ -463,7 +463,7 @@ class HealthTab extends Component {
     let other_style    = this.state.diet === 0 ? selected_style : default_style
 
     return <View style={{ flexDirection: 'column', marginTop: 15 }}>
-      <TouchableOpacity style={ rec_style } onPress={ () => { this.setState({ diet: 1, isOtherFood: false, foodName: null, intakeDietBehaviourFeedbackIndex: null, intakeDietFoodFeedbackIndex: null }) }}>
+      <TouchableOpacity style={ rec_style } onPress={ () => { this.setState({ diet: 1, isOtherFood: false, foodName: null, intakeDietBehaviourFeedbackIndex: null, intakeDietFoodFeedbackIndex: null, intake_error_message: '' }) }}>
         <Text style={{ fontSize: 15, textAlign: 'center', color: this.state.diet === 1 ? 'white' : '#474747', fontWeight: 'semibold' }}>{ 'Add Recommended Diet' }</Text>
       </TouchableOpacity>
       <TouchableOpacity style={other_style} onPress={ () => { this.setState({ diet: 0, isOtherFood: true, foodName: null, intakeDietBehaviourFeedbackIndex: null, intakeDietFoodFeedbackIndex: null }) }}>
@@ -498,7 +498,7 @@ class HealthTab extends Component {
          </View>
        </View>
 
-       { intake_error_message ? <Text style={{color: 'red'}}>{ intake_error_message }</Text> : null }
+       { intake_error_message ? <Text style={{ color: 'red', marginTop: 10, fontSize: 15 }}>{ intake_error_message }</Text> : null }
 
        <Button style={{ marginTop: 20 }} title='Add Intake' loading={loading_add_diet} onPress={this.addIntake} />
     </View>
@@ -590,7 +590,7 @@ class HealthTab extends Component {
         <Text style={styles.input_titles}>Pet's Food Behavior Issues</Text>
         { behavior_choice_rows }
       </View>
-      { intake_err_m ? <Text style={{color: 'red'}}>{ intake_err_m }</Text> : null }
+      { intake_err_m ? <Text style={{ color: 'red', marginTop: 10, fontSize: 15 }}>{ intake_err_m }</Text> : null }
       <Button style={{ marginTop: 10 }}
               title='Add Intake'
               loading={this.state.loading_add_diet}
@@ -644,8 +644,11 @@ class HealthTab extends Component {
 
       return intake_foods.map((a, food_ind) => {
         return a.foodIntakeHistory.map(b => {
-          let food_name = `${b.foodName ? b.foodName : b.dietName}`;
+
+          // let food_name = `${b.foodName ? b.foodName : b.dietName}`;
+          let food_name = `${b.foodName ? b.foodName : "Hill's Science Diet Adult Perfect Weight & Joint Support" }`;
           let consumed  = `${b.percentConsumed}% consumed`;
+
           return <View>
             <View style={{ flexDirection: 'row', justifyContent:  'space-between', alignItems: 'center', paddingTop: 15, paddingBottom: 15 }}>
               <View style={{ flex: 10 }}>
@@ -867,7 +870,7 @@ class HealthTab extends Component {
 
       if(intake && intake.success) {
         this.getIntakeData();
-        this.setState({ percentConsumed: 0, foodName: '' })
+        this.setState({ percentConsumed: 0, foodName: '', diet: null })
       } else {
         this.setState({intake_error_message: "There was an error adding your intake", loading_add_diet: false})
       }
