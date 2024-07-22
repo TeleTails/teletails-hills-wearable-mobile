@@ -34,7 +34,8 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.teletails.petfit",
-      "android.googleServicesFile": "./google-services.json"
+      "android.googleServicesFile": "./google-services.json",
+      "runtimeVersion": "2"
     },
     "web": {
       "favicon": "./assets/favicon.png"
