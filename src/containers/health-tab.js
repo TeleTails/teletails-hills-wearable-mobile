@@ -619,8 +619,9 @@ class HealthTab extends Component {
     }
 
     let diet_name = "Hill's Science Diet Adult Perfect Weight & Joint Support";
-    let rec_cups  = rec_diet && rec_diet.length && rec_diet[0] && rec_diet[0].recommendedAmountCups ? rec_diet[0].recommendedAmountCups : 0;
-    let rec_str   = rec_cups       ? rec_cups + ' cups of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.' : "Hill's Science Diet Adult Perfect Weight & Joint Support";
+    let rnd_cups  = rec_diet && rec_diet.length && rec_diet[0] && rec_diet[0].recommendedRoundedCups ? rec_diet[0].recommendedRoundedCups : '';
+    let rec_cups  = rec_diet && rec_diet.length && rec_diet[0] && rec_diet[0].recommendedAmountCups  ? rec_diet[0].recommendedAmountCups : 0;
+    let rec_str   = rec_cups       ? rnd_cups + ' cups of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.' : "Hill's Science Diet Adult Perfect Weight & Joint Support";
         rec_str   = rec_cups === 1 ? rec_cups + ' cup of Hill’s Science Diet Adult Perfect Weight & Joint Support per day.'  : rec_str;
 
     return <View style={{ backgroundColor: 'white', borderRadius: 12, margin: 20, padding: 20, marginBottom: 0 }}>

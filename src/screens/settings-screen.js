@@ -28,6 +28,11 @@ class SettingsScreen extends Component {
           <Icon name='arrow-right' size={13} />
         </TouchableOpacity>
         <Line style={styles.settings_line} />
+        <TouchableOpacity style={styles.settings_row} onPress={ () => { Linking.openURL('https://www.teletails.com/contact-us-petfit') }}>
+          <Text style={styles.settings_row_title}>Account Management</Text>
+          <Icon name='arrow-right' size={13} />
+        </TouchableOpacity>
+        <Line style={styles.settings_line} />
         <TouchableOpacity style={styles.settings_row} onPress={ () => { this.sign_out_action() }}>
           <Text style={styles.settings_row_title}>Sign Out</Text>
         </TouchableOpacity>

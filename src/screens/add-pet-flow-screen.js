@@ -753,7 +753,9 @@ class AddPetFlowScreen extends Component {
 
     let feeding_preferences = Object.keys(this.state.selected_feeding_preferences);
 
-    console.log('wearables_user_profile', wearables_user_profile)
+    if (!pet_parent_id && user && user.wearables_data && user.wearables_data.pet_parent_id) {
+      pet_parent_id = user.wearables_data.pet_parent_id;
+    }
 
     let pet_parent_info = {
       PetParentID: pet_parent_id,
