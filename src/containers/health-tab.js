@@ -55,9 +55,6 @@ class HealthTab extends Component {
     let behavior_response = await WearablesController.getPetBehavior({ pet_id: pet_id });
     let behavior_data     = behavior_response && behavior_response.data && behavior_response.data.bahavior_data && behavior_response.data.bahavior_data.forwardMotionInfo ? behavior_response.data.bahavior_data : {};
 
-    console.log('behavior_response', behavior_response);
-    console.log('behavior_data', behavior_data);
-
     let weight_response   = await WearablesController.getPetWeightHistory({ pet_id: pet_id });
     let weight_history    = weight_response && weight_response.data && weight_response.data.weight_history ? weight_response.data.weight_history : {};
 

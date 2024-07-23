@@ -48,6 +48,7 @@ class HomeTab extends Component {
     this.get_video_appointments();
     this.get_recommended_diet();
     this.check_and_regsiter_wearables_user();
+    this.update_user_hills_apps();
 
     if (is_signed_in) {
       let articles_res = await UserController.getUserArticles();
@@ -257,179 +258,6 @@ class HomeTab extends Component {
         </View>
       </ImageBackground>
 
-      { /*
-
-        <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                          onPress={ async () => {
-                            let pet_id            = '7875';
-                            let behavior_response = await WearablesController.getPetBehavior({ pet_id: pet_id });
-
-                          }}>
-          <Text>Get Behavior Data</Text>
-        </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let wearables_user_profile = await getItem('wearables_user_profile');
-                          let pet_id = '7855';
-                          let wearables_user_id = wearables_user_profile.userId;
-
-                          let request_data = {
-                            "petWeightId": 0,
-                            "petId": pet_id,
-                            "userId": wearables_user_id,
-                            "weight": 44,
-                            "weightUnit": "kg",
-                            "addDate": "2024-05-09"
-                          }
-                          let add_weight_response = await WearablesController.addPetWeight({ pet_weight_data: request_data });
-
-                        }}>
-        <Text>Get User Pets</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let user_id            = await getItem('user_id');
-                          let request_data       = { user_id: user_id, wearables_pet_id: '7855' };
-                          let user_pets_response = await WearablesController.getWearablesPet(request_data);
-                          let pet = user_pets_response.data.pet;
-                        }}>
-        <Text>Get User Pets</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let user_pets_response = await WearablesController.getUserPets({});
-                          let pets = user_pets_response.data.pets;
-                        }}>
-        <Text>Get User Pets</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let user_profile_response = await WearablesController.getUserProfile({});
-
-                          console.log(user_profile_response)
-                          console.log(user_profile_response.data.wearables_user_profile.address)
-                        }}>
-        <Text>User Profile</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let user                   = await getItem('user');
-                          let wearables_user_profile = await getItem('wearables_user_profile');
-                          let pet_parent_id   = user && user.wearables_data && user.wearables_data.pet_parent_id ? user.wearables_data.pet_parent_id : '';
-                          let pet_address     = wearables_user_profile && wearables_user_profile.address;
-
-                          let pet_parent_info = {
-                            PetParentID: pet_parent_id,
-                            FirstName: wearables_user_profile.firstName,
-                            LastName: wearables_user_profile.lastName,
-                            Phone: wearables_user_profile.phoneNumber,
-                            Email: wearables_user_profile.email
-                          };
-
-                          let pet_details = {
-                            About: {
-                              brandId: 117,
-                              foodIntake: 4,
-                              feedUnit: 1,
-                              PetAddress: wearables_user_profile.address,
-                              IsPetWithPetParent: 1,
-                              PetID: "",
-                              PetName: "Kenny",
-                              PetGender: "Female",
-                              IsUnknown: "false",
-                              PetBirthday: "2022-01-22",
-                              PetBreedID: "4",
-                              IsMixed: "false",
-                              PetMixBreed: "",
-                              PetWeight: "80",
-                              WeightUnit: "1",
-                              PetBFI: "",
-                              IsNeutered: "false",
-                            },
-                            PetParentInfo: pet_parent_info
-                          }
-
-                          let add_pet_response = await WearablesController.addNewPet({ pet_details: pet_details });
-
-                          console.log(add_pet_response)
-                        }}>
-        <Text>Add New Pet</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let food_brands = await WearablesController.getDogFoodBrands();
-                          console.log(food_brands.data)
-                        }}>
-        <Text>Dog Food Brands</Text>
-      </TouchableOpacity>
-
-
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: Colors.GREEN, borderRadius: 20, marginTop: 20, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let address_data = { address: '12416 Manchester Way, Woodbridge, VA 22192' }
-                          let address_response = await WearablesController.validateAddress(address_data);
-                          console.log(address_response)
-                        }}>
-        <Text>Address Validation</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let feeding_preferences = await WearablesController.getAllFeedingPreferences();
-                          console.log(feeding_preferences)
-                        }}>
-        <Text>Feeding Preferences</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let species = await WearablesController.getAllSpecies();
-                          console.log(species)
-                        }}>
-        <Text>Species</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let breeds = await WearablesController.getAllDogBreeds();
-                          console.log(breeds)
-                        }}>
-        <Text>Dog Breeds</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let breeds = await WearablesController.getAllCatBreeds();
-                          console.log(breeds)
-                        }}>
-        <Text>Cat Breeds</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let food_brands = await WearablesController.getDogFoodBrands();
-                          console.log(food_brands)
-                        }}>
-        <Text>Dog Food Brands</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ padding: 20, backgroundColor: 'pink', borderRadius: 20, marginTop: 10, marginRight: 20, marginLeft: 20 }}
-                        onPress={ async () => {
-                          let food_brands = await WearablesController.getCatFoodBrands();
-                          console.log(food_brands)
-                        }}>
-        <Text>Cat Food Brands</Text>
-      </TouchableOpacity>
-
-    */ }
-
       { this.render_add_pets_section() }
       { this.render_active_chats()     }
       { this.render_active_threads()   }
@@ -507,8 +335,6 @@ class HomeTab extends Component {
     let user              = await AuthController.getUser(true);
     let wearables_user_id = user && user.wearables_user_id || '';
 
-    console.log('user', user);
-
     if (!wearables_user_id) {
       let register_response = await WearablesController.registerNewUser();
       let updated_user      = await AuthController.getUser(true);
@@ -533,6 +359,20 @@ class HomeTab extends Component {
       await setItem('wearables_user_profile', user_profile);
     }
 
+  }
+
+  update_user_hills_apps = async () => {
+    let user       = await getItem('user');
+    let hills_apps = user && user.hills_apps ? user.hills_apps : [];
+    let is_petfit  = hills_apps.includes('petfit')
+
+    if (is_petfit) { return }
+
+    let req_data   = { app_name: 'petfit' };
+    let res_data   = await UserController.updateUserHillsApps(req_data);
+    let is_success = res_data.success;
+
+    if (is_success) { await AuthController.getLoggedInUser() }
   }
 
 }

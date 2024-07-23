@@ -18,7 +18,6 @@ class HomeScreen extends Component {
 
   componentDidMount = () => {
     this.pull_pet_food_list();
-    this.update_user_hills_apps();
   }
 
   render_tab_component = () => {
@@ -105,20 +104,6 @@ class HomeScreen extends Component {
       });
     }
 
-  }
-
-  update_user_hills_apps = async () => {
-    let user       = await getItem('user');
-    let hills_apps = user && user.hills_apps ? user.hills_apps : [];
-    let is_petfit  = hills_apps.includes('petfit')
-
-    if (is_petfit) { return }
-
-    let req_data   = { app_name: 'petfit' };
-    let res_data   = await UserController.updateUserHillsApps(req_data);
-    let is_success = res_data.success;
-
-    if (is_success) { await AuthController.getLoggedInUser() }
   }
 
 }

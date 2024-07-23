@@ -2,8 +2,6 @@ import { CHAT_URL, API_URL, NOTIF_URL } from '@env'
 import { getItem, setItem } from '../../storage';
 import io from 'socket.io-client';
 
-console.log('API_URL', API_URL)
-
 let sockets = {};
 //let API_URL = 'https://5b6c-71-172-17-224.ngrok-free.app/data'
 //let API_URL = "https://prod-elb-api.teletails.com/data";
@@ -125,17 +123,11 @@ export default class UtilitiesController {
         }
       }
 
-      console.log('headers', headers);
-      console.log('url', url);
-      console.log('body', body);
-
       let response = await fetch(url, {
         method: 'POST',
         headers,
         body: JSON.stringify(body)
       });
-
-      console.log('response', )
 
       let res = await response.json();
 
@@ -215,12 +207,7 @@ export default class UtilitiesController {
         }
       });
 
-      // console.log('GET to: ', url);
-      // console.log('token: ', token);
-
       let res = await response.json();
-
-      // console.log('GET response: ', res);
 
       if(!res.success) {
         if(res.message === 'jwt expired') {
@@ -244,9 +231,6 @@ export default class UtilitiesController {
 
       if(internal) url = UtilitiesController.getUrl(url, false);
 
-      // console.log('UPDATE to: ', url);
-      // console.log('UPDATE BODY', body);
-
       let token = await UtilitiesController.getToken();
 
       let response = await fetch(url, {
@@ -269,8 +253,6 @@ export default class UtilitiesController {
         }
       }
 
-      // console.log('UPDATE Response', res);
-
       return res;
     } catch(err) {
       console.log(err);
@@ -278,7 +260,6 @@ export default class UtilitiesController {
   }
 
   static futch = (url, opts={}, onProgress) => {
-    // console.log(url, opts)
     return new Promise( (res, rej)=>{
         var xhr = new XMLHttpRequest();
         xhr.open(opts.method || 'get', url);
@@ -345,8 +326,6 @@ export default class UtilitiesController {
         let token = await UtilitiesController.getToken();
 
         url = UtilitiesController.getUrl(url);
-
-        console.log('url', url)
 
         this.futch(url, {
           method: 'post',
