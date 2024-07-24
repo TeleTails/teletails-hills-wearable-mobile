@@ -18,7 +18,8 @@ export default class ConsultationController {
   });
 
   static createCareConsultation = ConsultationController.exceptionWrapper(async (data) => {
-    let response = await UtilitiesController.post('/v5/api/care/new/blank_consultation', data, true);
+    let req_data = { ...data, hills_app: 'petfit' };
+    let response = await UtilitiesController.post('/v5/api/care/new/blank_consultation', req_data, true);
     return response
   });
 
@@ -93,7 +94,8 @@ export default class ConsultationController {
   });
 
   static sendCareConsultationMessage = ConsultationController.exceptionWrapper(async (data) => {
-    let response = await UtilitiesController.post(`/v3/api/care/chat_message`, data, true);
+    let req_data = { ...data, hills_app: 'petfit' };
+    let response = await UtilitiesController.post(`/v3/api/care/chat_message`, req_data, true);
     return response
   });
 
@@ -119,12 +121,14 @@ export default class ConsultationController {
   });
 
   static createThread = ConsultationController.exceptionWrapper(async (data) => {
-    let response = await UtilitiesController.post(`/v5/api/care/new/client_thread`, data, true);
+    let req_data = { ...data, hills_app: 'petfit' }
+    let response = await UtilitiesController.post(`/v5/api/care/new/client_thread`, req_data, true);
     return response;
   });
 
   static sendThreadMessage = ConsultationController.exceptionWrapper(async (data) => {
-    let response = await UtilitiesController.post(`/v5/api/care/new/consultation_message`, data, true);
+    let req_data = { ...data, hills_app: 'petfit' }
+    let response = await UtilitiesController.post(`/v5/api/care/new/consultation_message`, req_data, true);
     return response
   });
 
