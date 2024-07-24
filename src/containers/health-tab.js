@@ -450,8 +450,9 @@ class HealthTab extends Component {
   render_other_recommended_switch = () => {
     let recommended_diet = this.state.recommended_diet ? this.state.recommended_diet : [];
     let has_rec_diet     = recommended_diet.length > 0;
+    let has_recommended_intake_today = this.state.has_recommended_intake_today;
 
-    if (!has_rec_diet || !this.state.display_diet_input) { return null }
+    if (!has_rec_diet || !this.state.display_diet_input || has_recommended_intake_today) { return null }
 
     let is_other       = this.state.isOtherFood;
     let selected_style = styles.selected_choice;
@@ -638,6 +639,7 @@ class HealthTab extends Component {
     let display_diet_input = this.state.display_diet_input;
     let intake_list        = this.state.intake_list;
     let intake_dates       = Object.keys(intake_list);
+    let has_recommended_intake_today = this.state.has_recommended_intake_today;
 
     let intake_list_rows = intake_dates.map((date, i) => {
 
@@ -680,7 +682,7 @@ class HealthTab extends Component {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={{ fontWeight: 'bold', fontSize: 18, color: Colors.DARK_GREY }}>Daily Feeding Entries</Text>
         <TouchableOpacity style={{ paddingRight: 5, paddingLeft: 10 }}>
-          <Icon name={ display_diet_input ? 'close' : 'plus-circle' } size={25} color={Colors.PRIMARY} onPress={ () => { this.setState({ display_diet_input: !this.state.display_diet_input, diet: recommended_diet.length === 0 ? 0 : null }) }}/>
+          <Icon name={ display_diet_input ? 'close' : 'plus-circle' } size={25} color={Colors.PRIMARY} onPress={ () => { this.setState({ display_diet_input: !this.state.display_diet_input, diet: recommended_diet.length === 0 || has_recommended_intake_today ? 0 : null }) }}/>
         </TouchableOpacity>
       </View>
       { this.render_other_recommended_switch() }
@@ -909,7 +911,12 @@ class HealthTab extends Component {
     let intake_history            = intake && intake.data && intake.data.intake_history ? intake.data.intake_history : [];
     let intake_list               = intake && intake.data && intake.data.intake_list    ? intake.data.intake_list    : [];
 
+    let has_recommended_intake_today = intake_list && intake_list[date_string] && intake_list[date_string].recommended_foods && intake_list[date_string].recommended_foods.length ? true : false;
+
+    is_other = !is_other ? has_recommended_intake_today : is_other;
+
     this.setState({
+      has_recommended_intake_today,
       recommended_diet: recommended_diet,
       intake_history: intake_history,
       intake_measurement_units: intake_measurement_units,
