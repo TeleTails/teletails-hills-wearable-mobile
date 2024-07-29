@@ -15,6 +15,7 @@ import { Video }  from 'expo-av';
 import { stringToBytes, bytesToString } from "convert-string";
 import { PetsController, WearablesController } from "../controllers";
 import { StringUtils }       from '../utils';
+import { WEARABLES_URL } from '@env'
 
 var Buffer = require("buffer/").Buffer;
 
@@ -452,7 +453,7 @@ class WearableConnectScreen extends Component {
     console.log('result security', result);
 
     console.log('----------- write rdup dns ---------')
-    const url = stringToBytes(`tst.wearablesclinicaltrials.com`);
+    const url = stringToBytes(WEARABLES_URL);
     await this.write(peripheral_id, "A172D0D1-A5B8-11E5-A837-0800200C9A66","A172F7E0-A5B8-11E5-A837-0800200C9A66",url);
 
 
