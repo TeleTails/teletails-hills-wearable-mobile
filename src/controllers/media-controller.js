@@ -30,4 +30,26 @@ export default class MediaController {
     return response
   });
 
+  static uploadWearablesMediaFromLibrary = MediaController.exceptionWrapper(async (image) => {
+    let response;
+
+    let mobile_upload = image.length > 4 && image.substring(0, 5) === 'file:';
+
+    console.log('mobile_upload', mobile_upload)
+    if(!mobile_upload) {
+      response  = await UtilitiesController.post('/wearables/api/file_upload/uploads', {image}, true);
+    } else {
+      response  = await UtilitiesController.uploadFile(image, null, '/wearables/api/file/uploads');
+    }
+    return response
+  });
+
+  static downloadWearablesMedia = MediaController.exceptionWrapper(async (file_name) => {
+    let response;
+
+    response  = await UtilitiesController.post('/wearables/api/file_download', {file_name}, true);
+
+    return response
+  });
+
 }

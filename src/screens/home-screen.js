@@ -1,11 +1,15 @@
 import LottieView from 'lottie-react-native';
 import analytics  from '@react-native-firebase/analytics';
 import { Component } from "react";
-import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, SafeAreaView, StatusBar, Platform, Image } from 'react-native';
 import { setItem, getItem } from '../../storage';
-import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs } from '../components';
+import { Icon, Button, Text, Line, Input, Screen, Checkbox, Cards, Tabs, MediaModal} from '../components';
 import { CareTab, HomeTab, HealthTab, ShopTab } from '../containers';
 import { PetsController, UserController, AuthController } from '../controllers';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { MediaController }  from '../controllers';
+import { Video } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 
 class HomeScreen extends Component {
 
@@ -35,18 +39,106 @@ class HomeScreen extends Component {
     }
   }
 
+  add_image = async (media_object) => {
+    let media_uri     = media_object.url || '';
+
+    console.log('media_uri', media_uri);
+
+    let upload_response = await MediaController.uploadWearablesMediaFromLibrary(media_uri);
+
+    console.log('media_uri', media_uri)
+    this.setState({ upload_response, opened_modal: false })
+  }
+
+  downloadImage = async (media_object) => {
+    try {
+      let is_video = true;
+
+      let media_uri;
+      let image_uri = '1723048150926.jpg';
+      let video_media_url = 'big_buck_bunny_720p_1mb.mp4'
+
+      if(is_video) {
+        media_uri = video_media_url;
+      } else {
+        media_uri = image_uri
+      }
+
+    let download_response = await MediaController.downloadWearablesMedia(media_uri);
+
+    //{"success":true,"message":{"ServerSideEncryption":"AES256","Location":"https://teletails-wearables.s3.amazonaws.com/uploads/1723048150926.jpg","Bucket":"teletails-wearables","Key":"uploads/1723048150926.jpg","ETag":"\"5a261f60c0901189da9c58955abfe38d-2\""}}
+
+    let fileUri = is_video ? `${FileSystem.cacheDirectory}video.mp4` : `${FileSystem.cacheDirectory}image.png`;
+    await FileSystem.writeAsStringAsync(fileUri, download_response.file, {
+        encoding: FileSystem.EncodingType.Base64,
+    });
+
+    console.log('fileUri', fileUri)
+
+    //console.log('download_response', download_response);
+    this.setState({ file_uri: fileUri, is_video, opened_modal: false })
+    } catch(err) {
+      console.log('err', err);
+    }
+  }
+
+  render_media_modal = () => {
+    return <MediaModal display={this.state.opened_modal}
+              keep_as_local={true}
+              button_title='Add Image'
+              close_action={ () => {
+                this.setState({ opened_modal: false })
+              }}
+              media_action={ (media_object) => {
+                if (media_object && media_object.type === 'image') {
+                  this.add_image(media_object)
+                }
+              }} />
+  }
+  
+
   render() {
 
     let top_padding = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+    let file_uri = this.state.file_uri;
+    let is_video = this.state.is_video;
 
     return (
       <>
         <SafeAreaView style={{ backgroundColor: '#F2F3F6', flex: 0 }} />
         <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
           <View style={{ height: top_padding }} />
+          <View>
+            <TouchableOpacity style={styles.add_image_container}
+                                onPress={ ()=> { this.setState({ opened_modal: true }) }}>
+              <Icon name='plus-circle' color='#e7e7e7' />
+              <Text style={styles.add_image_button_title}>Add Image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.add_image_container}
+                                onPress={this.downloadImage}>
+              <Icon name='plus-circle' color='#e7e7e7' />
+              <Text style={styles.add_image_button_title}>Download Image</Text>
+            </TouchableOpacity>
+            {file_uri ?
+            (is_video ?
+                  <Video style={{width: 200, height: 200}}
+                    source={{uri: file_uri}}
+                    useNativeControls
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={false}
+                    resizeMode="cover"
+                    shouldPlay
+                    isLooping
+                  /> : <Image style={{width: 200, height: 200}} source={{uri: file_uri}}/> ): null}
+            
+
+            {this.state.opened_modal ? this.render_media_modal() : null}
+          </View>
           <ScrollView style={{ backgroundColor: '#F2F3F6' }} contentContainerStyle={{ flexGrow: 1 }}>
             { this.render_tab_component() }
           </ScrollView>
+          
           <Tabs selected_tab={this.state.selected_tab}
                 home_action={        () => { this.home_tab_action()    }}
                 health_action={      () => { this.health_action()      }}
