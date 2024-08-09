@@ -74,4 +74,12 @@ export default class MediaController {
     return response
   });
 
+  static downloadPrivateMediaFromObject = MediaController.exceptionWrapper(async (data) => {
+    let response;
+
+    response  = await UtilitiesController.post('/v5/api/care/retrieve_media', data, true);
+
+    return response && response.data ? response.data : {};
+  });
+
 }

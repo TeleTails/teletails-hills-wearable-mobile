@@ -82,6 +82,37 @@ class HomeScreen extends Component {
     }
   }
 
+  downloadImageOrVideo = async (media_object) => {
+    try {
+      
+      let data = {
+        public_id: 'nrlwj7ju'
+      }
+
+      let download_response = await MediaController.downloadPrivateMediaFromObject(data);
+
+      //{"success":true,"message":{"ServerSideEncryption":"AES256","Location":"https://teletails-wearables.s3.amazonaws.com/uploads/1723048150926.jpg","Bucket":"teletails-wearables","Key":"uploads/1723048150926.jpg","ETag":"\"5a261f60c0901189da9c58955abfe38d-2\""}}
+
+      let file = download_response.file.base64_data;
+      let content_type = download_response.file.content_type;
+      let is_video = content_type.includes('video');
+      let image_type = content_type.includes('image') ? content_type.replace('image/', '') : 'png';
+
+      console.log('is_video', is_video);
+      console.log('image_type', image_type);
+
+      let fileUri = is_video ? `${FileSystem.cacheDirectory}video.mp4` : `${FileSystem.cacheDirectory}image.${image_type}`;
+      await FileSystem.writeAsStringAsync(fileUri, file, {
+          encoding: FileSystem.EncodingType.Base64,
+      });
+
+      this.setState({ file_uri: fileUri, is_video, opened_modal: false })
+
+    } catch(err) {
+      console.log('err', err);
+    }
+  }
+
   render_media_modal = () => {
     return <MediaModal display={this.state.opened_modal}
               keep_as_local={true}
@@ -118,6 +149,11 @@ class HomeScreen extends Component {
                                 onPress={this.downloadImage}>
               <Icon name='plus-circle' color='#e7e7e7' />
               <Text style={styles.add_image_button_title}>Download Image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.add_image_container}
+                                onPress={this.downloadImageOrVideo}>
+              <Icon name='plus-circle' color='#e7e7e7' />
+              <Text style={styles.add_image_button_title}>Download Image 3</Text>
             </TouchableOpacity>
             {file_uri ?
             (is_video ?
