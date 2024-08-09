@@ -283,7 +283,11 @@ export default class UtilitiesController {
 
         let token = await UtilitiesController.getToken();
 
-        this.futch(UtilitiesController.getUrl(url), {
+        let full_url = UtilitiesController.getUrl(url);
+
+        console.log('full_url', full_url);
+
+        this.futch(full_url, {
           method: 'post',
           headers: {
             Authorization: token

@@ -44,18 +44,18 @@ class HomeScreen extends Component {
 
     console.log('media_uri', media_uri);
 
-    let upload_response = await MediaController.uploadWearablesMediaFromLibrary(media_uri);
+    let upload_response = await MediaController.uploadPrivateMediaFromLibrary(media_uri);
 
-    console.log('media_uri', media_uri)
+    console.log('upload_response', upload_response)
     this.setState({ upload_response, opened_modal: false })
   }
 
   downloadImage = async (media_object) => {
     try {
-      let is_video = true;
+      let is_video = false;
 
       let media_uri;
-      let image_uri = '1723048150926.jpg';
+      let image_uri = '1723215863628.jpg';
       let video_media_url = 'big_buck_bunny_720p_1mb.mp4'
 
       if(is_video) {
@@ -64,19 +64,19 @@ class HomeScreen extends Component {
         media_uri = image_uri
       }
 
-    let download_response = await MediaController.downloadWearablesMedia(media_uri);
+      let download_response = await MediaController.downloadPrivateMedia(media_uri);
 
-    //{"success":true,"message":{"ServerSideEncryption":"AES256","Location":"https://teletails-wearables.s3.amazonaws.com/uploads/1723048150926.jpg","Bucket":"teletails-wearables","Key":"uploads/1723048150926.jpg","ETag":"\"5a261f60c0901189da9c58955abfe38d-2\""}}
+      //{"success":true,"message":{"ServerSideEncryption":"AES256","Location":"https://teletails-wearables.s3.amazonaws.com/uploads/1723048150926.jpg","Bucket":"teletails-wearables","Key":"uploads/1723048150926.jpg","ETag":"\"5a261f60c0901189da9c58955abfe38d-2\""}}
 
-    let fileUri = is_video ? `${FileSystem.cacheDirectory}video.mp4` : `${FileSystem.cacheDirectory}image.png`;
-    await FileSystem.writeAsStringAsync(fileUri, download_response.file, {
-        encoding: FileSystem.EncodingType.Base64,
-    });
+      let fileUri = is_video ? `${FileSystem.cacheDirectory}video.mp4` : `${FileSystem.cacheDirectory}image.png`;
+      await FileSystem.writeAsStringAsync(fileUri, download_response.file, {
+          encoding: FileSystem.EncodingType.Base64,
+      });
 
-    console.log('fileUri', fileUri)
+      console.log('fileUri', fileUri)
 
-    //console.log('download_response', download_response);
-    this.setState({ file_uri: fileUri, is_video, opened_modal: false })
+      //console.log('download_response', download_response);
+      this.setState({ file_uri: fileUri, is_video, opened_modal: false })
     } catch(err) {
       console.log('err', err);
     }

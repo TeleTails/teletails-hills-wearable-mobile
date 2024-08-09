@@ -47,7 +47,29 @@ export default class MediaController {
   static downloadWearablesMedia = MediaController.exceptionWrapper(async (file_name) => {
     let response;
 
-    response  = await UtilitiesController.post('/wearables/api/file_download', {file_name}, true);
+    response  = await UtilitiesController.post('/api/file_download', {file_name}, true);
+
+    return response
+  });
+
+  static uploadPrivateMediaFromLibrary = MediaController.exceptionWrapper(async (image) => {
+    let response;
+
+    let mobile_upload = image.length > 4 && image.substring(0, 5) === 'file:';
+
+    console.log('mobile_upload', mobile_upload)
+    if(!mobile_upload) {
+      response  = await UtilitiesController.post('/api/private_file_upload/uploads/hills', {image}, true);
+    } else {
+      response  = await UtilitiesController.uploadFile(image, null, '/api/private_file/uploads/hills');
+    }
+    return response
+  });
+
+  static downloadPrivateMedia = MediaController.exceptionWrapper(async (file_name) => {
+    let response;
+
+    response  = await UtilitiesController.post('/api/private_file_download', {file_name, partner_name: 'hills'}, true);
 
     return response
   });
