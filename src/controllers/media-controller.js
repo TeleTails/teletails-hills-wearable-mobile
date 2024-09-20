@@ -78,7 +78,7 @@ export default class MediaController {
     let response;
 
     response  = await UtilitiesController.post('/v5/api/care/retrieve_media', data, true);
-
+console.log('response', response)
     return response && response.data ? response.data : {};
   });
 

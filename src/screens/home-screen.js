@@ -86,28 +86,33 @@ class HomeScreen extends Component {
     try {
       
       let data = {
-        public_id: 'nrlwj7ju'
+        public_id: 'nrlwj7ju',
+        retrieve_url: true, 
+        url_expiration_time: 30
       }
 
       let download_response = await MediaController.downloadPrivateMediaFromObject(data);
-
+console.log('download_response', download_response)
       //{"success":true,"message":{"ServerSideEncryption":"AES256","Location":"https://teletails-wearables.s3.amazonaws.com/uploads/1723048150926.jpg","Bucket":"teletails-wearables","Key":"uploads/1723048150926.jpg","ETag":"\"5a261f60c0901189da9c58955abfe38d-2\""}}
 
-      let file = download_response.file.base64_data;
-      let content_type = download_response.file.content_type;
-      let is_video = content_type.includes('video');
-      let image_type = content_type.includes('image') ? content_type.replace('image/', '') : 'png';
+      if(download_response.url) {
+        this.setState({ file_uri: download_response.url, is_video: true, opened_modal: false })
+      } else {
+        let file = download_response.file.base64_data;
+        let content_type = download_response.file.content_type;
+        let is_video = content_type.includes('video');
+        let image_type = content_type.includes('image') ? content_type.replace('image/', '') : 'png';
 
-      console.log('is_video', is_video);
-      console.log('image_type', image_type);
+        console.log('is_video', is_video);
+        console.log('image_type', image_type);
 
-      let fileUri = is_video ? `${FileSystem.cacheDirectory}video.mp4` : `${FileSystem.cacheDirectory}image.${image_type}`;
-      await FileSystem.writeAsStringAsync(fileUri, file, {
-          encoding: FileSystem.EncodingType.Base64,
-      });
+        let fileUri = is_video ? `${FileSystem.cacheDirectory}video.mp4` : `${FileSystem.cacheDirectory}image.${image_type}`;
+        await FileSystem.writeAsStringAsync(fileUri, file, {
+            encoding: FileSystem.EncodingType.Base64,
+        });
 
-      this.setState({ file_uri: fileUri, is_video, opened_modal: false })
-
+        this.setState({ file_uri: fileUri, is_video, opened_modal: false })
+      }
     } catch(err) {
       console.log('err', err);
     }
